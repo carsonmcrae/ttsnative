@@ -1,11 +1,11 @@
 <!doctype html>
 <!--
-  Purpose: TTSNative's code signing policy: what is signed, by whom, who may approve a signature, and
-    what the app sends over the network. SignPath Foundation requires this page, linked as "Code
-    signing policy" from the home and download pages.
-  Scope: The Windows direct download (signed through SignPath Foundation once the project is accepted),
-    the Microsoft Store package (signed by Microsoft), the separate update signature, the team's roles
-    and how to check a signature.
+  Purpose: TTSNative's code signing policy: what is signed, by whom, who may approve a release, and
+    what the app sends over the network, linked as "Code signing policy" from the home and download
+    pages.
+  Scope: The unsigned direct download (SignPath Foundation declined in October 2026, pending wider
+    adoption), the Microsoft Store package (signed by Microsoft), the update signature, the team's
+    roles and how to check a signature.
   Does NOT belong: How releases are made (docs/guides/release-process.md) or the decision behind the
     two channels (ADR-26 in docs/architecture/decisions.md).
 -->
@@ -42,40 +42,38 @@
       <h2>Where things stand</h2>
       <ul class="checks">
         <li>
-          <strong>TTSNative 2.1.0 and earlier have no Windows code signature.</strong> Windows calls
-          their publisher "Unknown" and may ask you to confirm before it runs the installer; compare
-          the file with the published SHA-256 checksum first.
+          <strong>The direct download</strong> (the installer on this site and on GitHub) has no
+          Windows code signature. Windows calls its publisher "Unknown" and asks you to confirm
+          before it runs; compare the file with the published SHA-256 checksum first.
         </li>
         <li>
-          <strong>The direct download</strong> (the installer on this site and on GitHub) is to be
-          signed with free code signing provided by <a href="https://signpath.io">SignPath.io</a>,
-          certificate by <a href="https://signpath.org">SignPath Foundation</a>, from the first
-          release after the foundation accepts the project. Windows will then show "SignPath
-          Foundation" as the publisher.
+          <strong>The Microsoft Store version</strong>, once it is listed, is signed by Microsoft,
+          and Windows installs it without a warning.
         </li>
         <li>
-          <strong>The Microsoft Store version</strong>, once it is listed, is signed by Microsoft.
+          <strong>Free signing for the direct download</strong> from
+          <a href="https://signpath.org">SignPath Foundation</a> is for open-source projects with
+          wider public adoption than TTSNative has yet; it declined in October 2026 and invited a
+          new application later. Paid certificates still warn until a file builds a reputation, so
+          the Microsoft Store is the way to install without a warning.
         </li>
       </ul>
 
       <h2>What is signed</h2>
       <p>
-        <code>TTSNative.exe</code> and the installer, <code>TTSNative-Setup-X.Y.Z.exe</code>. Both
-        are built by the project's release workflow on GitHub-hosted runners from the public
-        repository at the tagged commit, and SignPath checks that the files it signs came from that
-        build. The programs and libraries TTSNative bundles from other projects (Python and its
-        packages, uv, ONNX Runtime, espeak-ng, Microsoft's Visual C++ runtime) keep their own
-        makers' signatures, or none; TTSNative doesn't sign them.
-      </p>
-      <p>
-        Separately, every installer carries an update signature made with the project's own key. The
-        app installs an update only when that signature matches the public key built into it.
+        Every installer carries an update signature made with the project's own key, and the app
+        installs an update only when that signature matches the public key built into it. The
+        installer and the Microsoft Store package are built by the project's release workflow on
+        GitHub-hosted runners from the public repository at the tagged commit, with SHA-256
+        checksums and a build attestation for each release. The programs and libraries TTSNative
+        bundles from other projects (Python and its packages, uv, ONNX Runtime, espeak-ng,
+        Microsoft's Visual C++ runtime) keep their own makers' signatures, or none.
       </p>
 
       <h2>Who approves</h2>
       <p>
-        Every signing request is approved by hand, after the release's tag is on
-        <code>main</code> and the release run has passed its checks.
+        Every release is approved by hand, after its tag is on <code>main</code> and the release run
+        has passed its checks.
       </p>
       <ul class="checks">
         <li>
@@ -87,8 +85,8 @@
         </li>
       </ul>
       <p>
-        Everyone in these roles uses two-factor sign-in for GitHub and for SignPath. Changes from
-        anyone else are reviewed before they're merged.
+        Everyone in these roles uses two-factor sign-in for GitHub. Changes from anyone else are
+        reviewed before they're merged.
       </p>
 
       <h2>What TTSNative sends over the network</h2>

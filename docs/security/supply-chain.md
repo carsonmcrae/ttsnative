@@ -174,7 +174,7 @@ days old on 2026-10-19. It now uses the same cool-down as the server, and 20 of 
 to their newest releases that are old enough (for example `certifi` 2026.10.18 → 2026.7.22).
 `omegaconf` keeps 2.4.0 (2026-10-09) through an `exclude-newer-package` exception, because every older
 release needs `antlr4-python3-runtime` 4.9, which ships only as an sdist and would run its `setup.py` on
-install. Remove the exception after 2026-10-23, when the 14-day window covers that release.
+install. The exception was removed on 2026-10-30, once the 14-day window covered that release.
 
 `certifi` 2026.10.19 (uploaded 2026-10-20) fixes GHSA-6q48-6c7w-9gw2, which `pip-audit` began reporting
 against 2026.7.22 on 2026-10-20 and which failed the security job for every pull request. Both Python
@@ -187,6 +187,20 @@ exception after 2026-11-03.
 is built on install. Remove the exception after 2026-10-30. Dependabot runs uv with these settings, so
 its security update fails (`dependency_file_not_resolvable`) while the fixed release is still inside the
 window, as it did for Pillow; add the exception by hand.
+
+Security fixes on 2026-10-30, each through the same kind of exception and each with wheels only (nothing
+is built on install); Dependabot couldn't update them for the same reason:
+
+| Package               | Lock                                                                                 | Advisories                                                         | Release    | Remove the exception after |
+| --------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------- | -------------------------- |
+| `filelock` 4.2.1      | server (dev: `pip-audit`'s cache) and worker (Hugging Face and torch download locks) | GHSA-v4x8-3wr5-3wq8 (high) and twelve more                         | 2026-10-17 | 2026-10-31                 |
+| `setuptools` 84.2.0   | worker                                                                               | GHSA-xmj3-9gf7-h52w (fixed since 84.1.0; legacy wheel installs)    | 2026-10-19 | 2026-11-02                 |
+| `virtualenv` 21.14.13 | worker (pre-commit only; never run)                                                  | GHSA-cx6f-vjhg-g3cc (high, a regression in 21.14.9)                | 2026-10-22 | 2026-11-05                 |
+| `brotli` 1.2.1        | worker                                                                               | GHSA-9v8h-qqgm-4m35 (critical: out-of-bounds write while decoding) | 2026-10-22 | 2026-11-05                 |
+
+`undici` 8.12.2 (2026-10-15) fixes GHSA-4w7w-5xrc-9h26, GHSA-2m5v-pch6-74hx, GHSA-qrxm-fqhp-jwvm,
+GHSA-xjj6-f33q-929c and GHSA-9fm3-97px-rjf6 within the cool-down; it comes only through `jsdom` in the
+web tests. Dependabot's 8.12.3 (2026-10-19) was still too new, so the npm lock takes 8.12.2.
 
 Both Python projects use a rolling window (`exclude-newer = "14 days"`, uv 0.9.17 or newer), so a
 re-lock always considers releases at least 14 days old without a date to bump. npm applies the same

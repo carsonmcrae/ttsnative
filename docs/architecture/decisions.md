@@ -624,3 +624,8 @@ when a choice changes the stack, a trust boundary, data storage or the setup exp
   website steers everyone to the Store. The owner holds both accounts and approves every signing
   request; the workflow never sees anything but SignPath's API token, stored as an environment
   secret. Details and status: [windows-distribution.md](../guides/windows-distribution.md).
+- **Update (2026-10-30):** SignPath Foundation declined on 2026-10-24 for want of public adoption
+  (stars, contributors, independent references) and invited a new application later. As planned
+  above, the direct download stays unsigned and the website leads with the Store once the listing is
+  live; the signing steps for `release.yml` (sign `TTSNative.exe`, bundle, sign the installer and the
+  uninstaller, then make the update signature over the signed installer) wait for a new application.

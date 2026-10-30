@@ -491,10 +491,22 @@ Open a document, press Play, and follow along as each sentence is read to you.</
             free disk space; no graphics card needed.
           </li>
         </ul>
+        <!-- if:store -->
+        <p class="actions">
+          <a class="btn primary" href="%STORE_URL%">Get TTSNative from the Microsoft Store</a>
+          <a class="btn" href="%WIN_URL%">Download the installer instead</a>
+        </p>
+        <p class="fine">
+          The Microsoft Store version installs without a warning and the Store keeps it up to date;
+          the installer is the same app, for PCs without the Store.
+        </p>
+        <!-- /if:store -->
+        <!-- if:no-store -->
         <p class="actions">
           <a class="btn primary" href="%WIN_URL%">Download TTSNative %WIN_VERSION%</a>
           <a class="btn" href="releases.html">Release history</a>
         </p>
+        <!-- /if:no-store -->
         <p class="fine">
           TTSNative-Setup-%WIN_VERSION%.exe · %WIN_SIZE% · released %WIN_DATE% ·
           <a href="%WIN_SUMS%">SHA-256 checksums</a> · built and attested by this project's public
@@ -502,9 +514,11 @@ Open a document, press Play, and follow along as each sentence is read to you.</
         </p>
         <ol class="steps">
           <li>
-            <strong>Run the installer</strong> you downloaded. If Windows says it protected your PC
-            from an unrecognised app, choose <em>More info</em>, then <em>Run anyway</em>; you can
-            check the file against the published checksum first.
+            <strong>Run the installer</strong> you downloaded. It isn't code-signed yet, so Windows
+            doesn't recognise its publisher: if Microsoft Edge says the file isn't commonly
+            downloaded, choose <em>…</em> → <em>Keep</em>, then the arrow beside <em>Delete</em> →
+            <em>Keep anyway</em>; if Windows says it protected your PC, choose <em>More info</em>,
+            then <em>Run anyway</em>. You can check the file against the published checksum first.
           </li>
           <li>
             <strong>Open TTSNative</strong> from the Start menu or the desktop shortcut. The first
