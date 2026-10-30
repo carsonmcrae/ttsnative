@@ -4,7 +4,8 @@
 
 Scope: Installs an isolated, locked environment (CPU or CUDA PyTorch) with uv plus checksum-pinned
 weights (verified before every worker load, re-downloaded by a repair), offers an in-place update when
-the worker lock has changed since the install, reports hardware-aware install options, and synthesises
+the worker lock has changed since the install, reports hardware-aware install options, starts the worker
+with the desktop runtime's Visual C++ DLLs on PATH (PyTorch needs them), and synthesises
 through ``WorkerClient`` using a custom profile's built studio voice or reference recording (or the
 model's built-in voice), with a delivery preset. A studio voice reads each sentence with the style
 prompt that fits it (questions, lively lines, dialogue, narration). Every sentence is seeded from its
@@ -25,7 +26,7 @@ import os
 import shutil
 import sys
 import threading
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, override
 
@@ -81,6 +82,9 @@ DELIVERY: dict[Delivery, dict[str, float]] = {
     "expressive": {"temperature": 0.95, "topP": 0.98},
 }
 NOT_INSTALLED = "Chatterbox isn't installed. Install it from Settings → Engines & models."
+# PyTorch needs the Visual C++ runtime, which a Windows PC lacks until something installs Microsoft's
+# redistributable, and the worker's Python ships only part of it; the desktop app's runtime ships it whole.
+VC_RUNTIME_DLL = "msvcp140.dll"
 
 
 class ChatterboxEngine(Engine, VoiceTuner):
@@ -292,8 +296,7 @@ class ChatterboxEngine(Engine, VoiceTuner):
                     log.warning(
                         "chatterbox runtime is older than the worker lock; update it in Settings → Engines & models"
                     )
-                env = {k: v for k, v in os.environ.items() if not k.startswith(("LTTS_", "UV_"))}
-                env.update({"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "HF_HUB_OFFLINE": "1"})
+                env = worker_environment(os.environ, Path(sys.executable).parent)
                 self._worker = WorkerClient(
                     self._worker_argv(), env, self._root, self._settings.clone_worker_idle_unload_s
                 )
@@ -470,3 +473,14 @@ def _require_uv() -> str:
     if uv is None:
         raise EngineUnavailableError("uv was not found. Run `npm run setup` and try again.", code="uv_missing")
     return uv
+
+
+def worker_environment(base: Mapping[str, str], runtime_dir: Path) -> dict[str, str]:
+    """The worker's environment: the server's without its own settings, in UTF-8 and offline, with the
+    server's Visual C++ runtime first on PATH when it ships one (the desktop app on Windows)."""
+    env = {k: v for k, v in base.items() if not k.startswith(("LTTS_", "UV_"))}
+    env.update({"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "HF_HUB_OFFLINE": "1"})
+    if (runtime_dir / VC_RUNTIME_DLL).is_file():
+        key = next((k for k in env if k.upper() == "PATH"), "PATH")  # Windows spells it "Path"
+        env[key] = os.pathsep.join(part for part in (str(runtime_dir), env.get(key)) if part)
+    return env

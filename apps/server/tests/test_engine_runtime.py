@@ -4,7 +4,7 @@
 
 Scope: Kokoro loading (CPU provider, load once, load failures, the double-checked lock), voices,
 pace clamping, synthesis errors and unusable audio, damaged files and repair, install/uninstall and
-warm-up; Chatterbox revision, worker argv,
+warm-up; Chatterbox revision, worker argv and environment (the bundled Visual C++ runtime on PATH),
 uninstall and a worker that disappears before synthesis; locating uv and reporting its output;
 and GPU detection through nvidia-smi and on Apple Silicon.
 Does NOT belong: The worker protocol (test_engines_cli.py, test_worker_client_edges.py), environment
@@ -29,7 +29,7 @@ from ltts import hardware
 from ltts.config import Settings
 from ltts.engines import chatterbox_env
 from ltts.engines.base import VoiceSpec
-from ltts.engines.chatterbox import ChatterboxEngine
+from ltts.engines.chatterbox import ChatterboxEngine, worker_environment
 from ltts.engines.kokoro import ARTIFACT, KokoroEngine
 from ltts.errors import EngineUnavailableError, SynthesisError
 from ltts.hardware import GpuInfo, detect_gpus
@@ -238,6 +238,16 @@ def test_chatterbox_identity_and_worker_command(chatterbox: ChatterboxEngine) ->
     assert chatterbox.revision() == "chatterbox-turbo/worker-5"
     argv = chatterbox._worker_argv()
     assert argv[1:] == ["-I", "-m", "ltts_chatterbox_worker"] and argv[0] == str(chatterbox._python)
+
+
+def test_chatterbox_worker_finds_the_bundled_cpp_runtime(tmp_path: Path) -> None:
+    base = {"Path": "/system", "HOME": "/home/reader", "LTTS_ACCESS_TOKEN": "secret", "UV_CACHE_DIR": "/cache"}
+    offline = {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "HF_HUB_OFFLINE": "1"}
+    assert worker_environment(base, tmp_path) == {"Path": "/system", "HOME": "/home/reader", **offline}
+    (tmp_path / "msvcp140.dll").write_bytes(b"")  # the desktop runtime ships the Visual C++ DLLs here
+    env = worker_environment(base, tmp_path)
+    assert env["Path"] == os.pathsep.join([str(tmp_path), "/system"]) and "PATH" not in env
+    assert worker_environment({}, tmp_path)["PATH"] == str(tmp_path)
 
 
 def test_chatterbox_uninstall_removes_environment_and_weights(

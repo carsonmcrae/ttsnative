@@ -72,6 +72,19 @@ candidate's Desktop workflow artifact, in this order:
 
 ## Latest results
 
+**2026-10-30, the 2.1.0 → 2.2.0 upgrade test on the clean Windows 11 Home VM (VirtualBox; a standard
+user; no Visual C++ redistributable), 2.1.0 from ttsnative.com and the 2.2.0 candidate from `49768af`.**
+
+- **Found and fixed:** installing voice cloning downloaded everything, then failed its verification load
+  with "The voice engine reported an error (OSError)", in 2.1.0 and in the 2.2.0 candidate. The cloning
+  worker runs on uv's own Python, which ships `vcruntime140.dll` but not `msvcp140.dll`, so
+  `import torch` failed with `[WinError 126]` loading `c10.dll`; this maintainer's PC and GitHub's
+  runners have the redistributable, so nothing automated had noticed. With the desktop runtime's
+  `python` folder (which ships the whole C++ runtime) first on `PATH`, the same Python imports PyTorch,
+  and the worker now starts that way.
+- **Not yet done:** hearing a cloned voice on that VM. With the DLLs found, loading the model on its CPU
+  (4 cores, 8 GB) took longer than the 10-minute limit on the verification load.
+
 **2026-10-22, clean Windows 11 Home VM (VirtualBox; no developer tools; a standard user), installer
 `2.1.0-dev.345` from the Desktop run on `e71d192`.**
 
