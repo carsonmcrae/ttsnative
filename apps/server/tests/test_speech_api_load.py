@@ -198,6 +198,7 @@ def test_a_request_that_times_out_in_the_queue_leaves_no_work_behind(settings: S
     reader.join(10)
     synthesis.render_blocking("kokoro:alpha", "Last in line.", "sentence", 1.0, PRIORITY_EXPORT, lambda: False)
     assert sentences(engine) == ["The reader's sentence.", "Last in line."]  # the API's sentence was dropped
+    services.speech_api.settings = settings  # the usual timeout: 0.3 s is too tight for a slow CI runner
     assert speak(program(web), token, input="Fresh start.").status_code == 200
 
 
