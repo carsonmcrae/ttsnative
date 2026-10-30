@@ -65,12 +65,18 @@ release.
 
 ## Blockers
 
-- [ ] The `release` environment exists with you as required reviewer, and both
-      `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` secrets are set.
+- [x] The `release` environment exists with you as required reviewer, and both
+      `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` secrets are set. — verified:
+      2026-10-30, GitHub API: environment `release` has carsonmcrae as required reviewer and a branch
+      policy, and lists both secrets by name (values not read); Release run 39974518710 signed and
+      published 2.1.0 with them on 2026-10-23.
 - [ ] The updater private key and its password are backed up offline in two places.
-- [ ] 2.1.0 is published from `e71d192`, installs, and its update check reaches GitHub (About → Check
-      for updates says it's up to date). The gate also checks on GitHub that v2.1.0 is published from a
-      release commit.
+- [x] 2.1.0 is published from `6037548` (the fix for the C++ runtime on top of `e71d192`), installs, and
+      its update check reaches GitHub (About → Check for updates says it's up to date). The gate also
+      checks on GitHub that v2.1.0 is published from a release commit. — verified: 2026-10-23, after
+      publishing: v2.1.0 is a published, non-draft release whose tag points at 6037548; a clean Windows 11
+      VM installed it from ttsnative.com through Edge, it spoke, About showed 2.1.0 "Stable release" and
+      the update check (automatic and manual) said it's up to date.
 
 ## If the published release is broken
 
