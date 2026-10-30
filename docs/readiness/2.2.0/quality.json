@@ -1,7 +1,7 @@
 {
   "version": "2.2.0",
-  "commit": "cfc8fc4027767f65579189a67d00cce346ac7c6e",
-  "analysedAt": "2026-10-30T16:14:35+0000",
+  "commit": "f852e2df6cabefc7026c31cbb9f7aad62083c5ac",
+  "analysedAt": "2026-10-30T17:24:32+0000",
   "gate": "OK",
   "conditions": [
     {
@@ -27,12 +27,6 @@
       "status": "OK",
       "actual": "0.0",
       "threshold": "0"
-    },
-    {
-      "metric": "new_security_hotspots_reviewed",
-      "status": "OK",
-      "actual": null,
-      "threshold": "100"
     },
     {
       "metric": "new_violations",

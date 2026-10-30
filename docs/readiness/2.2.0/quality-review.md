@@ -1,6 +1,6 @@
 # Code-quality review: 2.2.0
 
-SonarQube analysed the release branch at `cfc8fc4` on 2026-10-30 (local server, project
+SonarQube analysed the release branch at `f852e2d` on 2026-10-30 (local server, project
 `local-tts-web-ui`), judged by the "TTSNative" gate described under Policy; the result the release gate
 reads is in [quality.json](quality.json). The first review analysed `cca275b` on 2026-10-22. This page
 says what the analysis covered, what it didn't, and why each remaining finding was accepted rather than
@@ -30,7 +30,8 @@ On 2026-10-30 the prepared release (`a96d95d`) failed the gate again on code mer
 (#68's C++ runtime check and #70's Store package): five code smells and one unreviewed hotspot. Three
 smells and the hotspot were fixed in the code (`2be287b`: `toSorted` instead of sorting in place, a
 Visual C++ runtime pattern that can't backtrack, the web app's `error_` name for a caught error); the
-other two are false positives, below.
+other two are false positives, below. `cfc8fc4` passed with those changes; `f852e2d` adds only
+plain-text release notes and passes the same way.
 
 ## Policy
 
