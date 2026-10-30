@@ -181,14 +181,23 @@ function checklist(text, heading) {
   if (start < 0) return null;
   const next = lines.findIndex((line, index) => index > start && line.startsWith('## '));
   const end = next < 0 ? lines.length : next;
-  return lines
-    .slice(start + 1, end)
-    .map((line) => /^\s*- \[([ x~])\] (.+)$/i.exec(line))
-    .filter((match) => match !== null)
-    .map((match) => {
-      const text = match[2] ?? '';
-      return { mark: (match[1] ?? ' ').toLowerCase(), text, required: /^\(required\)/i.test(text) };
-    });
+  /** @type {{ mark: string, text: string }[]} */
+  const items = [];
+  /** @type {{ mark: string, text: string } | null} */
+  let current = null;
+  for (const line of lines.slice(start + 1, end)) {
+    const match = /^\s*- \[([ x~])\] (.+)$/i.exec(line);
+    if (match) {
+      current = { mark: (match[1] ?? ' ').toLowerCase(), text: match[2] ?? '' };
+      items.push(current);
+    } else if (current && /^\s+\S/.test(line)) {
+      // A wrapped item goes on in indented lines, and its "verified:" note usually sits there.
+      current.text += ` ${line.trim()}`;
+    } else {
+      current = null;
+    }
+  }
+  return items.map(({ mark, text }) => ({ mark, text, required: /^\(required\)/i.test(text) }));
 }
 
 /** @typedef {NonNullable<ReturnType<typeof checklist>>[number]} Check */

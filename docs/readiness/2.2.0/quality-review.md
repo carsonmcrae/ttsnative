@@ -1,29 +1,37 @@
 # Code-quality review: 2.2.0
 
-SonarQube analysed `cca275b` on 2026-10-22 (local server, project `local-tts-web-ui`), judged by the
-"TTSNative" gate described under Policy; the result the
-release gate reads is in [quality.json](quality.json). This page says what that analysis covered, what
-it didn't, and why each remaining finding was accepted rather than changed.
+SonarQube analysed the release branch at `f852e2d` on 2026-10-30 (local server, project
+`local-tts-web-ui`), judged by the "TTSNative" gate described under Policy; the result the release gate
+reads is in [quality.json](quality.json). The first review analysed `cca275b` on 2026-10-22. This page
+says what the analysis covered, what it didn't, and why each remaining finding was accepted rather than
+changed.
 
 ## Result
 
 | Measure                                  | Value                                           |
 | ---------------------------------------- | ----------------------------------------------- |
 | Quality gate ("TTSNative", 8 conditions) | Passed                                          |
-| Line coverage                            | 100 % (18,651 lines)                            |
-| Branch coverage                          | 100 % (6,589 conditions)                        |
+| Line coverage                            | 100 % (18,679 lines)                            |
+| Branch coverage                          | 100 % (6,604 conditions)                        |
 | Duplicated lines and blocks              | 0 % and 0                                       |
 | Bugs, vulnerabilities, code smells       | 0, 0, 0                                         |
 | Security hotspots                        | 27 found, 27 reviewed (all safe, reasons below) |
-| Accepted issues                          | 6, plus 6 marked false positive (reasons below) |
+| Accepted issues                          | 6, plus 9 marked false positive (reasons below) |
 | Reliability, security, maintainability   | A, A, A                                         |
-| Lines of code analysed                   | 51,991 in 456 files                             |
+| Lines of code analysed                   | 52,887 in 465 files                             |
 
 The first analysis of the integrated branch (`c086acf`) failed the gate with 173 open issues (11 bugs,
 2 vulnerabilities, 160 code smells) and 26 unreviewed hotspots. 161 were fixed in the code, with no
 suppression comments, excluded files or lowered thresholds; two of them were real defects (the blend
 dialog keyed its rows by position, and the update test used a fixed password for its throwaway keys).
 The other 12 are the reviewed exceptions below.
+
+On 2026-10-30 the prepared release (`a96d95d`) failed the gate again on code merged after that review
+(#68's C++ runtime check and #70's Store package): five code smells and one unreviewed hotspot. Three
+smells and the hotspot were fixed in the code (`2be287b`: `toSorted` instead of sorting in place, a
+Visual C++ runtime pattern that can't backtrack, the web app's `error_` name for a caught error); the
+other two are false positives, below. `cfc8fc4` passed with those changes; `f852e2d` adds only
+plain-text release notes and passes the same way.
 
 ## Policy
 
@@ -76,9 +84,14 @@ Desktop workflow checks it with rustfmt, `cargo clippy -D warnings` (with and wi
 
 ## False positives
 
-`dataclasses.replace` results passed on in `speech_api/store.py` (five places) and returned in
-`synthesis/render.py`: SonarQube resolves typeshed's `_DataclassT` to its bound instead of the argument's
-type. `mypy --strict` infers the exact dataclass, and the server passes it.
+- **`dataclasses.replace` results (6):** passed on in `speech_api/store.py` (five places) and returned in
+  `synthesis/render.py`. SonarQube resolves typeshed's `_DataclassT` to its bound instead of the
+  argument's type. `mypy --strict` infers the exact dataclass, and the server passes it.
+- **"Hardcoded IP address" (2, `scripts/desktop/msix.test.mjs`):** `2.2.0.0` is the four-part MSIX
+  version the test expects `storeVersion('2.2.0')` to return, not an address.
+- **Text contrast (1, `scripts/media/promo/promo.html`):** the check mark in the showcase video is
+  30 px semibold, which WCAG 2.2 counts as large text (3:1 needed); it measures 4.49:1. Marked on
+  2026-10-19, before the first review, which didn't list it.
 
 ## Security hotspots (27, all reviewed safe)
 

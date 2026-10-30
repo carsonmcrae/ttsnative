@@ -54,7 +54,7 @@ function redistFolder() {
   const root = studio && path.join(studio, 'VC', 'Redist', 'MSVC');
   const versions =
     root && existsSync(root) ? readdirSync(root).filter((n) => /^\d+(\.\d+)+$/.test(n)) : [];
-  for (const version of versions.sort((a, b) => compareDotted(b, a))) {
+  for (const version of versions.toSorted((a, b) => compareDotted(b, a))) {
     const x64 = path.join(root, version, 'x64');
     const crt = existsSync(x64) && readdirSync(x64).find((n) => /^Microsoft\.VC\d+\.CRT$/.test(n));
     if (crt)
