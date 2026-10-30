@@ -9,7 +9,7 @@ docs: changed
 
 ## Fixed
 
-- Voice cloning installs and reads on a Windows PC where it used to stop with "The voice engine reported an error", such as a new PC with few other programs installed.
+- On a Windows PC with few other programs installed, such as a new one, installing voice cloning no longer stops with "The voice engine reported an error".
 
 ## Technical
 
