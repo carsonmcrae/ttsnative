@@ -20,10 +20,21 @@ release.
 
 ## Before release
 
-- [ ] (required) **Clean install.** On a Windows 11 PC or VM that has never had TTSNative, Python or
+- [x] (required) **Clean install.** On a Windows 11 PC or VM that has never had TTSNative, Python or
       Node.js: run the candidate installer, accept SmartScreen's "More info → Run anyway" (no
       Authenticode yet), start from the Start menu, open a PDF, play it, export an MP3. Needs: a clean
-      Windows 11 machine (a fresh VM is fine).
+      Windows 11 machine (a fresh VM is fine). — verified: 2026-10-30, VirtualBox VM restored to its
+      clean-baseline snapshot (Windows 11 Home 10.0.26300, standard user; no Python, Node.js, Rust, uv
+      or git; NAT only). Candidate `TTSNative-Setup-2.2.0-dev.123+release-v2-2-0.6d143506e6.exe` from
+      PR #81's Desktop run 41098845013, built from 6d14350 (the same tree as 0fe28a5; later commits
+      touch only this folder), SHA-256 5eb43639…b426. Its copy in Downloads carried the Internet zone
+      mark: SmartScreen said "Windows protected your PC" (Unknown publisher), More info → Run anyway;
+      per-user install with no administrator prompt; started from the Start menu; Voices ready; a
+      two-page PDF opened and played (highlight and progress moving; the VM's sound wasn't listened
+      to); an MP3 export of 530 KB, one minute, downloaded to Downloads; About shows the build and
+      What's new the 2.2.0 notes as plain text; the four Visual C++ DLLs (14.51, Microsoft-signed) are
+      in runtime\python and none in System32. An earlier pass on b62219d's build found the notes'
+      Markdown asterisks, fixed in f852e2d.
 - [ ] (required) **Upgrade in place, private data kept.** On a PC with the published 2.1.0 installed
       and real data in it (documents with bookmarks and notes, a cloned or studio voice, pronunciation
       fixes, settings, an export): run the 2.2.0 candidate installer over it. Everything is still there,
@@ -49,8 +60,12 @@ release.
 - [ ] **An M4B** in an audiobook player (chapters and cover) and **a read-along EPUB** in a reader
       with Media Overlays. Needs: ffmpeg installed for M4B; an EPUB 3 reader such as Thorium.
 - [ ] **Audiobookshelf**: send an export to a real server. Needs: an Audiobookshelf server.
-- [ ] **The local speech API** from an outside client (curl or the OpenAI SDK, per
-      local-speech-api.md).
+- [x] **The local speech API** from an outside client (curl or the OpenAI SDK, per
+      local-speech-api.md). — verified: 2026-10-30, the same clean VM and candidate, with Windows'
+      own curl.exe: while off, POST /v1/audio/speech answered 404; turned on in Settings with a new
+      token, the guide's request (kokoro:af_heart) answered 200 with audio/mpeg, 11,904 bytes; a
+      wrong token answered 401; Settings then said "Last used less than a minute ago, with Heart. 1
+      request served." The OpenAI SDK wasn't tried (no Python outside the app on that VM).
 - [ ] **A screen reader** (NVDA or Narrator) over the library, reader, Voice Studio and Settings.
 
 ## After publishing
