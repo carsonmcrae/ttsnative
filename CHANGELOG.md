@@ -130,6 +130,7 @@ All notable changes to this project are documented here. The format follows
 - The Release workflow builds `TTSNative-X.Y.Z.msix` from the tag with the Partner Center identity and keeps it as the `ttsnative-store-package` artifact for 30 days; it publishes nothing. `docs/guides/windows-distribution.md` now walks through the Store submission: package, properties, listing text, screenshots, restricted-capability justifications and certification notes.
 - ADR-26 and `docs/guides/windows-distribution.md`: Windows ships through the Microsoft Store as the main channel (MSIX, re-signed by Microsoft, so no SmartScreen warning) with the direct download kept and signed for free by SignPath Foundation. The guide lists the owner's account steps, the design of both packages and what is still open.
 - ttsnative.com/code-signing/ is the code signing policy SignPath Foundation requires: what is signed and by whom, who approves a signature, what the app sends over the network and how to check a signature. It says plainly that 2.1.0 and earlier are unsigned. The home page footer and the download page link to it as "Code signing policy", and it is in the sitemap and the website's end-to-end tests (desktop and phone, axe).
+- The release-readiness gate reads a wrapped acceptance check whole: its indented lines belong to it, so a "verified:" note on a later line counts (`scripts/lib/gate.mjs`, tested). Before, only an item's first line was read, so the wrapped checks in `docs/readiness/X.Y.Z/acceptance.md` could never pass.
 
 ## [2.1.0] - 2026-10-22
 
