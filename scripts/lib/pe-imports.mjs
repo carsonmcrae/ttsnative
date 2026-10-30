@@ -12,8 +12,7 @@
  * Does NOT belong: Reading files or deciding what Windows includes (scripts/desktop/cpp-runtime.mjs).
  */
 
-const VC_RUNTIME =
-  /^(?:(?:msvcp|vcruntime|concrt|vcomp|vccorlib|mfc|msvcr)\d+\w*|ucrtbased)\.dll$/i;
+const VC_RUNTIME = /^(?:(?:msvcp|vcruntime|concrt|vcomp|vccorlib|mfc|msvcr)\d\w*|ucrtbased)\.dll$/i;
 const API_SET = /^(api-ms-win-|ext-ms-)/i;
 
 /**
@@ -87,7 +86,7 @@ export function missingImports(modules, { appDir, isWindowsDll }) {
         const users = [...(missing.get(name) ?? []), module.path];
         missing.set(
           name,
-          users.sort((a, b) => (a < b ? -1 : 1)),
+          users.toSorted((a, b) => (a < b ? -1 : 1)),
         );
       }
     }

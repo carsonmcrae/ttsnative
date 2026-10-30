@@ -33,8 +33,8 @@ export function DeleteMyData({ store }: Readonly<{ store: boolean }>) {
     setError(null);
     try {
       await desktop.deleteUserData();
-    } catch (problem) {
-      setError(problem instanceof Error ? problem.message : String(problem));
+    } catch (error_) {
+      setError(error_ instanceof Error ? error_.message : String(error_));
       setBusy(false);
     }
   };
