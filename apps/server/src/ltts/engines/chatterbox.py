@@ -4,8 +4,7 @@
 
 Scope: Installs an isolated, locked environment (CPU or CUDA PyTorch) with uv plus checksum-pinned
 weights (verified before every worker load, re-downloaded by a repair), offers an in-place update when
-the worker lock has changed since the install, reports hardware-aware install options, starts the worker
-with the desktop runtime's Visual C++ DLLs on PATH (PyTorch needs them), and synthesises
+the worker lock has changed since the install, reports hardware-aware install options, and synthesises
 through ``WorkerClient`` using a custom profile's built studio voice or reference recording (or the
 model's built-in voice), with a delivery preset. A studio voice reads each sentence with the style
 prompt that fits it (questions, lively lines, dialogue, narration). Every sentence is seeded from its
