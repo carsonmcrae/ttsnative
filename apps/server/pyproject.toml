@@ -42,7 +42,7 @@ ltts = "ltts.cli:main"
 dev = [
   "pytest>=9.1,<10",
   "pytest-cov>=7.1,<8",
-  "ruff>=0.16,<0.17",
+  "ruff>=0.17,<0.18",
   "mypy>=2.4,<3",
   "pip-audit>=2.10,<3",
   "deptry>=0.25,<0.26",
@@ -65,9 +65,10 @@ packages = ["src/ltts"]
 [tool.uv]
 # Supply-chain cool-down: only resolve releases that have been public for at least two weeks.
 exclude-newer = "14 days"
-# Security exception: certifi 2026.10.19 fixes GHSA-6q48-6c7w-9gw2 and is newer than the window. Drop this
-# after 2026-11-03, when the 14-day window covers it.
-exclude-newer-package = { certifi = "2026-10-21T00:00:00Z" }
+# Security exceptions, newer than the window: certifi 2026.10.19 fixes GHSA-6q48-6c7w-9gw2 (drop after
+# 2026-11-03); filelock 4.2.1 (2026-10-17) fixes thirteen advisories, only in pip-audit's cache here (drop
+# after 2026-10-31). Each date is when the 14-day window covers the release.
+exclude-newer-package = { certifi = "2026-10-21T00:00:00Z", filelock = "2026-10-18T00:00:00Z" }
 
 [tool.ruff]
 line-length = 120

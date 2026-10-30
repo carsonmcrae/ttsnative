@@ -5,13 +5,10 @@
 #   and the browser journeys passed on it, SonarQube's result recorded for it at the project's policy,
 #   the previous release published from its release commit and checked after publishing, every check
 #   before release done, none after publishing marked early, no blocker open); runs the full check
-#   suite; builds the Windows installer signed for updates (and with Authenticode when its secrets
-#   exist), proves the update signature matches the app's public key and
-#   smoke-tests the installer on a clean runner; packages the source, the prebuilt web UI, the
-#   corresponding source of the installer's GPL/LGPL parts, SBOMs and
-#   SHA256SUMS.txt with signed build provenance; creates the release as a draft, uploads everything,
-#   and only then makes it public and Latest (an incomplete release is never visible); finally asks
-#   the Pages workflow to refresh ttsnative.com.
+#   suite; builds the Windows installer signed for updates (Authenticode when its secrets exist), proves
+#   the update signature and smoke-tests it; builds the Microsoft Store package (an artifact for Partner
+#   Center, never published here); packages source, web UI, GPL/LGPL sources, SBOMs and SHA256SUMS.txt
+#   with signed provenance; publishes a draft, then makes it Latest; asks Pages to refresh the site.
 # Does NOT belong: Everyday CI (ci.yml), desktop builds for testing (desktop.yml) or real-model tests
 #   (inference.yml).
 name: Release
@@ -167,6 +164,35 @@ jobs:
           name: release-windows
           path: dist/desktop/
           retention-days: 7
+
+  # The Microsoft Store package of the same tag (ADR-26), for the maintainer to upload in Partner Center.
+  # It holds no secret and publishes nothing: the Store signs what it distributes.
+  store-package:
+    name: Microsoft Store package (MSIX)
+    needs: verify
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
+      - uses: ./.github/actions/rust
+        with:
+          cache-name: release-store
+          runtime-cache: 'false' # downloaded and verified afresh, as for the installer
+      - uses: ./.github/actions/node-deps
+      - name: Build TTSNative-X.Y.Z.msix with the Partner Center identity
+        run: |
+          npm run desktop:store
+          [ -f "dist/desktop/TTSNative-${TAG#v}.msix" ] || { echo "::error::expected dist/desktop/TTSNative-${TAG#v}.msix (is apps/desktop/store/identity.json filled in?)"; exit 1; }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ttsnative-store-package
+          path: |
+            dist/desktop/*.msix
+            dist/desktop/*.msix.sha256
+          if-no-files-found: error
+          retention-days: 30
 
   publish:
     name: Attest and publish

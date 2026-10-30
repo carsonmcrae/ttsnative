@@ -15,76 +15,76 @@ Runtime dependencies only (development tooling is not distributed). Model weight
 | @fontsource-variable/inter@5.3.0 | OFL-1.1 |  |
 | @fontsource-variable/literata@5.3.0 | OFL-1.1 |  |
 | @radix-ui/number@1.1.3 | MIT |  |
-| @radix-ui/primitive@1.1.7 | MIT |  |
-| @radix-ui/react-accessible-icon@1.1.16 | MIT |  |
-| @radix-ui/react-accordion@1.2.21 | MIT |  |
-| @radix-ui/react-alert-dialog@1.1.24 | MIT |  |
-| @radix-ui/react-arrow@1.1.16 | MIT |  |
-| @radix-ui/react-aspect-ratio@1.1.16 | MIT |  |
-| @radix-ui/react-avatar@1.2.7 | MIT |  |
-| @radix-ui/react-checkbox@1.3.12 | MIT |  |
-| @radix-ui/react-collapsible@1.1.21 | MIT |  |
-| @radix-ui/react-collection@1.1.16 | MIT |  |
+| @radix-ui/primitive@1.2.0 | MIT |  |
+| @radix-ui/react-accessible-icon@1.2.0 | MIT |  |
+| @radix-ui/react-accordion@1.3.0 | MIT |  |
+| @radix-ui/react-alert-dialog@1.2.0 | MIT |  |
+| @radix-ui/react-arrow@1.1.17 | MIT |  |
+| @radix-ui/react-aspect-ratio@1.2.0 | MIT |  |
+| @radix-ui/react-avatar@1.3.0 | MIT |  |
+| @radix-ui/react-checkbox@1.4.0 | MIT |  |
+| @radix-ui/react-collapsible@1.2.0 | MIT |  |
+| @radix-ui/react-collection@1.2.0 | MIT |  |
 | @radix-ui/react-compose-refs@1.1.5 | MIT |  |
-| @radix-ui/react-context-menu@2.3.8 | MIT |  |
-| @radix-ui/react-context@1.2.2 | MIT |  |
-| @radix-ui/react-dialog@1.2.0 | MIT |  |
-| @radix-ui/react-direction@1.1.5 | MIT |  |
-| @radix-ui/react-dismissable-layer@1.1.20 | MIT |  |
-| @radix-ui/react-dropdown-menu@2.1.25 | MIT |  |
-| @radix-ui/react-focus-guards@1.1.6 | MIT |  |
-| @radix-ui/react-focus-scope@1.2.0 | MIT |  |
-| @radix-ui/react-form@0.2.0 | MIT |  |
-| @radix-ui/react-hover-card@1.1.24 | MIT |  |
+| @radix-ui/react-context-menu@2.4.0 | MIT |  |
+| @radix-ui/react-context@1.3.0 | MIT |  |
+| @radix-ui/react-dialog@1.3.0 | MIT |  |
+| @radix-ui/react-direction@1.2.0 | MIT |  |
+| @radix-ui/react-dismissable-layer@1.2.0 | MIT |  |
+| @radix-ui/react-dropdown-menu@2.2.0 | MIT |  |
+| @radix-ui/react-focus-guards@1.2.0 | MIT |  |
+| @radix-ui/react-focus-scope@1.3.0 | MIT |  |
+| @radix-ui/react-form@0.3.0 | MIT |  |
+| @radix-ui/react-hover-card@1.2.0 | MIT |  |
 | @radix-ui/react-id@1.1.4 | MIT |  |
-| @radix-ui/react-label@2.1.16 | MIT |  |
-| @radix-ui/react-menu@2.1.25 | MIT |  |
-| @radix-ui/react-menubar@1.1.25 | MIT |  |
-| @radix-ui/react-navigation-menu@1.3.0 | MIT |  |
-| @radix-ui/react-one-time-password-field@0.1.17 | MIT |  |
-| @radix-ui/react-password-toggle-field@0.1.12 | MIT |  |
-| @radix-ui/react-popover@1.2.0 | MIT |  |
-| @radix-ui/react-popper@1.3.8 | MIT |  |
-| @radix-ui/react-portal@1.1.18 | MIT |  |
+| @radix-ui/react-label@2.1.17 | MIT |  |
+| @radix-ui/react-menu@2.2.0 | MIT |  |
+| @radix-ui/react-menubar@1.2.0 | MIT |  |
+| @radix-ui/react-navigation-menu@1.4.0 | MIT |  |
+| @radix-ui/react-one-time-password-field@0.2.0 | MIT |  |
+| @radix-ui/react-password-toggle-field@0.2.0 | MIT |  |
+| @radix-ui/react-popover@1.3.0 | MIT |  |
+| @radix-ui/react-popper@1.4.0 | MIT |  |
+| @radix-ui/react-portal@1.2.0 | MIT |  |
 | @radix-ui/react-presence@1.1.11 | MIT |  |
-| @radix-ui/react-primitive@2.1.11 | MIT |  |
-| @radix-ui/react-progress@1.1.17 | MIT |  |
-| @radix-ui/react-radio-group@1.4.8 | MIT |  |
-| @radix-ui/react-roving-focus@1.1.20 | MIT |  |
-| @radix-ui/react-scroll-area@1.3.0 | MIT |  |
-| @radix-ui/react-select@2.3.8 | MIT |  |
-| @radix-ui/react-separator@1.1.16 | MIT |  |
-| @radix-ui/react-slider@1.5.0 | MIT |  |
-| @radix-ui/react-slot@1.4.0 | MIT |  |
-| @radix-ui/react-switch@1.3.8 | MIT |  |
-| @radix-ui/react-tabs@1.1.22 | MIT |  |
-| @radix-ui/react-toast@1.2.24 | MIT |  |
-| @radix-ui/react-toggle-group@1.1.20 | MIT |  |
-| @radix-ui/react-toggle@1.1.19 | MIT |  |
-| @radix-ui/react-toolbar@1.1.20 | MIT |  |
-| @radix-ui/react-tooltip@1.3.0 | MIT |  |
-| @radix-ui/react-use-callback-ref@1.1.4 | MIT |  |
-| @radix-ui/react-use-controllable-state@1.2.6 | MIT |  |
+| @radix-ui/react-primitive@2.2.0 | MIT |  |
+| @radix-ui/react-progress@1.2.0 | MIT |  |
+| @radix-ui/react-radio-group@1.5.0 | MIT |  |
+| @radix-ui/react-roving-focus@1.2.0 | MIT |  |
+| @radix-ui/react-scroll-area@1.4.0 | MIT |  |
+| @radix-ui/react-select@2.4.0 | MIT |  |
+| @radix-ui/react-separator@1.2.0 | MIT |  |
+| @radix-ui/react-slider@1.6.0 | MIT |  |
+| @radix-ui/react-slot@1.5.0 | MIT |  |
+| @radix-ui/react-switch@1.4.0 | MIT |  |
+| @radix-ui/react-tabs@1.2.0 | MIT |  |
+| @radix-ui/react-toast@1.3.0 | MIT |  |
+| @radix-ui/react-toggle-group@1.2.0 | MIT |  |
+| @radix-ui/react-toggle@1.2.0 | MIT |  |
+| @radix-ui/react-toolbar@1.2.0 | MIT |  |
+| @radix-ui/react-tooltip@1.4.0 | MIT |  |
+| @radix-ui/react-use-callback-ref@1.1.5 | MIT |  |
+| @radix-ui/react-use-controllable-state@1.3.0 | MIT |  |
 | @radix-ui/react-use-effect-event@0.0.5 | MIT |  |
-| @radix-ui/react-use-escape-keydown@1.1.5 | MIT |  |
+| @radix-ui/react-use-escape-keydown@1.1.6 | MIT |  |
 | @radix-ui/react-use-is-hydrated@0.1.3 | MIT |  |
 | @radix-ui/react-use-layout-effect@1.1.4 | MIT |  |
 | @radix-ui/react-use-previous@1.1.4 | MIT |  |
 | @radix-ui/react-use-rect@1.1.4 | MIT |  |
 | @radix-ui/react-use-size@1.1.5 | MIT |  |
-| @radix-ui/react-visually-hidden@1.2.12 | MIT |  |
+| @radix-ui/react-visually-hidden@1.2.13 | MIT |  |
 | @radix-ui/rect@1.1.3 | MIT |  |
 | @remix-run/route-pattern@0.22.1 | MIT |  |
-| @tanstack/query-core@5.104.1 | MIT |  |
-| @tanstack/react-query@5.104.1 | MIT |  |
-| @tauri-apps/api@2.12.1 | Apache-2.0 OR MIT |  |
+| @tanstack/query-core@5.104.2 | MIT |  |
+| @tanstack/react-query@5.104.2 | MIT |  |
+| @tauri-apps/api@2.12.3 | Apache-2.0 OR MIT |  |
 | aria-hidden@1.2.6 | MIT |  |
 | clsx@2.1.1 | MIT |  |
 | cookie-es@3.1.1 | MIT |  |
 | detect-node-es@1.1.0 | MIT |  |
 | get-nonce@1.0.1 | MIT |  |
-| lucide-react@1.52.0 | ISC |  |
-| radix-ui@1.7.0 | MIT |  |
+| lucide-react@1.55.0 | ISC |  |
+| radix-ui@1.8.0 | MIT |  |
 | react-dom@19.3.0 | MIT |  |
 | react-remove-scroll-bar@2.3.8 | MIT |  |
 | react-remove-scroll@2.7.2 | MIT |  |
@@ -112,7 +112,7 @@ Runtime dependencies only (development tooling is not distributed). Model weight
 | defusedxml==0.7.1 | Python Software Foundation License |  |
 | dlinfo==2.0.0 | MIT |  |
 | espeakng-loader==0.2.4 | MIT wrapper bundling espeak-ng (GPL-3.0) | Ships the GPL-3.0 espeak-ng library; the Windows installer ships its licence and each release its source. |
-| fastapi==0.142.4 | MIT |  |
+| fastapi==0.143.3 | MIT |  |
 | flatbuffers==25.12.19 | Apache Software License |  |
 | h11==0.16.0 | MIT License |  |
 | httpcore==1.0.9 | BSD-3-Clause |  |
@@ -123,17 +123,17 @@ Runtime dependencies only (development tooling is not distributed). Model weight
 | lxml==6.1.3 | BSD-3-Clause |  |
 | markdown-it-py==4.2.0 | MIT License |  |
 | mdurl==0.1.2 | MIT License |  |
-| numpy==2.5.3 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |  |
-| onnxruntime==1.30.0 | MIT License |  |
+| numpy==2.5.4 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |  |
+| onnxruntime==1.31.0 | MIT License |  |
 | opentelemetry-api==1.45.1 | Apache-2.0 |  |
 | packaging==26.3 | Apache-2.0 OR BSD-2-Clause |  |
 | phonemizer==3.4.0 | GNU General Public License v3 or later (GPLv3+) | GPL-3.0 phonemiser used by kokoro-onnx; the Windows installer ships it with its licence and a source offer. |
 | protobuf==7.36.2 | 3-Clause BSD License |  |
 | psutil==7.2.2 | BSD-3-Clause |  |
 | pycparser==3.0 | BSD-3-Clause |  |
-| pydantic_core==2.46.5 | MIT |  |
+| pydantic_core==2.50.1 | MIT |  |
 | pydantic-settings==2.15.0 | MIT |  |
-| pydantic==2.13.5 | MIT |  |
+| pydantic==2.14.1 | MIT |  |
 | pypdfium2==5.14.0 | BSD-3-Clause, Apache-2.0, dependency licenses |  |
 | python-docx==1.2.0 | MIT License |  |
 | python-dotenv==1.2.4 | BSD-3-Clause |  |

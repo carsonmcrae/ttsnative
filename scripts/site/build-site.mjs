@@ -8,9 +8,8 @@
  *   %BASE_URL% (the address Pages reports, so a custom domain is picked up automatically); adds the
  *   Windows download, the latest version and the release history, one page per version plus the index
  *   (releases.mjs; with `--releases github` only published releases and a verified installer,
- *   otherwise no installer is advertised); writes sitemap.xml and robots.txt; and fails if a local
- *   link (relative or through the base URL) or in-page anchor points nowhere.
- *   Usage: `node scripts/site/build-site.mjs --out _site --base-url https://example.com [--releases github]
+ *   otherwise no installer is advertised) and the Microsoft Store listing once it is live (store.mjs);
+ *   writes sitemap.xml and robots.txt; fails if a local link or in-page anchor points nowhere. Usage: `node scripts/site/build-site.mjs --out _site --base-url https://example.com [--releases github]
  *   [--expect-installer X.Y.Z]` (the last fails the build unless that version's installer is advertised).
  * Does NOT belong: The page content (site/) or deployment (.github/workflows/pages.yml).
  */
@@ -40,6 +39,7 @@ import {
   dropUnreleased,
   keepUnreleased,
 } from './releases.mjs';
+import { fillStore, storeListing } from './store.mjs';
 
 /** @param {string} name */
 function option(name) {
@@ -179,11 +179,22 @@ async function main() {
   // the layout can be checked.
   const undecided = github ? dropUnreleased : keepUnreleased;
   const shared = readFileSync(path.join(repoRoot, 'site', 'partials', 'head.html'), 'utf8');
+  const listing = storeListing(
+    JSON.parse(
+      readFileSync(path.join(repoRoot, 'apps', 'desktop', 'store', 'identity.json'), 'utf8'),
+    ),
+  );
+  // The store blocks sit inside the download section, so they are decided once that section is.
   const fill = (/** @type {string} */ html, /** @type {string} */ page) =>
     fillLatest(
-      fillDownload(
-        undecided(applyConditions(applyRequirements(fillHead(html, shared, page), out), released)),
-        installer,
+      fillStore(
+        fillDownload(
+          undecided(
+            applyConditions(applyRequirements(fillHead(html, shared, page), out), released),
+          ),
+          installer,
+        ),
+        listing,
       ),
       latest,
     ).replaceAll('%BASE_URL%', () => base);
