@@ -34,13 +34,18 @@ packages = ["src/ltts_chatterbox_worker"]
 # Supply-chain cool-down, kept in step with apps/server: only resolve releases that have been public
 # for at least two weeks (the PyTorch indexes publish upload times too).
 exclude-newer = "14 days"
-# Exception: every omegaconf before 2.4.0 (2026-10-09) needs antlr4-python3-runtime 4.9, which ships only
-# as an sdist and would run its setup.py on install. Drop this after 2026-10-23, when the 14-day window covers it.
-# certifi 2026.10.19 fixes GHSA-6q48-6c7w-9gw2 (security exception, as in apps/server); drop after 2026-11-03.
-# pillow 13.0.0 (2026-10-16) fixes nine advisories (security exception, override below); drop after 2026-10-30.
-# virtualenv 21.14.10 (2026-10-17) fixes CVE-2026-113716, -113722 and -113724 on top of -113725 (security exception;
-# it arrives only through s3tokenizer's pre-commit requirement and nothing here runs it); drop after 2026-10-31.
-exclude-newer-package = { omegaconf = "2026-10-10T00:00:00Z", certifi = "2026-10-21T00:00:00Z", pillow = "2026-10-17T00:00:00Z", virtualenv = "2026-10-18T00:00:00Z" }
+# Security exceptions, newer than the window; each goes once the 14-day window covers its release.
+# certifi 2026.10.19 fixes GHSA-6q48-6c7w-9gw2 (as in apps/server); drop after 2026-11-03.
+# pillow 13.0.0 (2026-10-16) fixes nine advisories (override below); drop after 2026-10-30.
+# virtualenv 21.14.13 (2026-10-22) fixes GHSA-cx6f-vjhg-g3cc, a regression in 21.14.9 (it arrives only through
+# s3tokenizer's pre-commit requirement and nothing here runs it); drop after 2026-11-05.
+# filelock 4.2.1 (2026-10-17) fixes thirteen advisories in the locks Hugging Face and torch take around
+# downloads; drop after 2026-10-31.
+# setuptools 84.2.0 (2026-10-19) has the GHSA-xmj3-9gf7-h52w fix from 84.1.0 (legacy wheel installs); drop after
+# 2026-11-02.
+# brotli 1.2.1 (2026-10-22) fixes GHSA-9v8h-qqgm-4m35 (critical: out-of-bounds write while decoding); drop after
+# 2026-11-05.
+exclude-newer-package = { certifi = "2026-10-21T00:00:00Z", pillow = "2026-10-17T00:00:00Z", virtualenv = "2026-10-23T00:00:00Z", filelock = "2026-10-18T00:00:00Z", setuptools = "2026-10-20T00:00:00Z", brotli = "2026-10-23T00:00:00Z" }
 conflicts = [[{ extra = "cpu" }, { extra = "cuda" }]]
 # chatterbox-tts declares gradio as a hard dependency but never imports it; drop it (and its large
 # dependency tree) from this environment. It also pins diffusers==0.29.0, which has high-severity
