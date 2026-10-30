@@ -188,6 +188,22 @@ test('checks before release need a "verified:" note, or a reason to waive one th
   assert.match(unreasoned[0]?.detail ?? '', /waived without a reason/);
 });
 
+test('a wrapped check is read whole, so its "verified:" note may sit on a later line', () => {
+  const [before, , blockers] = acceptanceVerdicts(
+    acceptance(
+      '- [x] (required) **Clean install.** On a Windows 11 VM: run the\n      candidate installer. — verified: 2026-10-30, a fresh VM\n- [x] Listen to the music\n\n  — verified: a paragraph of its own is not part of the check',
+      '- [ ] Later',
+      '- [x] The `release` environment exists\n      with both secrets. — verified: 2026-10-30, GitHub API',
+    ),
+    '2.2.0',
+  );
+  assert.deepEqual(
+    [before?.ok, before?.detail],
+    [false, '1 of 2 not done, e.g. "Listen to the music" (ticked without "verified:")'],
+  );
+  assert.deepEqual([blockers?.ok, blockers?.detail], [true, 'none open']);
+});
+
 test('checks after publishing must be listed and stay unmarked until the release exists', () => {
   const early = acceptanceVerdicts(
     acceptance('- [x] Done — verified: today', '- [x] The download works — verified: hoped so', ''),
