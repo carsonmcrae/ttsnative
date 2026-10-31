@@ -72,6 +72,30 @@ candidate's Desktop workflow artifact, in this order:
 
 ## Latest results
 
+**2026-10-30, the 2.1.0 → 2.2.0 upgrade test on the clean Windows 11 Home VM (VirtualBox; a standard
+user; no Visual C++ redistributable), 2.1.0 from ttsnative.com and the 2.2.0 candidate from `49768af`.**
+
+- **Found and fixed:** installing voice cloning downloaded everything, then failed its verification load
+  with "The voice engine reported an error (OSError)", in 2.1.0 and in the 2.2.0 candidate. The cloning
+  worker runs on uv's own Python, which ships `vcruntime140.dll` but not `msvcp140.dll`, so
+  `import torch` failed with `[WinError 126]` loading `c10.dll`; this maintainer's PC and GitHub's
+  runners have the redistributable, so nothing automated had noticed. With the desktop runtime's
+  `python` folder (which ships the whole C++ runtime) first on `PATH`, the same Python imports PyTorch,
+  and the worker now starts that way.
+- **Passed:** installing the candidate over 2.1.0 (its installer offers to uninstall 2.1.0 first, with
+  the data kept) kept every document and its reading position, both bookmarks with their notes, the
+  pronunciation, playback speed, text spacing and font, the MP3 export and a custom voice; What's new
+  showed once; the new Sounds tab saved an effect, which survived ending the app in Task Manager, and
+  no TTSNative process remained after that. With the fix (installer `2.2.1-dev.129` from this pull
+  request, installed the same way over the candidate), installing voice cloning finished, its
+  verification load took about two minutes on the VM's 4 cores, and the custom voice's preview was
+  generated in about three minutes and started playing (the VM's sound wasn't listened to).
+- **Testing note:** Microsoft Defender's behaviour monitor stopped the app's own `python.exe` as
+  `Behavior:Win32/SuspClickFix.G2` when it was started from a PowerShell window opened through the Run
+  dialog, the pattern of "ClickFix" attacks. Started by clicking (the installer's last page, the Start
+  menu or the desktop shortcut) nothing was flagged. Start the app and installers by clicking when
+  testing, and check results in the app or with tools that don't start Python.
+
 **2026-10-22, clean Windows 11 Home VM (VirtualBox; no developer tools; a standard user), installer
 `2.1.0-dev.345` from the Desktop run on `e71d192`.**
 
