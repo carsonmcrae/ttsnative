@@ -117,7 +117,8 @@ release.
       2026-10-30, GitHub API: environment `release` has carsonmcrae as required reviewer and a branch
       policy, and lists both secrets by name (values not read); Release run 39974518710 signed and
       published 2.1.0 with them on 2026-10-23.
-- [ ] The updater private key and its password are backed up offline in two places.
+- [x] The updater private key and its password are backed up offline in two places.
+      — verified: 2026-11-03, the maintainer confirmed both backups are made and each was checked.
 - [x] 2.1.0 is published from `6037548` (the fix for the C++ runtime on top of `e71d192`), installs, and
       its update check reaches GitHub (About → Check for updates says it's up to date). The gate also
       checks on GitHub that v2.1.0 is published from a release commit. — verified: 2026-10-23, after
