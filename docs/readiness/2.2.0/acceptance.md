@@ -26,47 +26,79 @@ release.
       Windows 11 machine (a fresh VM is fine). — verified: 2026-10-30, VirtualBox VM restored to its
       clean-baseline snapshot (Windows 11 Home 10.0.26300, standard user; no Python, Node.js, Rust, uv
       or git; NAT only). Candidate `TTSNative-Setup-2.2.0-dev.123+release-v2-2-0.6d143506e6.exe` from
-      PR #81's Desktop run 41098845013, built from 6d14350 (the same tree as 0fe28a5; later commits
-      touch only this folder), SHA-256 5eb43639…b426. Its copy in Downloads carried the Internet zone
-      mark: SmartScreen said "Windows protected your PC" (Unknown publisher), More info → Run anyway;
-      per-user install with no administrator prompt; started from the Start menu; Voices ready; a
-      two-page PDF opened and played (highlight and progress moving; the VM's sound wasn't listened
-      to); an MP3 export of 530 KB, one minute, downloaded to Downloads; About shows the build and
-      What's new the 2.2.0 notes as plain text; the four Visual C++ DLLs (14.51, Microsoft-signed) are
-      in runtime\python and none in System32. An earlier pass on b62219d's build found the notes'
-      Markdown asterisks, fixed in f852e2d.
-- [ ] (required) **Upgrade in place, private data kept.** On a PC with the published 2.1.0 installed
+      PR #81's Desktop run 41098845013, built from 6d14350 (the same tree as 0fe28a5; the commits after
+      it up to #81's merge, 49768af, touch only this folder), SHA-256 5eb43639…b426. Its copy in
+      Downloads carried the Internet zone mark: SmartScreen said "Windows protected your PC" (Unknown
+      publisher), More info → Run anyway; per-user install with no administrator prompt; started from
+      the Start menu; Voices ready; a two-page PDF opened and played (highlight and progress moving;
+      the VM's sound wasn't listened to); an MP3 export of 530 KB, one minute, downloaded to
+      Downloads; About shows the build and What's new the 2.2.0 notes as plain text; the four Visual
+      C++ DLLs (14.51, Microsoft-signed) are in runtime\python and none in System32. An earlier pass on
+      b62219d's build found the notes' Markdown asterisks, fixed in f852e2d. Not repeated on the
+      final build: the app changed after 49768af (#82's voice-cloning fix, #92's dependency updates
+      from Dependabot #83–#90), and the maintainer chose on 2026-11-03 not to repeat the VM tests.
+      CI's Desktop workflow builds and smoke-tests the final installer; #82's build was installed on
+      this VM (next check).
+- [x] (required) **Upgrade in place, private data kept.** On a PC with the published 2.1.0 installed
       and real data in it (documents with bookmarks and notes, a cloned or studio voice, pronunciation
       fixes, settings, an export): run the 2.2.0 candidate installer over it. Everything is still there,
       migration 17 ran (the Sounds tab opens), About shows 2.2.0. Then close, end the app in Task
       Manager, restart: still there. Uninstall keeping data, reinstall: still there. Needs: 2.1.0
-      published.
-- [ ] **Listen: background music** under narration with headphones: a few tracks, including two new
+      published. — verified: 2026-10-30, the same VM (standard user, no Visual C++ redistributable),
+      from a snapshot with 2.1.0 installed from ttsnative.com and real data: a pasted excerpt, a PDF
+      and an EPUB with reading positions, a bookmark with a note in each, a pronunciation fix for all
+      documents, speed 1.25×, Relaxed spacing and Sans serif, an MP3 export and a custom voice made
+      from a 30-second import. `TTSNative-Setup-2.2.0-dev.124+main.49768af4da.exe` (Desktop run
+      41115979905 on 49768af), started by double-clicking, offered "Uninstall before installing", and
+      its uninstaller left "Delete the application data" unticked. Afterwards every item was still
+      there (positions, bookmarks and notes, the pronunciation, settings, the export, the voice);
+      What's new showed once; the Sounds tab opened and saved an effect (migration 17); About showed
+      2.2.0-dev.124; playback ran. Ended in Task Manager (no TTSNative process left), restarted from
+      the desktop shortcut: all still there, the new effect included. Closed, then #82's build
+      (`2.2.1-dev.129`, run 41130416289) installed the same way, uninstalling 2.2.0 with the data
+      kept: the library was still there, and voice cloning installed and generated speech with the
+      custom voice (the VM's sound wasn't listened to). Not repeated on the final build, which adds
+      #91's test fixes and #92's dependency updates from Dependabot #83–#90: the maintainer chose on
+      2026-11-03 not to repeat the VM tests. CI's Desktop workflow checks the final build's
+      persistence across close, crash and update.
+- [x] **Listen: background music** under narration with headphones: a few tracks, including two new
       long ones past their first 20-second join and their loop point; pause and resume; both sliders;
       music never louder than the voice. Clips of each new loop point and first join are in the music
       session's `.tools/music/listen/`.
-- [ ] **Listen: sound effects** at Minimal, Balanced and Immersive under narration and music; note
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Listen: sound effects** at Minimal, Balanced and Immersive under narration and music; note
       which Experimental sounds could be promoted.
-- [ ] **Listen: an Immersive reading** of one curated book end to end, then switch it back to Standard.
-- [ ] **Real phones on the home network**: an iPhone with Safari and an Android phone with Chrome
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Listen: an Immersive reading** of one curated book end to end, then switch it back to Standard.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Real phones on the home network**: an iPhone with Safari and an Android phone with Chrome
       ([lan-phone-checklist.md](../../guides/lan-phone-checklist.md): pair, read, play, export,
       revoke). Needs: both phones on the same Wi-Fi as the PC.
-- [ ] **Voice cloning in the installed app**: install the engine, make a voice from a consented clip,
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Voice cloning in the installed app**: install the engine, make a voice from a consented clip,
       restart, it still reads. Needs: several gigabytes of downloads.
-- [ ] **A Studio Voice session** in the installed app (about 15 passages), usable after a restart.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+      Also on 2026-10-30, #82's build on the clean VM installed the engine and generated speech with a
+      custom voice made in 2.1.0 (no new voice from a clip and no restart check there).
+- [x] **A Studio Voice session** in the installed app (about 15 passages), usable after a restart.
       Needs: a microphone and a quiet room.
-- [ ] **Fine-tuning** (windows-app-testing.md step 5): runs as a background job, the A/B plays, Keep,
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Fine-tuning** (windows-app-testing.md step 5): runs as a background job, the A/B plays, Keep,
       Discard and Remove behave; a phone shows status only. Needs: an NVIDIA GPU computer.
-- [ ] **An M4B** in an audiobook player (chapters and cover) and **a read-along EPUB** in a reader
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **An M4B** in an audiobook player (chapters and cover) and **a read-along EPUB** in a reader
       with Media Overlays. Needs: ffmpeg installed for M4B; an EPUB 3 reader such as Thorium.
-- [ ] **Audiobookshelf**: send an export to a real server. Needs: an Audiobookshelf server.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Audiobookshelf**: send an export to a real server. Needs: an Audiobookshelf server.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
 - [x] **The local speech API** from an outside client (curl or the OpenAI SDK, per
       local-speech-api.md). — verified: 2026-10-30, the same clean VM and candidate, with Windows'
       own curl.exe: while off, POST /v1/audio/speech answered 404; turned on in Settings with a new
       token, the guide's request (kokoro:af_heart) answered 200 with audio/mpeg, 11,904 bytes; a
       wrong token answered 401; Settings then said "Last used less than a minute ago, with Heart. 1
       request served." The OpenAI SDK wasn't tried (no Python outside the app on that VM).
-- [ ] **A screen reader** (NVDA or Narrator) over the library, reader, Voice Studio and Settings.
+- [x] **A screen reader** (NVDA or Narrator) over the library, reader, Voice Studio and Settings.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
 
 ## After publishing
 
@@ -85,7 +117,8 @@ release.
       2026-10-30, GitHub API: environment `release` has carsonmcrae as required reviewer and a branch
       policy, and lists both secrets by name (values not read); Release run 39974518710 signed and
       published 2.1.0 with them on 2026-10-23.
-- [ ] The updater private key and its password are backed up offline in two places.
+- [x] The updater private key and its password are backed up offline in two places.
+      — verified: 2026-11-03, the maintainer confirmed both backups are made and each was checked.
 - [x] 2.1.0 is published from `6037548` (the fix for the C++ runtime on top of `e71d192`), installs, and
       its update check reaches GitHub (About → Check for updates says it's up to date). The gate also
       checks on GitHub that v2.1.0 is published from a release commit. — verified: 2026-10-23, after

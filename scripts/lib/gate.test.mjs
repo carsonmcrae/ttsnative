@@ -4,10 +4,10 @@
 /**
  * Purpose: Tests for the release-readiness gate's judgements.
  * Scope: Which versions are gated; the newest run of each required workflow decides; SonarQube evidence
- *   counts only for this commit or one that differs by the evidence itself, and only at the project's
- *   policy; checks before release need a "verified:" note or a waiver with a reason (never for a
- *   required one), checks after publishing can't be marked early and block the next release, blockers
- *   are resolved, and the previous release is published from a release commit.
+ *   is optional, and counts only for this commit or one that differs by the evidence itself, and only at
+ *   the project's policy; checks before release need a "verified:" note or a waiver with a reason (never
+ *   for a required one), checks after publishing can't be marked early and block the next release,
+ *   blockers are resolved, and the previous release is published from a release commit.
  * Does NOT belong: Fetching runs or files (scripts/release/gate.mjs).
  */
 import assert from 'node:assert/strict';
@@ -19,6 +19,7 @@ import {
   previousReleaseVerdict,
   qualityEvidence,
   qualityVerdict,
+  unmet,
   workflowVerdicts,
 } from './gate.mjs';
 
@@ -72,12 +73,13 @@ test('SonarQube evidence counts only for this commit, or one that differs by the
   const commit = 'a'.repeat(40);
   assert.match(
     qualityVerdict(null, [], '2.2.0').detail,
-    /no docs\/readiness\/2\.2\.0\/quality\.json/,
+    /not run: no docs\/readiness\/2\.2\.0\/quality\.json/,
   );
   assert.deepEqual(qualityVerdict({ commit, gate: 'ERROR' }, [], '2.2.0'), {
-    item: 'SonarQube quality gate passed',
+    item: 'SonarQube quality gate passed (optional)',
     ok: false,
     detail: 'gate ERROR on aaaaaaa',
+    optional: true,
   });
   assert.equal(
     qualityVerdict(
@@ -96,13 +98,22 @@ test('SonarQube evidence counts only for this commit, or one that differs by the
   assert.match(stale.detail, /1 file\(s\) changed since \(apps\/web\/src\/a\.ts\)/);
 });
 
+test('only a required verdict that is unmet stops the release; SonarQube never does', () => {
+  const required = { item: 'CI passed on this commit', ok: false, detail: 'no run' };
+  const passed = { item: 'CodeQL passed on this commit', ok: true, detail: 'completed/success' };
+  const sonar = qualityVerdict(null, [], '2.2.0');
+  assert.deepEqual(unmet([required, passed, sonar]), [required]);
+  assert.deepEqual(unmet([passed, sonar]), []);
+});
+
 test("a passing SonarQube gate still has to meet the project's policy", () => {
   const commit = 'a'.repeat(40);
   const loose = { ...MEASURES, line_coverage: '99.8', duplicated_lines_density: '0.4' };
   assert.deepEqual(qualityVerdict({ commit, gate: 'OK', measures: loose }, [], '2.2.0'), {
-    item: 'SonarQube quality gate passed',
+    item: 'SonarQube quality gate passed (optional)',
     ok: false,
     detail: "below the project's policy: line_coverage 99.8, duplicated_lines_density 0.4",
+    optional: true,
   });
   const unrecorded = Object.fromEntries(
     Object.entries(MEASURES).filter(([metric]) => metric !== 'bugs'),

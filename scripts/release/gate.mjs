@@ -5,9 +5,10 @@
  * Purpose: `npm run release:gate -- <X.Y.Z> [--commit <sha>]` — is this exact commit ready to ship?
  * Scope: Runs the in-repository checks (version files; change files, their surfaces and the notes),
  *   asks GitHub (`gh`) which workflows passed on the commit and whether the previous release is
- *   published from its release commit, reads the version's SonarQube evidence and acceptance checklist
- *   under docs/readiness/X.Y.Z/ (and the previous gated version's checks after publishing), prints
- *   every requirement with its evidence and fails if one is unmet. release.yml runs it before anything is built. Versions before 2.2.0
+ *   published from its release commit, reads the version's acceptance checklist and any SonarQube
+ *   evidence under docs/readiness/X.Y.Z/ (and the previous gated version's checks after publishing),
+ *   prints every requirement with its evidence and fails if a required one is unmet (SonarQube is
+ *   optional: shown, never required). release.yml runs it before anything is built. Versions before 2.2.0
  *   predate the gate.
  * Does NOT belong: The judgements themselves (lib/gate.mjs) or recording SonarQube's result
  *   (sonar-evidence.mjs).
@@ -24,6 +25,7 @@ import {
   previousReleaseVerdict,
   qualityVerdict,
   readinessDir,
+  unmet,
   workflowVerdicts,
 } from '../lib/gate.mjs';
 import { git } from '../lib/git.mjs';
@@ -156,6 +158,7 @@ function main() {
   const changedSince = evidence
     ? (git(['diff', '--name-only', evidence.commit, commit]) ?? '').split('\n').filter(Boolean)
     : [];
+  /** @type {import('../lib/gate.mjs').Verdict[]} */
   const verdicts = [
     scriptVerdict('Version files agree', 'check-version.mjs'),
     scriptVerdict('Change files, their surfaces and the notes are valid', 'check-changes.mjs'),
@@ -167,10 +170,12 @@ function main() {
   ];
   console.log(`Release-readiness gate for ${version} at ${commit.slice(0, 7)}:`);
   for (const verdict of verdicts) {
-    const mark = verdict.ok ? color.green('✓') : color.red('✗');
+    let mark = color.red('✗');
+    if (verdict.ok) mark = color.green('✓');
+    else if (verdict.optional) mark = color.yellow('!');
     console.log(`${mark} ${verdict.item}: ${verdict.detail}`);
   }
-  const failed = verdicts.filter((verdict) => !verdict.ok).length;
+  const failed = unmet(verdicts).length;
   if (failed) {
     console.error(
       `${failed} requirement(s) unmet; see docs/guides/release-process.md, "Readiness gate".`,
