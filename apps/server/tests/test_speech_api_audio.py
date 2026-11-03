@@ -168,6 +168,7 @@ def test_a_request_that_takes_too_long_answers_504(settings: Settings) -> None:
     slow = speak(program(web), token, input="This takes a while.")
     assert slow.status_code == 504 and error_code(slow) == "timeout"
     engine.release.set()
+    services.speech_api.settings = settings  # the usual timeout: 0.3 s is too tight for a slow CI runner
     assert speak(program(web), token, input="This takes a while.").status_code == 200
     assert services.speech_api.usage.snapshot().requests == 1
 
