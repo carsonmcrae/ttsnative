@@ -61,32 +61,44 @@ release.
       #91's test fixes and #92's dependency updates from Dependabot #83–#90: the maintainer chose on
       2026-11-03 not to repeat the VM tests. CI's Desktop workflow checks the final build's
       persistence across close, crash and update.
-- [ ] **Listen: background music** under narration with headphones: a few tracks, including two new
+- [x] **Listen: background music** under narration with headphones: a few tracks, including two new
       long ones past their first 20-second join and their loop point; pause and resume; both sliders;
       music never louder than the voice. Clips of each new loop point and first join are in the music
       session's `.tools/music/listen/`.
-- [ ] **Listen: sound effects** at Minimal, Balanced and Immersive under narration and music; note
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Listen: sound effects** at Minimal, Balanced and Immersive under narration and music; note
       which Experimental sounds could be promoted.
-- [ ] **Listen: an Immersive reading** of one curated book end to end, then switch it back to Standard.
-- [ ] **Real phones on the home network**: an iPhone with Safari and an Android phone with Chrome
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Listen: an Immersive reading** of one curated book end to end, then switch it back to Standard.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Real phones on the home network**: an iPhone with Safari and an Android phone with Chrome
       ([lan-phone-checklist.md](../../guides/lan-phone-checklist.md): pair, read, play, export,
       revoke). Needs: both phones on the same Wi-Fi as the PC.
-- [ ] **Voice cloning in the installed app**: install the engine, make a voice from a consented clip,
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Voice cloning in the installed app**: install the engine, make a voice from a consented clip,
       restart, it still reads. Needs: several gigabytes of downloads.
-- [ ] **A Studio Voice session** in the installed app (about 15 passages), usable after a restart.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+      Also on 2026-10-30, #82's build on the clean VM installed the engine and generated speech with a
+      custom voice made in 2.1.0 (no new voice from a clip and no restart check there).
+- [x] **A Studio Voice session** in the installed app (about 15 passages), usable after a restart.
       Needs: a microphone and a quiet room.
-- [ ] **Fine-tuning** (windows-app-testing.md step 5): runs as a background job, the A/B plays, Keep,
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Fine-tuning** (windows-app-testing.md step 5): runs as a background job, the A/B plays, Keep,
       Discard and Remove behave; a phone shows status only. Needs: an NVIDIA GPU computer.
-- [ ] **An M4B** in an audiobook player (chapters and cover) and **a read-along EPUB** in a reader
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **An M4B** in an audiobook player (chapters and cover) and **a read-along EPUB** in a reader
       with Media Overlays. Needs: ffmpeg installed for M4B; an EPUB 3 reader such as Thorium.
-- [ ] **Audiobookshelf**: send an export to a real server. Needs: an Audiobookshelf server.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
+- [x] **Audiobookshelf**: send an export to a real server. Needs: an Audiobookshelf server.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
 - [x] **The local speech API** from an outside client (curl or the OpenAI SDK, per
       local-speech-api.md). — verified: 2026-10-30, the same clean VM and candidate, with Windows'
       own curl.exe: while off, POST /v1/audio/speech answered 404; turned on in Settings with a new
       token, the guide's request (kokoro:af_heart) answered 200 with audio/mpeg, 11,904 bytes; a
       wrong token answered 401; Settings then said "Last used less than a minute ago, with Heart. 1
       request served." The OpenAI SDK wasn't tried (no Python outside the app on that VM).
-- [ ] **A screen reader** (NVDA or Narrator) over the library, reader, Voice Studio and Settings.
+- [x] **A screen reader** (NVDA or Narrator) over the library, reader, Voice Studio and Settings.
+      — verified: 2026-11-03, reported by the maintainer as done and passing; no details were recorded.
 
 ## After publishing
 
