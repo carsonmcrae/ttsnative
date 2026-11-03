@@ -158,6 +158,7 @@ function main() {
   const changedSince = evidence
     ? (git(['diff', '--name-only', evidence.commit, commit]) ?? '').split('\n').filter(Boolean)
     : [];
+  /** @type {import('../lib/gate.mjs').Verdict[]} */
   const verdicts = [
     scriptVerdict('Version files agree', 'check-version.mjs'),
     scriptVerdict('Change files, their surfaces and the notes are valid', 'check-changes.mjs'),
