@@ -34,6 +34,7 @@ const docs: DocumentSummary[] = [
   documentDetail({
     id: 'a'.repeat(32),
     title: 'Favourite',
+    createdAt: new Date().toISOString(), // Recently added counts the last 14 days, so added today whatever the date
     shelf: {
       folderId: F1,
       favorite: true,
