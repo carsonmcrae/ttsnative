@@ -116,9 +116,9 @@ pending change file (`npm run release:status` shows it). The version is kept in 
 they disagree. `npm run release:prepare` writes the version, the dated changelog entry and a draft of
 the release notes, which a person rewrites. From 2.2.0, a tag is only released when its commit passes
 the [readiness gate](https://github.com/carsonmcrae/ttsnative/blob/main/docs/guides/release-process.md#readiness-gate):
-CI, the Windows app, CodeQL and the browser journeys passed on that commit, SonarQube's result is
-recorded, and the manual checks are done. The Release workflow then publishes the release with
-checksums (`SHA256SUMS.txt`), SBOMs and signed build provenance. See the
+CI, the Windows app, CodeQL and the browser journeys passed on that commit and the manual checks are
+done (a SonarQube result is optional: shown when recorded, never required). The Release workflow then
+publishes the release with checksums (`SHA256SUMS.txt`), SBOMs and signed build provenance. See the
 [release process](https://github.com/carsonmcrae/ttsnative/blob/main/docs/guides/release-process.md).
 
 ## Editing this wiki

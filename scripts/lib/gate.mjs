@@ -4,13 +4,13 @@
 /**
  * Purpose: The release-readiness gate: what must be true of the exact commit a version ships from.
  * Scope: Judging each requirement from its evidence: the workflows that ran on that commit (CI, the
- *   Windows app, CodeQL and the browser journeys, which pass only as a whole); the SonarQube result
- *   recorded for it, held to the project's own policy (100 % coverage, no duplication, no open issue,
- *   every hotspot reviewed) whatever the server's gate allows; the previous release, published from a
- *   release commit; and the acceptance checklists: this version's checks before release done with a
- *   "verified:" note (or waived with a reason, never a required one), its checks after publishing
- *   still open, the previous version's checks after publishing done, and no open blocker.
- *   Versions before 2.2.0 predate the gate.
+ *   Windows app, CodeQL and the browser journeys, which pass only as a whole); the previous release,
+ *   published from a release commit; and the acceptance checklists: this version's checks before
+ *   release done with a "verified:" note (or waived with a reason, never a required one), its checks
+ *   after publishing still open, the previous version's checks after publishing done, and no open
+ *   blocker. A SonarQube result, when the maintainer chose to record one, is judged against the
+ *   project's own policy (100 % coverage, no duplication, no open issue, every hotspot reviewed) and
+ *   shown, but it is optional and never fails the gate. Versions before 2.2.0 predate the gate.
  * Does NOT belong: Fetching the evidence (scripts/release/gate.mjs) or the checks the workflows run.
  */
 import { compareVersions } from './semver.mjs';
@@ -28,12 +28,18 @@ export const readinessDir = (/** @type {string} */ version) => `docs/readiness/$
 
 /**
  * @typedef {{ name: string, status: string, conclusion: string | null, created_at: string }} Run
- * @typedef {{ item: string, ok: boolean, detail: string }} Verdict
+ * @typedef {{ item: string, ok: boolean, detail: string, optional?: boolean }} Verdict
  * @typedef {{ commit: string, gate: string, measures?: Record<string, string | null> }} QualityEvidence
  */
 
 /** @param {string} version */
 export const isGated = (version) => compareVersions(version, GATED_FROM) >= 0;
+
+/**
+ * The verdicts that stop a release: unmet and not optional.
+ * @param {Verdict[]} verdicts
+ */
+export const unmet = (verdicts) => verdicts.filter((verdict) => !verdict.ok && !verdict.optional);
 
 /**
  * A run's state as GitHub reports it: "completed/success", "in_progress", or "no run".
@@ -89,33 +95,34 @@ function policyMisses(measures) {
 }
 
 /**
- * The SonarQube quality gate passed on this commit, or on one that differs from it only by the
- * recorded evidence, and the recorded measures meet the project's policy.
+ * Optional: the SonarQube quality gate passed on this commit, or on one that differs from it only by
+ * the recorded evidence, and the recorded measures meet the project's policy. The maintainer runs
+ * SonarQube when they choose, so a missing, failed or out-of-date result is reported, never required.
  * @param {QualityEvidence | null} evidence
  * @param {string[]} changedSince files changed between the analysed commit and this one
  * @param {string} version
  * @returns {Verdict}
  */
 export function qualityVerdict(evidence, changedSince, version) {
-  const item = 'SonarQube quality gate passed';
-  if (!evidence) {
-    return { item, ok: false, detail: `no ${readinessDir(version)}/quality.json` };
-  }
+  const verdict = (/** @type {boolean} */ ok, /** @type {string} */ detail) => ({
+    item: 'SonarQube quality gate passed (optional)',
+    ok,
+    detail,
+    optional: true,
+  });
+  if (!evidence) return verdict(false, `not run: no ${readinessDir(version)}/quality.json`);
   if (evidence.gate !== 'OK') {
-    return { item, ok: false, detail: `gate ${evidence.gate} on ${evidence.commit.slice(0, 7)}` };
+    return verdict(false, `gate ${evidence.gate} on ${evidence.commit.slice(0, 7)}`);
   }
   const misses = policyMisses(evidence.measures);
-  if (misses.length) {
-    return { item, ok: false, detail: `below the project's policy: ${misses.join(', ')}` };
-  }
+  if (misses.length) return verdict(false, `below the project's policy: ${misses.join(', ')}`);
   const other = changedSince.filter((file) => !file.startsWith(`${readinessDir(version)}/`));
   return other.length
-    ? {
-        item,
-        ok: false,
-        detail: `analysed ${evidence.commit.slice(0, 7)}, but ${other.length} file(s) changed since (${other.slice(0, 3).join(', ')})`,
-      }
-    : { item, ok: true, detail: `gate OK on ${evidence.commit.slice(0, 7)}` };
+    ? verdict(
+        false,
+        `analysed ${evidence.commit.slice(0, 7)}, but ${other.length} file(s) changed since (${other.slice(0, 3).join(', ')})`,
+      )
+    : verdict(true, `gate OK on ${evidence.commit.slice(0, 7)}`);
 }
 
 /** The measures SonarQube evidence records, as SonarQube names them. */
