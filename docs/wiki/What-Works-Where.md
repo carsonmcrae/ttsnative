@@ -2,7 +2,7 @@
 
 TTSNative is one app that you can reach in several ways:
 
-- **Windows app**: the installed app on a Windows 11 computer (from version 2.1.0, not published yet).
+- **Windows app**: the installed app on a Windows 11 computer (published since version 2.1.0).
 - **Browser on the computer**: the app in a browser on the computer running TTSNative, at
   `http://127.0.0.1:…` (how you use it from source).
 - **Phone or tablet**: a phone or tablet's browser on your home network, paired in LAN mode (see
@@ -106,13 +106,12 @@ device.
 12. **The browser and phones use whatever version runs on the computer.** From source, you update
     with `git pull`; the Windows app updates itself.
 13. **These open folders on the computer**, which only the Windows app's own window can do.
-14. **The website only describes and offers what the newest published release has.** Until 2.1.0 is
-    published, its download page says the installer isn't out yet.
+14. **The website only describes and offers what the newest published release has.**
 
 ## The website
 
 [ttsnative.com](https://ttsnative.com) shows the features, the videos, privacy, install steps and the
-release notes, and offers the Windows installer once a release includes it. Its speech demo uses your
+release notes, and offers the Windows installer. Its speech demo uses your
 browser's built-in voices, not TTSNative's, and says so. Nothing you do on the website reaches your
 copy of TTSNative.
 

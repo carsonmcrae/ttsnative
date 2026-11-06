@@ -1,8 +1,8 @@
 # Installation
 
-On Windows 11 you'll be able to install the [Windows app](Windows-App) instead, with no developer
-tools: it comes with version 2.1.0, which isn't published yet. This page covers running TTSNative from
-its source code (Windows, macOS and Linux), which is how you run it today and how you develop it.
+On Windows 11 you can install the [Windows app](Windows-App) instead, with no developer tools. This
+page covers running TTSNative from its source code (Windows, macOS and Linux), which is also how you
+develop it.
 
 | You get                     | Windows app                                 | From source                                     |
 | --------------------------- | ------------------------------------------- | ----------------------------------------------- |

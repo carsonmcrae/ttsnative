@@ -3,9 +3,9 @@
 Why TTSNative ships two ways on Windows, what each needs, and where the work stands. The decision is
 [ADR-26](../architecture/decisions.md#adr-26-windows-ships-through-the-microsoft-store-with-a-signpath-signed-direct-download-beside-it).
 
-## What people see today (2.1.0, unsigned)
+## What people see today (unsigned)
 
-Checked on a clean Windows 11 VM on 2026-10-23, downloading from ttsnative.com in Edge:
+Checked with 2.1.0 on a clean Windows 11 VM on 2026-10-23, downloading from ttsnative.com in Edge:
 
 1. Edge holds the download: "TTSNative-Setup-2.1.0.exe isn't commonly downloaded". The way on is
    **⋯ → Keep**, then a second screen ("Publisher: Unknown") whose main button is **Delete**; **Keep

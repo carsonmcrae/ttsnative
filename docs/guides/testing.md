@@ -33,22 +33,26 @@
 The 100 % gates measure **unit and component tests**, which run with fakes instead of models:
 
 - **Web:** every file under `apps/web/src`, except tests and test helpers, the generated API types
-  (`schema.gen.ts`) and the eight-line `main.tsx` bootstrap. `fetch` is mocked, so no real server or
+  (`schema.gen.ts`) and the `main.tsx` bootstrap. `fetch` is mocked, so no real server or
   audio is involved.
 - **Server:** the whole `ltts` package with branch coverage. Engines are replaced by `FakeEngine`, so
   the API, jobs, caching, exports, documents and model store are exercised without loading a model.
-  Only `if TYPE_CHECKING:`, `raise NotImplementedError`, `@overload` and `__main__` guards are
-  excluded.
-- **There are no ignore comments** (`# pragma: no cover`, `v8 ignore`) in either app.
+  The coverage settings exclude only `if TYPE_CHECKING:`, `raise NotImplementedError`, `@overload`
+  and `__main__` guards.
+- **Ignore comments are kept to two**, both `# pragma: no cover` in the server with the reason on the
+  same line: a guard in `engines/cloned_speech.py` that voiced frames can't reach, and the Windows-only
+  `_dpapi` in `secrets.py`. The web app has none (`v8 ignore`).
 
 Outside those numbers:
 
-- **The Chatterbox worker** (`apps/chatterbox-worker/src`, about 360 lines) has no unit tests. Its
+- **The Chatterbox worker** (`apps/chatterbox-worker/src`, about 930 lines) has no unit tests. Its
   protocol is tested from the server side with a fake worker, and its real behaviour only by
   `npm run test:inference` on a machine with Chatterbox installed (not in CI).
-- **The Node scripts** (`scripts/`, about 4,000 lines: setup, dev, start, doctor, site and media builds)
-  have no unit tests. CI runs the site build; the weekly inference workflow runs a clean `setup`; the
-  e2e suite starts every server through `scripts/e2e-server.mjs`.
+- **The Node scripts** (`scripts/`, about 9,600 lines without their tests: setup, dev, start, doctor,
+  release, packaging, site and media builds) have no coverage gate. `npm run test:scripts`, which CI
+  runs, has 16 `*.test.mjs` files for the release, packaging and website rules; the other scripts have
+  no unit tests. CI runs the site build; the weekly inference workflow runs a clean `setup`; the e2e
+  suite starts every server through `scripts/e2e-server.mjs`.
 - **The website script** (`site/demo.js`) is tested in real browsers by `tests/e2e/site.spec.ts`, not by
   a coverage tool.
 
