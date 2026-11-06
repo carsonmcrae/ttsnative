@@ -1,9 +1,9 @@
 # The Windows app
 
-From TTSNative 2.1.0 there is an installer for **Windows 11 (64-bit)**: no Git, Node.js, Python or
-terminal needed. **2.1.0 isn't published yet**, so for now run TTSNative [from source](Installation).
-Once it is out, download it from **[ttsnative.com/download](https://ttsnative.com/download/)**, which
-always points at the newest installer. The file is also attached to the
+TTSNative has an installer for **Windows 11 (64-bit)**, published since version 2.1.0: no Git,
+Node.js, Python or terminal needed. Download it from
+**[ttsnative.com/download](https://ttsnative.com/download/)**, which always points at the newest
+installer. The file is also attached to the
 [release on GitHub](https://github.com/carsonmcrae/ttsnative/releases/latest) as
 `TTSNative-Setup-<version>.exe`.
 

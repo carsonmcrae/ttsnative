@@ -8,8 +8,7 @@ short clip for a quick voice, or a guided session for a studio voice.
 
 Everything runs locally: no accounts, no cloud and no telemetry. The app listens only on
 `127.0.0.1` (and on your home network only while you turn LAN mode on) and works offline once its
-voice model is installed. Run it from source today, or, from version 2.1.0 (not published yet), install
-the [Windows app](Windows-App).
+voice model is installed. Install the [Windows app](Windows-App) on Windows 11, or run it from source.
 
 ## Watch it
 

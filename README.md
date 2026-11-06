@@ -32,13 +32,11 @@ a narration voice from a recording of yourself, with your consent built in.
 
 TTSNative is free and open source (MIT). It was called **Local TTS** until version 2.0.
 
-**Which version has what.** The newest published release is
-[2.0.0](https://github.com/carsonmcrae/ttsnative/releases/tag/v2.0.0), run from source: the reader
-(PDF, DOCX, EPUB, Markdown, TXT), the 54 built-in voices, quick custom voices and MP3 or WAV export.
-This page describes the code on `main`, which a source install runs today. Most of what it adds,
-including the Windows installer, arrives in a published release with **2.1.0**
-([its notes](docs/releases/2.1.0.md)); sound effects come with **2.2.0**. Each version's
-[release notes](docs/releases/) say exactly what it has.
+**Which version has what.** The badge above names the newest published release, which you can
+[download for Windows 11](https://ttsnative.com/download/). The Windows installer first came with
+[2.1.0](docs/releases/2.1.0.md) and sound effects with [2.2.0](docs/releases/2.2.0.md). This page
+describes the code on `main`, which a source install runs, so it can be ahead of the newest release.
+Each version's [release notes](docs/releases/) say exactly what it has.
 
 <p align="center">
   <a href="https://ttsnative.com/#overview"><img src="docs/media/ttsnative-promo-poster.webp" alt="TTSNative showcase video: any document, read aloud" width="860" /></a>
@@ -97,13 +95,11 @@ including the Windows installer, arrives in a published release with **2.1.0**
 
 ## Quick start
 
-**Windows 11:** from version 2.1.0, releases include a Windows installer: no developer tools needed,
-the default voice is included, updates arrive in the app, and your data stays in your user folder.
-**It isn't published yet**: until 2.1.0 is released,
-**[ttsnative.com/download](https://ttsnative.com/download/)** says so and points to the source install;
-afterwards it always points at the newest installer. The installer isn't code-signed yet, so Windows
-SmartScreen warns before it runs; updates are checked against the project's own update signature. See
-the [Windows app guide](docs/wiki/Windows-App.md).
+**Windows 11:** download the installer from **[ttsnative.com/download](https://ttsnative.com/download/)**,
+which always points at the newest release: no developer tools needed, the default voice is included,
+updates arrive in the app, and your data stays in your user folder. The installer isn't code-signed
+yet, so Windows SmartScreen warns before it runs; updates are checked against the project's own update
+signature. See the [Windows app guide](docs/wiki/Windows-App.md).
 
 **From source** (Windows, macOS, Linux, and for development): you need **Node.js 22.22 or newer** and Git. That's all — the first run installs everything else inside
 this folder.
@@ -147,13 +143,13 @@ Limits (configurable): 25 MB per file, 2 million characters, 2,000 PDF pages.
 
 ## Platforms
 
-| Platform                | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Windows 11, Windows app | Not published yet (first in 2.1.0). Every change to it is built and tested by CI on GitHub's Windows Server 2025 runners: an installer smoke test (silent install, real speech, an MP3 export, every page), data kept across a close and a crash, and the update path (a bad signature or broken download refused, a verified update installed). The interactive installer and SmartScreen prompt still need a check by hand ([details](docs/guides/windows-app-testing.md)). |
-| Windows, macOS, Linux   | From source. Server unit and API tests run in CI on Ubuntu 24.04, Windows Server 2025 and macOS 15; web tests and the Playwright journeys on Ubuntu. The full app was not manually tested on macOS or Linux.                                                                                                                                                                                                                                                                  |
-| Chrome / Edge, Firefox  | ✅ End-to-end tested                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Safari                  | Tested with Playwright's WebKit build; not verified on real Apple hardware                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Phones                  | Layout and playback tested with Pixel 7 and iPhone 13 emulation; see [LAN access](docs/guides/lan-access.md) to try it on a real phone and [what works where](docs/wiki/What-Works-Where.md)                                                                                                                                                                                                                                                                                  |
+| Platform                | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows 11, Windows app | [Published](https://ttsnative.com/download/) since 2.1.0. Every change to it is built and tested by CI on GitHub's Windows Server 2025 runners: an installer smoke test (silent install, real speech, an MP3 export, every page), data kept across a close and a crash, and the update path (a bad signature or broken download refused, a verified update installed). The interactive installer and SmartScreen prompt are checked by hand before each major or minor release ([details](docs/guides/windows-app-testing.md)). |
+| Windows, macOS, Linux   | From source. Server unit and API tests run in CI on Ubuntu 24.04, Windows Server 2025 and macOS 15; web tests and the Playwright journeys on Ubuntu. The full app was not manually tested on macOS or Linux.                                                                                                                                                                                                                                                                                                                    |
+| Chrome / Edge, Firefox  | ✅ End-to-end tested                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Safari                  | Tested with Playwright's WebKit build; not verified on real Apple hardware                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Phones                  | Layout and playback tested with Pixel 7 and iPhone 13 emulation; see [LAN access](docs/guides/lan-access.md) to try it on a real phone and [what works where](docs/wiki/What-Works-Where.md)                                                                                                                                                                                                                                                                                                                                    |
 
 ## Voices and models
 
