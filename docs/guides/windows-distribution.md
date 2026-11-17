@@ -203,6 +203,13 @@ first. Neither failed submission below would have reached Microsoft with these c
    run through the notes for certification as the reviewer would, including installing the
    voice-cloning engine and making a matched voice. The VM has no Visual C++ redistributable and no
    developer tools, which is what the review's PCs are like.
+   The first 2.3.0 candidate installed and narrated PDF, Word and EPUB content, including a matched
+   voice after reopening and after optional setup failed. It exposed two more faults: browser offline
+   detection paused requests to the local server, and uv's default redirected cache hid its Python
+   inspection module from the downloaded interpreter. The replacement runs local requests independently
+   of internet status and places uv's cache under the existing unvirtualized app folder. See the
+   [2.3.0 acceptance record](../readiness/2.3.0/acceptance.md) for observed results and pending retests;
+   neither fix is considered verified in a Store install until that replacement is tested.
 3. **What can't be tried here:** Microsoft's own PCs and network. If the engine can't be installed
    there, the reviewer now sees which limit stopped it and can make a matched voice.
 

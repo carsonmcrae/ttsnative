@@ -11,6 +11,7 @@
  * Does NOT belong: The rest of the site build (link checks in build-site.mjs).
  */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   applyConditions,
@@ -178,6 +179,70 @@ test('the download section is filled in, or replaced by the source install', () 
   assert.equal(
     keepUnreleased(applyConditions(cards, releasedFlags(['2.0.0'], ['2.0.0']))),
     'oldnew',
+  );
+});
+
+test('the homepage shows published music details and the optional 2.2.0 reading features', () => {
+  const homepage = readFileSync(new URL('../../site/index.html', import.meta.url), 'utf8');
+  const known = ['2.1.0', '2.2.0'];
+  const published = dropUnreleased(applyConditions(homepage, releasedFlags(known, known)));
+  assert.match(published, /<h3>Background music<\/h3>/);
+  assert.match(published, /New piano pieces and nature recordings run about five to eight minutes/);
+  assert.match(published, /<h3>Sound effects and Immersive reading<\/h3>/);
+  assert.match(published, /Effects and music stay off until you turn them on\./);
+  assert.doesNotMatch(published, /<!-- \/?if:released-/);
+
+  const earlier = dropUnreleased(applyConditions(homepage, releasedFlags(known, ['2.1.0'])));
+  assert.match(earlier, /<h3>Background music<\/h3>/);
+  assert.doesNotMatch(earlier, /New piano pieces and nature recordings/);
+  assert.doesNotMatch(earlier, /Sound effects and Immersive reading/);
+  const unpublished = dropUnreleased(applyConditions(homepage, releasedFlags(known, [])));
+  assert.doesNotMatch(unpublished, /<h3>Background music<\/h3>/);
+  assert.doesNotMatch(unpublished, /Sound effects and Immersive reading/);
+});
+
+test('nested flags are decided inside unknown wrappers without leaking hidden content', () => {
+  const page =
+    'before  <!-- if:download -->A<!-- if:released-2.2.0 -->B<!-- /if:released-2.2.0 -->C<!-- /if:download -->\nafter';
+  const decided = applyConditions(page, { 'released-2.2.0': true });
+  assert.equal(decided, 'before  <!-- if:download -->ABC<!-- /if:download -->\nafter');
+  assert.equal(applyConditions(decided, { download: true }), 'beforeABCafter');
+  assert.equal(applyConditions(decided, { download: false }), 'beforeafter');
+
+  const unreleased =
+    '<!-- if:download -->A<!-- if:released-9.0.0 -->hidden<!-- if:release -->nested<!-- /if:release -->secret<!-- /if:released-9.0.0 -->B<!-- /if:download -->';
+  assert.equal(dropUnreleased(unreleased), '<!-- if:download -->AB<!-- /if:download -->');
+  assert.equal(
+    keepUnreleased(unreleased),
+    '<!-- if:download -->Ahidden<!-- if:release -->nested<!-- /if:release -->secretB<!-- /if:download -->',
+  );
+});
+
+test('same-name conditions nest correctly without a fixed number of evaluation passes', () => {
+  const repeated = '<!-- if:ready -->'.repeat(200) + 'ready' + '<!-- /if:ready -->'.repeat(200);
+  assert.equal(applyConditions(repeated, { ready: true }), 'ready');
+  assert.equal(applyConditions(repeated, { ready: false }), '');
+  assert.equal(applyConditions(repeated, {}), repeated);
+  const future = repeated.replaceAll('if:ready', 'if:released-9.0.0');
+  assert.equal(dropUnreleased(future), '');
+  assert.equal(keepUnreleased(future), 'ready');
+});
+
+test('only complete conditional markers are evaluated and malformed pairs fail closed', () => {
+  const ordinary =
+    'if:released-2.2.0 <!-- release-history --> <!-- if:released-next -->later<!-- /if:released-next -->';
+  assert.equal(dropUnreleased(ordinary), ordinary);
+  assert.equal(keepUnreleased(ordinary), ordinary);
+  const inherited = '<!-- if:constructor -->unknown<!-- /if:constructor -->';
+  assert.equal(applyConditions(inherited, {}), inherited);
+  assert.throws(() => applyConditions('<!-- /if:ready -->', {}), /unmatched closing/);
+  assert.throws(
+    () => dropUnreleased('<!-- if:released-9.0.0 -->secret<!-- /if:released-8.0.0 -->'),
+    /unmatched closing/,
+  );
+  assert.throws(
+    () => keepUnreleased('<!-- if:released-9.0.0 -->secret'),
+    /never closed: if:released-9.0.0/,
   );
 });
 

@@ -17,6 +17,12 @@ All notable changes to this project are documented here. The format follows
 - On Windows in S mode, TTSNative says up front that the voice-cloning engine can't be installed there, instead of failing after a long download.
 - Voice Studio makes it clearer that a matched voice works without an extra download and that the saved recording can be used for cloning later.
 
+### Fixed
+
+- Your local library and saved voices stay usable without an internet connection, including adding documents and generating new narration.
+- The Microsoft Store app keeps voice-cloning setup files together so Windows can find them during installation.
+- The website keeps published music details visible and describes optional sound effects and Immersive reading.
+
 ### Technical
 
 - Microsoft's Store certification of 2.2.0 failed (10.1.2.10) because the reviewer's install of the voice-cloning engine ended with "Installing the Chatterbox runtime failed": `uv sync` exited non-zero on their PC, and the reason stayed in a log there. `engines/install_errors.py` now sorts uv's last lines into `install_blocked` (Windows error 4551, 1260, 1625, 225 or 226, or the matching wording), `install_certificate`, `install_network` (with the host from the failing address) and `install_disk_full`; anything else keeps `install_failed` / `update_failed` and quotes uv's last `error:` or `Caused by:` line with the home folder shortened to `~`.
@@ -34,6 +40,10 @@ All notable changes to this project are documented here. The format follows
 - README and wiki: the Windows installer is described as published (since 2.1.0, at ttsnative.com/download), not as coming. The README no longer names the newest version in its text; it points at the badge, which stays right on its own. The hand check of the interactive installer and SmartScreen is described as done before each major or minor release.
 - `docs/guides/testing.md`, "What the coverage numbers mean": states the two `# pragma: no cover` comments and what the coverage settings exclude, the Chatterbox worker at about 930 lines, the Node scripts at about 9,600 lines, and the 16 `*.test.mjs` files that `npm run test:scripts` runs in CI. `docs/guides/windows-distribution.md` says which version its download check used.
 - `docs/releases/2.2.0.md`: `date` corrected from 2026-10-30, when the notes were prepared, to 2026-11-06, the UTC date GitHub published the release, with `revised: 2026-11-06`. The release history pages now match the home and download pages. Copies already installed and the published `latest.json` keep the old date, and the `[2.2.0]` heading in `CHANGELOG.md` still says 2026-10-30, because only a release pull request writes that file.
+- Run local API queries and mutations with TanStack Query's `networkMode: 'always'`; regressions cover an uncached offline library, document creation, real narration and sentence advancement without blocking loopback HTTP.
+- Set `UV_CACHE_DIR` to the desktop app's unvirtualized `tools/uv-cache` folder, so uv and its downloaded Python share the interpreter-probe files. Keep the existing package capabilities and virtualization exclusion unchanged.
+- Evaluate nested website release conditions with a stack, preserve undecided wrappers, and reject malformed marker pairs instead of dropping published content or exposing unreleased content.
+- Record the initial clean-VM Store install, bundled and matched narration, MP3 playback, and the offline-query and Python-probe failures; the replacement package still needs a physical offline and engine-install retest.
 
 ## [2.2.0] - 2026-10-30
 

@@ -168,10 +168,13 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
+        // The API is local: losing internet access must not pause requests to this computer.
+        networkMode: 'always',
         retry: (count, error) =>
           count < 2 && !(error instanceof ApiError && error.status >= 400 && error.status < 500),
         refetchOnWindowFocus: false,
       },
+      mutations: { networkMode: 'always' },
     },
   });
 }

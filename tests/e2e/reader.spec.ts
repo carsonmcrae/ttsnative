@@ -4,13 +4,54 @@
  * Purpose: The core acceptance journey with real Kokoro inference in a real browser.
  * Scope: Paste text → play → hear real narration that advances sentence by sentence; upload TXT,
  *   Markdown, PDF, DOCX and EPUB and verify extraction; reject invalid uploads; resume a session
- *   after reload; switch voices; export audio and download it.
+ *   after reload; switch voices; export audio and download it; use the local library, create a
+ *   document and narrate it when the browser reports no network connection.
  * Does NOT belong: Voice cloning (studio.spec.ts) or mobile layout (mobile.spec.ts).
  */
 import { expect, test } from '@playwright/test';
 import { isSegmentAudio, pasteText, play, uploadFixture, waitForActiveSegment } from './helpers';
 
 test.describe('reading aloud', () => {
+  test('local library, document creation and narration work without internet @cross-browser', async ({
+    page,
+    request,
+  }, testInfo) => {
+    const seedTitle = `Offline library seed ${testInfo.project.name} ${testInfo.retry}`;
+    const seed = await request.post('/api/documents/text', {
+      headers: { 'X-LTTS-Client': 'web' },
+      data: {
+        title: seedTitle,
+        text: 'This document is already stored on this computer.',
+      },
+    });
+    expect(seed.status()).toBe(201);
+    await page.goto('/voices');
+    await expect(page.getByRole('heading', { level: 1, name: 'Voices' })).toBeVisible();
+    // Losing the internet does not block loopback HTTP. context.setOffline() would block both.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false });
+      window.dispatchEvent(new Event('offline'));
+    });
+    await page.getByRole('link', { name: 'Library', exact: true }).first().click();
+    await expect(page.getByRole('link', { name: seedTitle, exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Paste text' }).first().click();
+    const dialog = page.getByRole('dialog', { name: 'Paste text' });
+    await dialog.getByLabel('Title (optional)').fill('Offline narration');
+    await dialog
+      .getByLabel('Text')
+      .fill('A new page opens beside the quiet garden. The little blue bird sings again.');
+    await dialog.getByRole('button', { name: 'Add to library' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Offline narration' })).toBeVisible();
+    expect(await page.evaluate(() => navigator.onLine)).toBe(false);
+    const audio = page.waitForResponse((response) => isSegmentAudio(response, 0));
+    await play(page);
+    const response = await audio;
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toBe('audio/wav');
+    expect(Number(response.headers()['x-audio-duration'])).toBeGreaterThan(0.5);
+    await waitForActiveSegment(page, 1);
+  });
+
   test('pasted text is narrated with real audio and the highlight follows along @cross-browser', async ({
     page,
   }) => {
