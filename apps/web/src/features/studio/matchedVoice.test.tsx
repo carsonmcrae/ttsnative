@@ -7,10 +7,11 @@
  *   the short form on a profile card (the note where the voice went, and a failure).
  * Does NOT belong: Measuring the recording and choosing voices (the server's tests).
  */
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MatchedTone, MatchedVoice } from '@/api/blendQueries';
+import { keys } from '@/api/queries';
 import { json, kokoro, mockApi, preferences, renderWithApp, voiceProfile } from '@/test/render';
 import { ProfileCard } from './ProfileCard';
 import { TestStep } from './TestStep';
@@ -59,10 +60,11 @@ describe('Matched voice on the wizard’s last step', () => {
     renderWithApp(<TestStep profile={profile} />);
     expect(
       await screen.findByRole('heading', {
-        name: 'Can’t install the engine on this PC? Use a matched voice',
+        name: 'Use a matched voice without a download',
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(/It isn’t a copy of the voice/)).toBeInTheDocument();
+    expect(screen.getByText(/without recording again/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Create matched voice' }));
     expect(await screen.findByText('“Narrator (matched)” is ready')).toBeInTheDocument();
     expect(calls.find((call) => call.path === MAKE)?.body).toBe('{"tone":null}');
@@ -74,6 +76,40 @@ describe('Matched voice on the wizard’s last step', () => {
     await user.click(screen.getByRole('button', { name: 'Use for reading' }));
     expect(await screen.findByRole('button', { name: 'Used for reading' })).toBeDisabled();
     expect(calls.findLast((call) => call.method === 'PUT')?.body).toContain(`blend:${'a'.repeat(32)}`); // prettier-ignore
+  });
+
+  it('uses the saved original as a cloned voice after installing the engine later', async () => {
+    let ready = false;
+    const made = matched('a'.repeat(32), 'deeper', null);
+    const { calls } = api({
+      'GET /api/engines': () => [
+        kokoro(),
+        kokoro({ id: 'chatterbox', status: ready ? 'ready' : 'not_installed' }),
+      ],
+      [`POST ${MAKE}`]: made,
+    });
+    const user = userEvent.setup();
+    const { queryClient } = renderWithApp(<TestStep profile={profile} />);
+    await user.click(await screen.findByRole('button', { name: 'Create matched voice' }));
+    await user.click(await screen.findByRole('button', { name: 'Use for reading' }));
+    expect(await screen.findByRole('button', { name: 'Used for reading' })).toBeDisabled();
+    expect(calls.findLast((call) => call.method === 'PUT')?.body).toContain(made.blend.voiceId);
+
+    ready = true;
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.engines });
+    });
+    await user.click(await screen.findByRole('button', { name: 'Generate sample' }));
+    await waitFor(() =>
+      expect(calls.some((call) => call.path === `/api/voices/${profile.voiceId}/preview`)).toBe(
+        true,
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Use for reading' }));
+    expect(await screen.findByRole('button', { name: 'Used for reading' })).toBeDisabled();
+    expect(calls.findLast((call) => call.method === 'PUT')?.body).toContain(profile.voiceId);
+    expect(calls.filter((call) => call.path === MAKE)).toHaveLength(1);
+    expect(calls.filter((call) => ['PATCH', 'DELETE'].includes(call.method))).toHaveLength(0);
   });
 
   it('swaps to the other tone where the recording could be matched either way', async () => {

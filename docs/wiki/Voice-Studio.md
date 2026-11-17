@@ -7,7 +7,8 @@ longer guided session for the most faithful result.
 
 ## How it works
 
-Voice Studio uses [Chatterbox Turbo](https://github.com/resemble-ai/chatterbox) by Resemble AI (MIT).
+Cloning uses the optional [Chatterbox Turbo](https://github.com/resemble-ai/chatterbox) engine by
+Resemble AI (MIT).
 It copies a voice from a short reference recording at the moment it speaks ("zero-shot" cloning).
 
 - **No model is trained to make a voice.** A studio voice can optionally be
@@ -23,6 +24,9 @@ It copies a voice from a short reference recording at the moment it speaks ("zer
   the [roadmap](https://github.com/carsonmcrae/ttsnative/blob/main/README.md#roadmap).
 
 ## What you need
+
+These requirements apply to cloned voices and guided studio builds. A matched voice from a quick
+recording uses the voices already in the app and needs no additional download.
 
 |          |                                                                                                               |
 | -------- | ------------------------------------------------------------------------------------------------------------- |
@@ -60,16 +64,22 @@ Anything else is reported with the installer's own last message; the server log 
 
 ### Matched voice
 
-While the engine isn't installed, the last step of the wizard and each voice's card offer a **matched
-voice**. TTSNative measures the pitch of your recording and mixes the two built-in voices nearest to
-it, so the result speaks at your pitch. It is ready at once, needs no download and works on every PC.
+While the engine isn't installed, the last step of **Quick voice** and each saved voice's card offer a
+**matched voice**. You can choose it straight away without trying to install the engine first.
+TTSNative measures the pitch of your recording and mixes the two built-in voices nearest to it,
+so the result speaks at your pitch. It is ready at once and needs no additional download.
 It appears in the voice list as "_name_ (matched)" and is a voice blend like any other.
 
 A matched voice is a stand-in, not a copy of the voice: it has the pitch of the recording and the
 sound of TTSNative's own voices. Where a recording sits between the deeper and the lighter built-in
 voices, **Try a lighter version** (or **deeper**) replaces it with the other. Recordings pitched below
-or above every built-in voice get the nearest one. Your recording stays saved and becomes a cloned
-voice once the engine is installed.
+or above every built-in voice get the nearest one.
+
+Your original recording stays saved. If you install the optional engine later, choose **Use for
+reading** on the original profile in Voice Studio to hear it as a cloned voice. No new recording or
+reprocessing is needed: the engine uses the saved recording when it speaks. The separate
+"_name_ (matched)" blend stays in your voice list until you choose to remove it. Guided studio builds
+still need the cloning engine.
 
 ## Creating a voice
 
@@ -94,8 +104,8 @@ About two minutes. A wizard guides you through five steps.
    then press **Create voice**.
 5. **Try it.** Edit the test sentence if you like and press **Generate sample**. The first generation
    loads the model and can take a little while. **Use for reading** makes it your reading voice. If the
-   engine isn't installed yet, this step offers to install it instead, and a
-   [matched voice](#matched-voice) for a PC that can't install it.
+   engine isn't installed yet, choose a [matched voice](#matched-voice) without a download, or install
+   the optional cloning engine now or later. Your recording stays saved.
 
 ### Studio voice
 

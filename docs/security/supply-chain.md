@@ -265,6 +265,23 @@ The root `package.json` has two npm `overrides` for peer ranges that lag behind:
   accessibility and hooks errors on ESLint 9.39.5 and 10.12.0. Remove the override once a release
   declares ESLint 10.
 
+### minimatch 11.0.4 (2026-11-17)
+
+GHSA-g3hv-75wg-m249 (Dependabot #70) affects minimatch 7 through 10 when an attacker
+controls a glob pattern and preprocessing uses optimization level 2. The three affected 10.2.6
+copies belong to ESLint, its config-array helper and typescript-eslint; they are development tools
+and are not included in the Windows runtime. Their inspected call sites use the supported matcher
+API with the default optimization level.
+
+The scoped npm override minimatch@^10.0.0 takes 11.0.4 (released 2026-11-02), which includes
+its 11.0.1 security fix and later matcher corrections. Existing 3.x and 5.x consumers are unchanged.
+Its new development-only dependency, @isaacs/nonrecursive-glob-match 1.0.3 (2026-10-28), is
+BlueOak-1.0.0, as is minimatch; both meet the 14-day cool-down, and no install scripts run.
+Remove the override when the consuming tools declare a patched range themselves.
+
+The OpenTelemetry alerts #68 and #69 are already addressed by pull request #106: both Python
+locks contain opentelemetry-api 1.45.2, the patched release for GHSA-mf5v-w3w3-f6cg.
+
 ## Updating a model
 
 Model changes need a provenance review: confirm the source repository and licence, take the size and

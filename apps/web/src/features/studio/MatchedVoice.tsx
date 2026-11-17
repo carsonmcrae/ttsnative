@@ -22,7 +22,7 @@ import { useVoicePreview } from '@/features/voices/useVoicePreview';
 const SAMPLE_TEXT =
   'Hello! This is a matched voice. It was mixed from the voices that come with the app, at the pitch of my recording.';
 const WHAT_IT_IS =
-  'TTSNative can mix a stand-in from its own voices at the pitch of this recording. It reads straight away and needs no download. It isn’t a copy of the voice: that takes the cloning engine, and your recording is kept for it.';
+  'TTSNative can mix a stand-in from its own voices at the pitch of this recording. It reads straight away and needs no download. It isn’t a copy of the voice. You can install the optional cloning engine later and use this saved recording to clone the voice, without recording again.';
 
 export function MatchedVoice({ profile }: Readonly<{ profile: VoiceProfile }>) {
   const create = useCreateMatchedVoice();
@@ -39,7 +39,7 @@ export function MatchedVoice({ profile }: Readonly<{ profile: VoiceProfile }>) {
       className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-line p-4"
     >
       <h3 id={heading} className="font-semibold">
-        Can’t install the engine on this PC? Use a matched voice
+        Use a matched voice without a download
       </h3>
       <p className="text-sm text-muted">{WHAT_IT_IS}</p>
       {create.error ? <Banner tone="error">{describeError(create.error)}</Banner> : null}

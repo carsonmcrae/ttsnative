@@ -123,8 +123,10 @@ and the model) arrives after install. TTSNative says so and offers a matched voi
      > Voice Studio is optional: it creates a narration voice from your own recording, with the
      > speaker's consent. Cloning a voice downloads an extra speech engine (about 4 GB, or 8 GB with
      > an NVIDIA GPU) only when you turn it on, and needs a PC and a network that allow that download.
-     > Where they don't, as on Windows in S mode, TTSNative says so and can make a matched voice
-     > instead: a stand-in mixed from its own voices at the pitch of your recording.
+     > A quick voice can use a matched voice without installing that engine: a stand-in mixed from
+     > the app's own voices at the pitch of your recording. It is not a copy of your voice. Your
+     > recording is kept, so you can install the optional engine later and clone from it. On PCs
+     > that block the download, such as Windows in S mode, TTSNative explains the limitation.
      >
      > TTSNative is free and open source under the MIT licence: github.com/carsonmcrae/ttsnative
 
@@ -156,13 +158,16 @@ and the model) arrives after install. TTSNative says so and offers a matched voi
    > Library page, then press Play. The default voices are in the package and work offline.
    >
    > Voice Studio is optional. Voice Studio → Create voice → Quick voice records a short clip with
-   > the speaker's consent. Cloning it needs an engine that is downloaded only when the user presses
-   > Install: Python packages and model files (about 3.4 GB) from pinned, checksum-verified addresses
+   > the speaker's consent. Choose Create matched voice to make and play a stand-in using the
+   > built-in voices, with no additional download. Cloning the actual voice is optional and needs an
+   > engine that is downloaded only when the user presses Install: Python packages and model files (about 3.4 GB) from pinned, checksum-verified addresses
    > at pypi.org, files.pythonhosted.org, download.pytorch.org, github.com and huggingface.co. If the
    > test PC or its network doesn't allow that download (Windows in S mode, Smart App Control or
    > another application-control policy, a firewall or a filtering proxy), the app says which of
    > these stopped it. The same screen then offers Create matched voice, which needs no download and
-   > works on every PC: it mixes two built-in voices at the pitch of the recording.
+   > mixes two built-in voices at the pitch of the recording. The recording stays saved; after
+   > installing the engine later, choose Use for reading on the original voice profile to use it as a cloned
+   > voice, without recording again.
    >
    > TTSNative starts its local speech server as a child process. The server listens only on this
    > computer unless the user turns on access for phones in Settings.
