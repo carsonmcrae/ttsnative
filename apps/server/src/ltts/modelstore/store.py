@@ -2,8 +2,9 @@
 # Copyright (c) 2026 Carson McRae
 """Purpose: Download, verify, install and remove model artifacts listed in ``manifest.json``.
 
-Scope: HTTPS-only downloads restricted to approved hosts (checked after every redirect), resumable
-``.part`` files, retries with backoff, exact size + SHA-256 verification before an atomic rename,
+Scope: HTTPS-only downloads restricted to approved hosts (checked after every redirect) that trust the
+public certificate authorities and this computer's own, resumable ``.part`` files, retries with backoff,
+a failure that names the server it couldn't reach, exact size + SHA-256 verification before an atomic rename,
 an install marker written only after every file verifies, integrity checks of installed files (missing,
 incomplete or failing their checksum) with hashes remembered per file size and modification time,
 and a refusal to hand damaged files to an engine. A read-only folder of models shipped with the desktop
@@ -56,6 +57,32 @@ class ChecksumError(AppError):
 
 class ModelDamagedError(EngineUnavailableError):
     code = "model_damaged"
+
+
+def default_client() -> httpx.Client:
+    """An HTTPS client that trusts the usual public certificate authorities and this computer's own.
+
+    A network whose proxy inspects connections re-signs them with a certificate the PC was set up to
+    trust; without the PC's own list every download fails there. Each file is still checked against
+    its pinned SHA-256, whoever served it.
+    """
+    context = httpx.create_ssl_context()
+    context.load_default_certs()
+    return httpx.Client(follow_redirects=False, timeout=60.0, verify=context)
+
+
+def network_failure(file_name: str, url: str, error: httpx.HTTPError) -> str:
+    """Why a download didn't arrive, naming the server it was for."""
+    host = urlparse(url).hostname or "the model host"
+    if "CERTIFICATE_VERIFY_FAILED" in str(error):
+        return (
+            f"The download of {file_name} was refused because this network replaced the security certificate "
+            f"for {host}. A proxy or security product that inspects connections does this."
+        )
+    return (
+        f"The download of {file_name} couldn't reach {host} ({type(error).__name__}). The connection dropped, "
+        "or a firewall, proxy or filtered network is blocking it."
+    )
 
 
 DamageKind = Literal["missing", "incomplete", "checksum"]
@@ -139,7 +166,7 @@ class ModelStore:
         self.bundled_root = bundled_dir
         self.artifacts, self.allowed_hosts = load_manifest()
         self._reserve_mb = reserve_mb
-        self._client_factory = client_factory or (lambda: httpx.Client(follow_redirects=False, timeout=60.0))
+        self._client_factory = client_factory or default_client
         # path -> (size, mtime_ns, sha256) from the last time the file was hashed in that state
         self._hashes: dict[Path, tuple[int, int, str]] = {}
 
@@ -326,7 +353,7 @@ class ModelStore:
                 finally:
                     response.close()
         except httpx.HTTPError as exc:
-            raise DownloadError(f"Network error while downloading {file.name}: {type(exc).__name__}.") from exc
+            raise DownloadError(network_failure(file.name, file.url, exc)) from exc
         if part.stat().st_size != file.size:
             raise DownloadError(f"The download of {file.name} was incomplete.")
         if _sha256(part) != file.sha256:

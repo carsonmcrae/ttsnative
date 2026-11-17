@@ -1541,6 +1541,26 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  '/api/voice-profiles/{profile_id}/matched-voice': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create Matched
+     * @description A stand-in for a voice whose cloning engine can't be installed: built-in voices at the recording's pitch.
+     */
+    post: operations['create_matched_api_voice_profiles__profile_id__matched_voice_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/voice-profiles/{profile_id}/reference': {
     parameters: {
       query?: never;
@@ -2580,6 +2600,8 @@ export type components = {
     };
     /** EngineInfo */
     EngineInfo: {
+      /** Blockedreason */
+      blockedReason?: string | null;
       /** Controls */
       controls: components['schemas']['EngineControl'][];
       /** Damagedfiles */
@@ -2924,6 +2946,22 @@ export type components = {
       name: string;
       /** Url */
       url: string;
+    };
+    /** MatchedVoiceIn */
+    MatchedVoiceIn: {
+      /** Tone */
+      tone?: ('deeper' | 'lighter') | null;
+    };
+    /** MatchedVoiceOut */
+    MatchedVoiceOut: {
+      blend: components['schemas']['BlendOut'];
+      /** Othertone */
+      otherTone: ('deeper' | 'lighter') | null;
+      /**
+       * Tone
+       * @enum {string}
+       */
+      tone: 'deeper' | 'lighter';
     };
     /** NetworkAddress */
     NetworkAddress: {
@@ -7427,6 +7465,41 @@ export interface operations {
         };
         content: {
           'application/zip': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  create_matched_api_voice_profiles__profile_id__matched_voice_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        profile_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['MatchedVoiceIn'] | null;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MatchedVoiceOut'];
         };
       };
       /** @description Validation Error */

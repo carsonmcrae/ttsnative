@@ -2,9 +2,10 @@
 // Copyright (c) 2026 Carson McRae
 /**
  * Purpose: Try a newly created voice, choose its delivery, and use it for reading.
- * Scope: The wizards' last step: an install prompt when the cloning engine is missing, otherwise a
- *   test sentence to generate, the delivery picker, and "use for reading". `DeliveryPicker` is also
- *   used on each profile card.
+ * Scope: The wizards' last step: an install prompt when the cloning engine is missing, with a matched
+ *   voice offered beside it for a PC that can't install the engine; otherwise a test sentence to
+ *   generate, the delivery picker, and "use for reading". `DeliveryPicker` is also used on each
+ *   profile card.
  * Does NOT belong: Creating the voice (the wizards).
  */
 import { Check, Play } from 'lucide-react';
@@ -17,6 +18,7 @@ import { Field, Select, Textarea } from '@/components/ui/Field';
 import { EnginePanel } from '@/features/engines/EngineSetup';
 import { useReadingVoice } from '@/features/player/useReadingVoice';
 import { useVoicePreview } from '@/features/voices/useVoicePreview';
+import { MatchedVoice } from './MatchedVoice';
 
 const TEST_TEXT =
   'Hello! This is my new reading voice. It was created on this computer from my own recordings.';
@@ -74,10 +76,11 @@ export function TestStep({ profile }: Readonly<{ profile: VoiceProfile }>) {
     return (
       <div className="flex flex-col gap-4">
         <Banner tone="success" title={`“${profile.name}” is saved`}>
-          To hear it, install the voice-cloning engine below. Your recording stays safe in the
-          meantime.
+          To hear it as a cloned voice, install the voice-cloning engine below. Your recording stays
+          safe in the meantime.
         </Banner>
         <EnginePanel engine={engine} />
+        <MatchedVoice profile={profile} />
       </div>
     );
   }

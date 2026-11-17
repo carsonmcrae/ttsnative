@@ -39,7 +39,7 @@ print("Resolved 3 packages")
 print("flags", *sys.argv[1:3])
 print("extra", *sys.argv[-2:])
 """
-UV_FAIL = 'import sys\nprint("error: Failed to fetch diffusers-0.38.0 (connection reset)")\nsys.exit(2)\n'
+UV_FAIL = 'import sys\nprint("error: Failed to build diffusers-0.38.0 (the wheel is malformed)")\nsys.exit(2)\n'
 
 
 class Ctx:
@@ -137,6 +137,7 @@ def test_failed_install_or_verification_writes_no_marker(
     with pytest.raises(EngineUnavailableError) as failed:
         engine.install(Ctx(), "cpu")  # type: ignore[arg-type]
     assert failed.value.code == "install_failed" and not engine._marker.exists()
+    assert "The installer said: “Failed to build diffusers-0.38.0 (the wheel is malformed)”." in failed.value.message
     fake_uv(engine._project, UV_OK)
     monkeypatch.setattr(engine, "_worker_argv", lambda: [sys.executable, "-c", "raise SystemExit(3)"])
     with pytest.raises(WorkerError):
@@ -175,7 +176,8 @@ def test_failed_update_keeps_the_working_install(engine: ChatterboxEngine, servi
     registry = EngineRegistry([engine], services.jobs)
     done = wait(services.jobs, registry.update("chatterbox"))
     assert done.status == "failed" and done.error_code == "update_failed"
-    assert "Your installation was not removed" in done.message
+    assert done.message.startswith("Updating the Chatterbox runtime failed.")
+    assert done.message.endswith("Your current installation was kept.")
     assert marker(engine) == before and engine._python.is_file()
     assert engine.is_ready() and engine.info().update_available  # still usable, update still offered
     assert engine._ensure_worker()["device"] == "cpu"

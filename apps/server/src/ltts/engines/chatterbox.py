@@ -13,7 +13,8 @@ implausibly short or long for its text, then polished (edges, long pauses, loudn
 Builds studio voices (``VoiceBuilder``) and fine-tunes them on an NVIDIA GPU (``VoiceTuner``, an epoch per call).
 Output is 24 kHz and carries Resemble's imperceptible Perth watermark.
 Does NOT belong: Profile storage/consent (``voices``), running uv and the install marker
-(``chatterbox_env.py``) or the worker implementation (``apps/chatterbox-worker``).
+(``chatterbox_env.py``), how the worker is started (``worker_launch.py``), whether this PC can install it
+at all (``device_policy.py``) or the worker implementation (``apps/chatterbox-worker``).
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ import os
 import shutil
 import sys
 import threading
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, override
 
@@ -58,7 +59,9 @@ from ltts.engines.chatterbox_env import (
 )
 from ltts.engines.cloned_speech import acceptable, plausibility, polish, sentence_style
 from ltts.engines.credits import CHATTERBOX
+from ltts.engines.device_policy import install_blocker
 from ltts.engines.worker_client import WorkerClient
+from ltts.engines.worker_launch import worker_argv, worker_environment
 from ltts.errors import ConflictError, EngineUnavailableError
 from ltts.hardware import detect_gpus
 from ltts.jobs import JobContext
@@ -81,9 +84,6 @@ DELIVERY: dict[Delivery, dict[str, float]] = {
     "expressive": {"temperature": 0.95, "topP": 0.98},
 }
 NOT_INSTALLED = "Chatterbox isn't installed. Install it from Settings → Engines & models."
-# PyTorch needs the Visual C++ runtime, which a Windows PC lacks until something installs Microsoft's
-# redistributable, and the worker's Python ships only part of it; the desktop app's runtime ships it whole.
-VC_RUNTIME_DLL = "msvcp140.dll"
 
 
 class ChatterboxEngine(Engine, VoiceTuner):
@@ -178,6 +178,7 @@ class ChatterboxEngine(Engine, VoiceTuner):
                 "Best with an NVIDIA GPU (4 GB+ VRAM) or Apple Silicon. CPU works but is slow. ~3 GB of model files."
             ),
             install_options=self._options(),
+            blocked_reason=None if ready else install_blocker(),
             installed_bytes=self._store.installed_bytes(ARTIFACT) + int(self._marker_data().get("envBytes", 0)),
             update_available=update,
             damaged_files=[item.name for item in damage],
@@ -205,6 +206,8 @@ class ChatterboxEngine(Engine, VoiceTuner):
         choice = option or next(o.id for o in self._options() if o.recommended)
         if choice not in {o.id for o in self._options()}:
             raise EngineUnavailableError("That install option isn't available on this computer.", code="invalid_option")
+        if (blocked := install_blocker()) is not None:
+            raise EngineUnavailableError(blocked, code="install_blocked")
         uv = _require_uv()
         self._root.mkdir(parents=True, exist_ok=True)
         ensure_free_space(self._root, ENV_BYTES[choice], self._settings.min_free_disk_mb)
@@ -282,7 +285,7 @@ class ChatterboxEngine(Engine, VoiceTuner):
 
     # -- runtime ----------------------------------------------------------
     def _worker_argv(self) -> list[str]:
-        return [str(self._python), "-I", "-m", "ltts_chatterbox_worker"]
+        return worker_argv(self._python, self._project)
 
     def _ensure_worker(self, option: str | None = None) -> dict[str, Any]:
         with self._lock:
@@ -472,14 +475,3 @@ def _require_uv() -> str:
     if uv is None:
         raise EngineUnavailableError("uv was not found. Run `npm run setup` and try again.", code="uv_missing")
     return uv
-
-
-def worker_environment(base: Mapping[str, str], runtime_dir: Path) -> dict[str, str]:
-    """The worker's environment: the server's without its own settings, in UTF-8 and offline, with the
-    server's Visual C++ runtime first on PATH when it ships one (the desktop app on Windows)."""
-    env = {k: v for k, v in base.items() if not k.startswith(("LTTS_", "UV_"))}
-    env.update({"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "HF_HUB_OFFLINE": "1"})
-    if (runtime_dir / VC_RUNTIME_DLL).is_file():
-        key = next((k for k in env if k.upper() == "PATH"), "PATH")  # Windows spells it "Path"
-        env[key] = os.pathsep.join(part for part in (str(runtime_dir), env.get(key)) if part)
-    return env

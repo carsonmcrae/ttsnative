@@ -65,6 +65,8 @@ class EngineInfo(ApiModel):
     installed_bytes: int
     install_job_id: str | None = None
     update_available: bool = False  # installed from an older runtime lock; POST /engines/{id}/update applies it
+    # Why this PC can never install it (Windows in S mode); shown in place of the install button.
+    blocked_reason: str | None = None
     damaged_files: list[str] = Field(
         default_factory=list
     )  # model files that are missing, incomplete or fail their checksum

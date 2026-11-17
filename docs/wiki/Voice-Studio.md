@@ -38,7 +38,38 @@ NVIDIA graphics card is detected (not on macOS). Otherwise the option is **CPU o
 has loaded successfully.
 
 To free memory, the engine unloads after 10 minutes without use; the next generation loads it again.
-You can record and save voices before installing the engine, but you need it to hear them.
+You can record and save voices before installing the engine, but you need it to hear them as cloned
+voices. Until then, a [matched voice](#matched-voice) can stand in.
+
+### If the engine can't be installed
+
+The engine is downloaded separately from the app (from pypi.org, files.pythonhosted.org,
+download.pytorch.org, github.com and huggingface.co), so a PC or a network that doesn't allow that
+download stops it. TTSNative says which of these it met:
+
+- **Windows blocked it.** Windows in S mode, Smart App Control, security software or a rule set by an
+  organization lets only approved software run. On Windows in S mode the install isn't offered at
+  all, and the engine's card says why.
+- **The network couldn't reach a server**, and which one. A firewall, a proxy or a filtered network
+  does this. A connection that only dropped or stalled is tried again twice first.
+- **The network replaced a security certificate.** Some networks inspect secure connections.
+  TTSNative tries once more with the certificates your PC itself trusts before it reports this.
+- **The disk filled up.**
+
+Anything else is reported with the installer's own last message; the server log has the rest.
+
+### Matched voice
+
+While the engine isn't installed, the last step of the wizard and each voice's card offer a **matched
+voice**. TTSNative measures the pitch of your recording and mixes the two built-in voices nearest to
+it, so the result speaks at your pitch. It is ready at once, needs no download and works on every PC.
+It appears in the voice list as "_name_ (matched)" and is a voice blend like any other.
+
+A matched voice is a stand-in, not a copy of the voice: it has the pitch of the recording and the
+sound of TTSNative's own voices. Where a recording sits between the deeper and the lighter built-in
+voices, **Try a lighter version** (or **deeper**) replaces it with the other. Recordings pitched below
+or above every built-in voice get the nearest one. Your recording stays saved and becomes a cloned
+voice once the engine is installed.
 
 ## Creating a voice
 
@@ -63,7 +94,8 @@ About two minutes. A wizard guides you through five steps.
    then press **Create voice**.
 5. **Try it.** Edit the test sentence if you like and press **Generate sample**. The first generation
    loads the model and can take a little while. **Use for reading** makes it your reading voice. If the
-   engine isn't installed yet, this step offers to install it instead.
+   engine isn't installed yet, this step offers to install it instead, and a
+   [matched voice](#matched-voice) for a PC that can't install it.
 
 ### Studio voice
 

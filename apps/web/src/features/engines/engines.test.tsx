@@ -3,8 +3,9 @@
 /**
  * Purpose: Tests for installing, monitoring and removing speech engines.
  * Scope: Status badges for every engine state, live progress with cancel, install options without a
- *   recommendation, failed installs and failed requests, removal with confirmation, and the default
- *   voices banner shown when Kokoro is missing; repairing damaged model files.
+ *   recommendation, failed installs and failed requests, a PC that can never install an engine,
+ *   removal with confirmation, and the default voices banner shown when Kokoro is missing; repairing
+ *   damaged model files.
  * Does NOT belong: The install/update happy paths (src/test/flows.test.tsx).
  */
 import { screen, waitFor, within } from '@testing-library/react';
@@ -105,6 +106,24 @@ describe('EnginePanel', () => {
     await user.click(screen.getByRole('button', { name: /Install Chatterbox Turbo/ }));
     expect(await screen.findByRole('alert')).toHaveTextContent('No connection.');
     expect(calls.find((call) => call.method === 'POST')?.body).toBe('{"option":"gpu"}');
+  });
+
+  it('says why a PC can never install an engine instead of offering it', () => {
+    mockApi(base);
+    const blockedReason = 'Windows on this PC is in S mode, which only runs software from the Microsoft Store.'; // prettier-ignore
+    renderWithApp(
+      <>
+        <EnginePanel engine={engine({ status: 'not_installed', blockedReason })} />
+        <EnginePanel engine={engine({ id: 'ready', name: 'Ready', blockedReason })} />
+      </>,
+    );
+    const blocked = screen.getByRole('article', { name: 'Chatterbox Turbo' });
+    expect(within(blocked).getByText('Can’t be installed on this PC')).toBeInTheDocument();
+    expect(within(blocked).getByText(blockedReason)).toBeInTheDocument();
+    expect(within(blocked).queryByRole('button', { name: /Install/ })).not.toBeInTheDocument();
+    // An engine that is already installed says nothing of it.
+    const ready = screen.getByRole('article', { name: 'Ready' });
+    expect(within(ready).queryByText('Can’t be installed on this PC')).not.toBeInTheDocument();
   });
 
   it('removes an installed engine after confirmation', async () => {

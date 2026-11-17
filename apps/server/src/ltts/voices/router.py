@@ -7,8 +7,9 @@ cleanup on it, create a profile from a raw WAV body (with explicit consent and a
 noise reduction, rumble filter, tone), list/rename/delete profiles, change a profile's delivery,
 build a studio voice's speaking styles from its kept takes, fine-tune it on them (start, play the
 comparison samples, keep or discard the result, remove a kept fine-tune), export a voice as a ``.ttsvoice``
-package (after an explicit confirmation) or import one shared with you (with explicit consent), and
-play back a profile's stored reference recording.
+package (after an explicit confirmation) or import one shared with you (with explicit consent),
+play back a profile's stored reference recording, and make a matched voice for a profile (built-in
+voices at the pitch of its recording, for a PC that can't install the cloning engine).
 Does NOT belong: Validation and storage rules (``profiles.py``).
 """
 
@@ -27,8 +28,9 @@ from ltts.container import ServicesDep
 from ltts.engines.base import Delivery
 from ltts.errors import ConflictError
 from ltts.jobs import JobOut
-from ltts.voices.blends import BlendIn, BlendOut
+from ltts.voices.blends import BLEND_ENGINE, BlendIn, BlendOut
 from ltts.voices.cleanup import MAX_BASS_BOOST_DB, MAX_TREBLE_CUT_DB, Cleanup, RecordingCheck
+from ltts.voices.matched import MatchedVoiceIn, MatchedVoiceOut, create_matched_voice
 from ltts.voices.profiles import CONSENT_STATEMENT, VoiceProfileOut
 from ltts.voices.sharing import MAX_PACKAGE_BYTES, VoicePreview, package_name
 from ltts.voices.tuning import SAMPLE_TEXTS, Arm
@@ -223,6 +225,19 @@ def export_voice(profile_id: ProfileId, services: ServicesDep, confirm: Annotate
             "Content-Disposition": f'attachment; filename="{package_name(profile.name)}"',
             "Cache-Control": "no-store",
         },
+    )
+
+
+@router.post("/{profile_id}/matched-voice", status_code=201)
+def create_matched(profile_id: ProfileId, services: ServicesDep, body: MatchedVoiceIn | None = None) -> MatchedVoiceOut:
+    """A stand-in for a voice whose cloning engine can't be installed: built-in voices at the recording's pitch."""
+    profile = services.voices.get(profile_id)
+    return create_matched_voice(
+        profile.name,
+        services.voices.reference_path(profile_id),
+        services.blends,
+        lambda: services.engines.get(BLEND_ENGINE).voices(),
+        (body or MatchedVoiceIn()).tone,
     )
 
 

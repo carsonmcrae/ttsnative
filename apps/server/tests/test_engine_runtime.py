@@ -29,8 +29,9 @@ from ltts import hardware
 from ltts.config import Settings
 from ltts.engines import chatterbox_env
 from ltts.engines.base import VoiceSpec
-from ltts.engines.chatterbox import ChatterboxEngine, worker_environment
+from ltts.engines.chatterbox import ChatterboxEngine
 from ltts.engines.kokoro import ARTIFACT, KokoroEngine
+from ltts.engines.worker_launch import VC_RUNTIME_DIR_ENV, worker_argv, worker_environment
 from ltts.errors import EngineUnavailableError, SynthesisError
 from ltts.hardware import GpuInfo, detect_gpus
 from ltts.modelstore.store import Damage, ModelDamagedError, ModelStore
@@ -236,8 +237,24 @@ def chatterbox(settings: Settings) -> ChatterboxEngine:
 
 def test_chatterbox_identity_and_worker_command(chatterbox: ChatterboxEngine) -> None:
     assert chatterbox.revision() == "chatterbox-turbo/worker-5"
-    argv = chatterbox._worker_argv()
-    assert argv[1:] == ["-I", "-m", "ltts_chatterbox_worker"] and argv[0] == str(chatterbox._python)
+    python, isolated, inline, bootstrap, source = chatterbox._worker_argv()
+    assert (python, isolated, inline) == (str(chatterbox._python), "-I", "-c")
+    # The worker runs from the app's own copy of its source, named each time: a Store update moves the app.
+    assert source == str(chatterbox._project / "src")
+    assert "sys.path.insert(0, sys.argv[1])" in bootstrap and "run_module('ltts_chatterbox_worker'" in bootstrap
+
+
+def test_the_worker_command_runs_the_package_from_the_named_source_folder(tmp_path: Path) -> None:
+    package = tmp_path / "moved" / "src" / "ltts_chatterbox_worker"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("WHERE = __file__\n", "utf-8")
+    (package / "__main__.py").write_text(
+        "import sys\nfrom ltts_chatterbox_worker import WHERE\nprint(__name__, WHERE, sys.stdin.readline().strip())\n",
+        "utf-8",
+    )
+    argv = worker_argv(Path(sys.executable), tmp_path / "moved")
+    done = subprocess.run(argv, input="ping\n", capture_output=True, text=True, check=True, cwd=tmp_path)  # noqa: S603
+    assert done.stdout.split() == ["__main__", str(package / "__init__.py"), "ping"]
 
 
 def test_chatterbox_worker_finds_the_bundled_cpp_runtime(tmp_path: Path) -> None:
@@ -247,6 +264,8 @@ def test_chatterbox_worker_finds_the_bundled_cpp_runtime(tmp_path: Path) -> None
     (tmp_path / "msvcp140.dll").write_bytes(b"")  # the desktop runtime ships the Visual C++ DLLs here
     env = worker_environment(base, tmp_path)
     assert env["Path"] == os.pathsep.join([str(tmp_path), "/system"]) and "PATH" not in env
+    # Named as well as put on PATH: Windows doesn't search PATH for DLLs inside a Store-packaged app.
+    assert env[VC_RUNTIME_DIR_ENV] == str(tmp_path)
     assert worker_environment({}, tmp_path)["PATH"] == str(tmp_path)
 
 

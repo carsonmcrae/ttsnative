@@ -4,8 +4,9 @@
  * Purpose: Custom voice creation, use and deletion end to end, with consented synthetic test audio.
  * Scope: The reference "speaker" is a built-in Kokoro voice generated on the fly (no real person's
  *   voice is used). Imports it in Voice Studio, passes quality checks, confirms consent, creates the
- *   profile, generates a sample with the cloning engine (when installed), narrates a document with
- *   it, and permanently deletes it. Also records with Chromium's fake microphone, in the quick wizard
+ *   profile, generates a sample with the cloning engine (when installed) and narrates a document with
+ *   it, or makes and plays a matched voice (when it isn't), and permanently deletes it. Also records
+ *   with Chromium's fake microphone, in the quick wizard
  *   and in a studio session (lossless capture through the AudioWorklet, saved as a take).
  * Does NOT belong: Built-in voice previews (reader.spec.ts).
  */
@@ -81,7 +82,25 @@ test('create, use and delete a custom voice', async ({ page, request }) => {
     await page.goto('/studio');
   } else {
     await expect(wizard.getByRole('button', { name: /Install Chatterbox/ })).toBeVisible();
+    // Without the cloning engine the voice can still be heard as a matched voice: the app's own
+    // voices at the pitch of the recording, spoken by the real model.
+    const made = page.waitForResponse((r) => r.url().endsWith('/matched-voice'));
+    await wizard.getByRole('button', { name: 'Create matched voice' }).click();
+    const matched = (await (await made).json()) as { blend: { id: string } };
+    await expect(wizard.getByText('“E2E Synthetic Voice (matched)” is ready')).toBeVisible();
+    const sample = page.waitForResponse(
+      (r) => r.url().includes('/api/voices/blend:') && r.url().endsWith('/preview'),
+      { timeout: 150_000 },
+    );
+    await wizard.getByRole('button', { name: 'Play sample' }).click();
+    const response = await sample;
+    expect(response.status()).toBe(200);
+    expect(Number(response.headers()['x-audio-duration'])).toBeGreaterThan(1);
     await wizard.getByRole('button', { name: 'Done' }).click();
+    const removed = await request.delete(`/api/voice-profiles/blends/${matched.blend.id}`, {
+      headers: { 'X-LTTS-Client': 'web' },
+    });
+    expect(removed.status()).toBe(204);
   }
 
   await page.getByRole('button', { name: 'Delete E2E Synthetic Voice' }).click();

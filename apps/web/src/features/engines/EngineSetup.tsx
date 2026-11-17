@@ -4,8 +4,9 @@
  * Purpose: Install, monitor and remove speech engines from anywhere in the UI.
  * Scope: `EnginePanel` (status, hardware advice, install options with download/disk sizes, live
  *   progress with cancel, failure recovery, removal, a one-click update when the installed runtime
- *   was built from an older lock, and a repair when model files are missing, incomplete or fail
- *   their checksum) and `DefaultVoicesBanner` shown when the default Kokoro model can't be used.
+ *   was built from an older lock, a repair when model files are missing, incomplete or fail their
+ *   checksum, and the reason in place of the install button on a PC that can never install it) and
+ *   `DefaultVoicesBanner` shown when the default Kokoro model can't be used.
  * Does NOT belong: Engine logic (server) or voice selection.
  */
 import { Cpu, Download, HardDrive, RefreshCw, Trash2, Wrench } from 'lucide-react';
@@ -155,20 +156,40 @@ function InstallOptions({
   );
 }
 
-/** Progress of the running install/update job, why the last one failed, or why it couldn't start. */
+/** What the panel can offer now: nothing new while a job runs, and no install on a PC that can never run it. */
+function installState(engine: EngineInfo, job: JobOut | undefined) {
+  const active = isJobActive(job) || engine.status === 'installing';
+  const present = engine.status === 'ready' || engine.status === 'needs_repair';
+  const idle = !present && !active;
+  // Windows in S mode never runs software downloaded outside the Store: say so instead of offering it.
+  const blocked = idle ? (engine.blockedReason ?? null) : null;
+  return { active, present, blocked, installable: idle && !blocked };
+}
+
+/**
+ * Progress of the running install/update job, why the last one failed, why it couldn't start, or
+ * why this PC can't install the engine at all.
+ */
 function JobFeedback({
   job,
   active,
   engineName,
+  blocked,
   requestError,
 }: Readonly<{
   job: JobOut | undefined;
   active: boolean;
   engineName: string;
+  blocked: string | null;
   requestError: Error | null;
 }>) {
   return (
     <>
+      {blocked ? (
+        <Banner tone="warning" title="Can’t be installed on this PC">
+          {blocked}
+        </Banner>
+      ) : null}
       {active && job ? (
         <JobProgress job={job} label={`${VERB[jobKind(job)].doing} ${engineName}`} />
       ) : null}
@@ -242,9 +263,7 @@ export function EnginePanel({ engine }: Readonly<{ engine: EngineInfo }>) {
   const recommended =
     engine.installOptions.find((option) => option.recommended) ?? engine.installOptions[0];
   const [option, setOption] = useState(recommended?.id);
-  const active = isJobActive(job) || engine.status === 'installing';
-  const present = engine.status === 'ready' || engine.status === 'needs_repair';
-  const installable = !present && !active;
+  const { active, present, blocked, installable } = installState(engine, job);
   const chosen = engine.installOptions.find((item) => item.id === option);
 
   return (
@@ -275,6 +294,7 @@ export function EnginePanel({ engine }: Readonly<{ engine: EngineInfo }>) {
         job={job}
         active={active}
         engineName={engine.name}
+        blocked={blocked}
         requestError={install.error ?? update.error ?? repair.error}
       />
       {installable ? (

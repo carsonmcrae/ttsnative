@@ -4,8 +4,9 @@
  * Purpose: One custom voice profile in Voice Studio.
  * Scope: Name, kind (quick or studio), source, length, creation date, consent timestamp, what is
  *   stored; play the stored reference, choose the delivery, a studio voice's speaking styles and
- *   fine-tune, rename, use for reading, share it as a .ttsvoice file, and permanent deletion with an
- *   explicit confirmation. On a paired phone or tablet only "Use for reading" is offered: the
+ *   fine-tune, rename, use for reading, share it as a .ttsvoice file, make a matched voice while the
+ *   cloning engine isn't installed, and permanent deletion with an explicit confirmation. On a paired
+ *   phone or tablet only "Use for reading" is offered: the
  *   recording, the controls that change the voice and sharing stay on the computer (LAN mode
  *   refuses them).
  * Does NOT belong: Creation (the wizards).
@@ -28,6 +29,7 @@ import { usePlayer } from '@/features/player/PlayerProvider';
 import { useReadingVoice } from '@/features/player/useReadingVoice';
 import { formatRelativeDate } from '@/lib/format';
 import { onThisComputer } from '@/features/lan/LanIndicator';
+import { MatchedVoiceButton } from './MatchedVoice';
 import { DeliveryPicker } from './TestStep';
 import { useClipPlayer } from './useClipPlayer';
 import { ShareVoiceButton } from './VoiceSharing';
@@ -162,6 +164,7 @@ export function ProfileCard({
           isDefault={isDefault}
           engineReady={engineReady}
         />
+        {here && !engineReady ? <MatchedVoiceButton profile={profile} /> : null}
         {here ? <ShareVoiceButton profile={profile} /> : null}
       </div>
       <ConfirmDialog

@@ -24,7 +24,7 @@ from collections import OrderedDict
 from typing import Any
 
 from ltts_chatterbox_worker import studio, tuning
-from ltts_chatterbox_worker.compat import install_pkg_resources_shim
+from ltts_chatterbox_worker.compat import VC_RUNTIME_DIR_ENV, install_pkg_resources_shim, preload_vc_runtime
 
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
@@ -32,6 +32,8 @@ os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 # Perth (Chatterbox's watermarker) imports pkg_resources, which setuptools 81+ no longer ships.
 install_pkg_resources_shim()
+# Before anything imports PyTorch: it needs the Visual C++ runtime, which the desktop app ships and names.
+VC_RUNTIME_LOADED = preload_vc_runtime(os.environ.get(VC_RUNTIME_DIR_ENV))
 LOADED_VOICES = 8  # studio voices (with their styles) kept ready, so switching per sentence is instant
 
 
@@ -161,6 +163,8 @@ def main() -> None:
     protocol = os.fdopen(os.dup(1), "w", encoding="utf-8", buffering=1)
     os.dup2(2, 1)
     sys.stdout = sys.stderr
+    if VC_RUNTIME_LOADED:
+        print(f"visual c++ runtime loaded from the app: {', '.join(VC_RUNTIME_LOADED)}", file=sys.stderr)
     worker = Worker()
     handlers = {
         "load": worker.load,
