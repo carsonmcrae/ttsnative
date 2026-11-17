@@ -2,9 +2,11 @@
 // Copyright (c) 2026 Carson McRae
 /**
  * Purpose: Server state for voice blends (voices mixed from built-in Kokoro voices).
- * Scope: Listing, creating and deleting blends; each change refreshes the voice list, where a blend
- *   appears as a custom voice.
- * Does NOT belong: The blend dialog (features/voices/BlendVoices) or other voices.
+ * Scope: Listing, creating and deleting blends, and making the matched voice for a custom voice (a
+ *   blend the server picks for the pitch of its recording); each change refreshes the voice list,
+ *   where a blend appears as a custom voice.
+ * Does NOT belong: The blend dialog (features/voices/BlendVoices), the matched-voice panel
+ *   (features/studio/MatchedVoice) or other voices.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from './client';
@@ -13,6 +15,8 @@ import type { components } from './schema.gen';
 
 export type VoiceBlend = components['schemas']['BlendOut'];
 export type VoiceBlendInput = components['schemas']['BlendIn'];
+export type MatchedVoice = components['schemas']['MatchedVoiceOut'];
+export type MatchedTone = MatchedVoice['tone'];
 
 const BLENDS = ['voice-blends'] as const;
 
@@ -43,5 +47,15 @@ export function useCreateBlend() {
 export function useDeleteBlend() {
   return useBlendMutation((id: string) =>
     api<null>(`/api/voice-profiles/blends/${id}`, { method: 'DELETE' }),
+  );
+}
+
+/** Makes (or remakes, in the other tone) the matched voice for a custom voice profile. */
+export function useCreateMatchedVoice() {
+  return useBlendMutation(({ profileId, tone }: { profileId: string; tone?: MatchedTone | null }) =>
+    api<MatchedVoice>(`/api/voice-profiles/${profileId}/matched-voice`, {
+      method: 'POST',
+      json: { tone: tone ?? null },
+    }),
   );
 }

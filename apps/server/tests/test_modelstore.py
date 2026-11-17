@@ -219,10 +219,15 @@ def network_down(request: httpx.Request) -> httpx.Response:
     raise httpx.ConnectError("connection refused", request=request)
 
 
+def certificate_replaced(request: httpx.Request) -> httpx.Response:
+    raise httpx.ConnectError("[SSL: CERTIFICATE_VERIFY_FAILED] unable to get local issuer", request=request)
+
+
 @pytest.mark.parametrize(
     ("handler", "message"),
     [
-        (network_down, "Network error while downloading model.onnx: ConnectError"),
+        (network_down, r"model.onnx couldn't reach github.com \(ConnectError\).*firewall, proxy or filtered network"),
+        (certificate_replaced, "replaced the security certificate for github.com.*inspects connections"),
         (lambda request: httpx.Response(200, content=PAYLOAD[:100]), "was incomplete"),
         (lambda request: httpx.Response(404), "answered HTTP 404"),
         (lambda request: httpx.Response(302, headers={"location": "https://github.com/again"}), "Too many redirects"),
@@ -234,3 +239,18 @@ def test_download_failures_are_explained(
     store = store_with(tmp_path, handler)
     with pytest.raises(DownloadError, match=message):
         store._download(store.artifact("test").files[0], tmp_path, lambda n: None, lambda: False)
+
+
+def test_downloads_trust_the_public_authorities_and_this_computers_own(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    loaded: list[str] = []
+    context = httpx.create_ssl_context()
+    monkeypatch.setattr(context, "load_default_certs", lambda: loaded.append("this computer's store"))
+    monkeypatch.setattr(store_module.httpx, "create_ssl_context", lambda: context)
+    with ModelStore(tmp_path / "models", reserve_mb=0)._client_factory() as client:
+        assert loaded == ["this computer's store"]
+        assert not client.follow_redirects and client.timeout == httpx.Timeout(60.0)
+    assert store_module.network_failure("a.bin", "not a url", httpx.ReadTimeout("slow")).startswith(
+        "The download of a.bin couldn't reach the model host (ReadTimeout)."
+    )
