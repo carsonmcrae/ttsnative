@@ -13,6 +13,7 @@ export const APP_ROUTES = [
   '/library',
   '/explore',
   '/read/:documentId',
+  '/agent-read',
   '/voices',
   '/studio',
   '/exports',

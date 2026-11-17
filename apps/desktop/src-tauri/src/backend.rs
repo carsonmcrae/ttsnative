@@ -163,7 +163,7 @@ impl Backend {
             .arg(runtime.join("web"))
             .arg("--exit-with-stdin")
             .current_dir(paths.data());
-        configure_environment(&mut command, paths, &self.version);
+        configure_environment(&mut command, paths, &self.version, port);
         let errors = log
             .try_clone()
             .map_err(|error| StartError::new("TTSNative couldn't write its log file.", Some(error.to_string())))?;
@@ -248,7 +248,7 @@ fn healthy(port: u16) -> bool {
     response.starts_with("HTTP/1.1 200") && response.contains("\"status\":\"ok\"")
 }
 
-fn configure_environment(command: &mut Command, paths: &Paths, version: &str) {
+fn configure_environment(command: &mut Command, paths: &Paths, version: &str, port: u16) {
     for (key, _) in std::env::vars_os() {
         if key.to_string_lossy().to_ascii_uppercase().starts_with("LTTS_") {
             command.env_remove(key);
@@ -256,6 +256,9 @@ fn configure_environment(command: &mut Command, paths: &Paths, version: &str) {
     }
     command
         .env("LTTS_ENV", "production")
+        .env("LTTS_AGENT_KIND", "desktop")
+        .env("LTTS_AGENT_PORT", port.to_string())
+        .env("LTTS_AGENT_UI_URL", format!("http://127.0.0.1:{port}"))
         .env("LTTS_DATA_DIR", paths.data())
         .env("LTTS_BUNDLED_MODELS_DIR", paths.runtime.join("models"))
         .env("LTTS_UV_BIN", paths.runtime.join("uv").join("uv.exe"))
@@ -266,6 +269,9 @@ fn configure_environment(command: &mut Command, paths: &Paths, version: &str) {
         // default LocalAppData cache, which the downloaded interpreter cannot read by that path.
         .env("UV_CACHE_DIR", paths.tools().join("uv-cache"))
         .env("LTTS_BUILD_VERSION", version);
+    if let Ok(executable) = std::env::current_exe() {
+        command.env("LTTS_AGENT_LAUNCHER", executable);
+    }
 }
 
 /// Keeps the previous run's log as `server.previous.log` and starts a fresh one.
@@ -332,7 +338,7 @@ mod tests {
         command
             .env("UV_CACHE_DIR", "redirected cache")
             .env("UNRELATED_SETTING", "kept");
-        configure_environment(&mut command, &paths, "2.3.0");
+        configure_environment(&mut command, &paths, "2.3.0", 8773);
         let environment: BTreeMap<OsString, Option<OsString>> = command
             .get_envs()
             .map(|(key, value)| (key.to_os_string(), value.map(OsString::from)))
@@ -353,5 +359,9 @@ mod tests {
             environment.get(&OsString::from("UNRELATED_SETTING")),
             Some(&Some(OsString::from("kept")))
         );
+        for (key, value) in [("LTTS_AGENT_KIND", "desktop"), ("LTTS_AGENT_PORT", "8773"), ("LTTS_AGENT_UI_URL", "http://127.0.0.1:8773")] {
+            assert_eq!(environment.get(&OsString::from(key)), Some(&Some(OsString::from(value))));
+        }
+        assert_eq!(environment.get(&OsString::from("LTTS_AGENT_LAUNCHER")), Some(&Some(std::env::current_exe().unwrap().into_os_string())));
     }
 }

@@ -30,6 +30,7 @@ import { PlaybackController } from './controller';
 interface PlayerContextValue {
   controller: PlaybackController;
   state: PlayerState;
+  preferencesReady: boolean;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -131,6 +132,7 @@ export function PlayerProvider({
   );
   const preferences = usePreferences();
   const applied = useRef(false);
+  const [preferencesReady, setPreferencesReady] = useState(false);
 
   useEffect(() => {
     if (applied.current || !preferences.data) return;
@@ -138,12 +140,16 @@ export function PlayerProvider({
     controller.setRate(preferences.data.playbackRate);
     void controller.setVoice(preferences.data.defaultVoiceId);
     void controller.setPace(preferences.data.pace);
+    setPreferencesReady(true);
   }, [controller, preferences.data]);
 
   useEffect(() => () => controller.unload(), [controller]);
   useMediaSession(controller, state);
 
-  const value = useMemo(() => ({ controller, state }), [controller, state]);
+  const value = useMemo(
+    () => ({ controller, state, preferencesReady: preferencesReady || preferences.isError }),
+    [controller, state, preferencesReady, preferences.isError],
+  );
   return (
     <PlayerContext.Provider value={value}>
       <MusicProvider player={controller}>{children}</MusicProvider>

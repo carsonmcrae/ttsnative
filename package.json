@@ -25,6 +25,8 @@
     "dev": "node scripts/dev.mjs",
     "start": "node scripts/start.mjs",
     "doctor": "node scripts/doctor.mjs",
+    "agent": "node integrations/agent-skills/ttsnative-reader/scripts/ttsnative.mjs",
+    "agent:package": "node scripts/agent/package.mjs",
     "build": "npm run build --workspace @ltts/web",
     "brand:build": "node scripts/brand/build-brand.mjs",
     "change": "node scripts/release/new-change.mjs",

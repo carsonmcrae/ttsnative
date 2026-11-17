@@ -62,7 +62,13 @@ async function main() {
       ...(process.env.LTTS_NO_OPEN === '1' ? [] : ['--open']),
     ],
     cwd: repoRoot,
-    env: { ...uvEnv(), LTTS_ENV: 'production', LTTS_UV_BIN: uv },
+    env: {
+      ...uvEnv(),
+      LTTS_ENV: 'production',
+      LTTS_UV_BIN: uv,
+      LTTS_AGENT_UI_URL: `http://127.0.0.1:${port}`,
+      LTTS_AGENT_SOURCE_ROOT: repoRoot,
+    },
   });
   exitWithChild(server);
 }

@@ -9,6 +9,7 @@
  * Does NOT belong: Building the UI (npm run build runs first) or the tests themselves.
  */
 import { mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { color, printFailure } from './lib/log.mjs';
 import { repoRoot, serverDir, webDir } from './lib/paths.mjs';
@@ -35,6 +36,9 @@ async function main() {
       ? path.join(dataDir, 'no-engines')
       : path.join(repoRoot, 'data', 'engines'),
     LTTS_UV_BIN: uv,
+    LTTS_AGENT_DISCOVERY_DIR: path.join(tmpdir(), 'ttsnative-e2e-agent', port),
+    LTTS_AGENT_SOURCE_ROOT: repoRoot,
+    LTTS_AGENT_UI_URL: `http://127.0.0.1:${port}`,
   };
   const server = startManaged({
     name: 'e2e',

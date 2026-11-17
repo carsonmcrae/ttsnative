@@ -3,7 +3,7 @@
 // Copyright (c) 2026 Carson McRae
 /**
  * Purpose: Require a licence notice and a useful module header on every hand-written source file.
- * Scope: TS/TSX/MJS/PY/CSS source under apps/, scripts/ and tests/ must start with the SPDX licence
+ * Scope: TS/TSX/MJS/PY/CSS source under apps/, scripts/, tests/ and integrations/ starts with the SPDX licence
  *   line and the copyright line (after a shebang or `// @ts-check`), and state `Purpose:`, `Scope:`
  *   and `Does NOT belong:` within the first 15 lines, with real content rather than placeholder
  *   text (package markers only need the licence lines).
@@ -16,7 +16,7 @@ import { color, ok } from './lib/log.mjs';
 import { repoRoot } from './lib/paths.mjs';
 import { repoFiles } from './lib/repo-files.mjs';
 
-const CHECKED = /^(apps|scripts|tests)\/.*\.(ts|tsx|mjs|py|css)$/;
+const CHECKED = /^(apps|scripts|tests|integrations)\/.*\.(ts|tsx|mjs|py|css)$/;
 const EXEMPT = [/schema\.gen\.ts$/, /vite-env\.d\.ts$/, /^tests\/fixtures\//];
 const LICENCE_LINES = ['SPDX-License-Identifier: MIT', 'Copyright (c) 2026 Carson McRae'];
 const FIELDS = ['Purpose:', 'Scope:', 'Does NOT belong:'];

@@ -2,7 +2,8 @@
 // Copyright (c) 2026 Carson McRae
 //! Purpose: The TTSNative desktop app: one window that shows the existing web UI from the bundled local
 //!   server, started and stopped with the app.
-//! Scope: Single instance (a second launch focuses the open window), the window (its size and position
+//! Scope: Single instance (a second launch focuses the window or hands it a one-shot reading ticket),
+//!   the window (its size and position
 //!   remembered, the start-up screen while the server starts), navigation rules (only the start-up
 //!   screen and the local server load inside the window; other links open in the default browser),
 //!   the commands the web UI may call, and a clean server shutdown on exit. A Microsoft Store build (the
@@ -19,12 +20,83 @@ mod prefs;
 mod updates;
 
 use serde::Serialize;
+use std::sync::Mutex;
 use tauri::webview::NewWindowResponse;
 use tauri::{AppHandle, Manager, RunEvent, Url, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_opener::OpenerExt;
 
 use crate::backend::{Backend, Status};
 use crate::paths::Paths;
+
+/// A request received while the server starts waits for its first navigation. No ticket is logged.
+#[derive(Default)]
+struct AgentNavigation {
+    ready: bool,
+    pending: Option<String>,
+}
+
+impl AgentNavigation {
+    fn receive(&mut self, ticket: String) -> Option<String> {
+        if self.ready {
+            Some(ticket)
+        } else {
+            self.pending = Some(ticket);
+            None
+        }
+    }
+
+    fn started(&mut self) -> Option<String> {
+        self.ready = true;
+        self.pending.take()
+    }
+}
+
+fn valid_agent_ticket(ticket: &str) -> bool {
+    ticket.len() == 64 && ticket.bytes().all(|value| value.is_ascii_digit() || (b'a'..=b'f').contains(&value))
+}
+
+fn agent_ticket(args: impl Iterator<Item = String>) -> Option<String> {
+    let mut ticket = None;
+    for argument in args {
+        if let Some(value) = argument.strip_prefix("--agent-read=") {
+            if ticket.is_some() || !valid_agent_ticket(value) {
+                return None;
+            }
+            ticket = Some(value.to_string());
+        }
+    }
+    ticket
+}
+
+/// The only external argument is an opaque capability: it cannot name a URL, file or executable.
+fn agent_target(origin: &str, ticket: &str) -> Option<Url> {
+    let mut target = Url::parse(origin).ok()?;
+    if !valid_agent_ticket(ticket)
+        || target.scheme() != "http"
+        || target.host_str() != Some("127.0.0.1")
+        || target.origin().ascii_serialization() != origin
+    {
+        return None;
+    }
+    target.set_path("/agent-read");
+    target.set_fragment(Some(ticket));
+    Some(target)
+}
+
+fn receive_agent_read(app: &AppHandle, args: impl Iterator<Item = String>) {
+    focus_main(app);
+    let Some(ticket) = agent_ticket(args) else { return };
+    let navigation = app.state::<Mutex<AgentNavigation>>();
+    if let Ok(mut navigation) = navigation.lock() {
+        if let Some(ticket) = navigation.receive(ticket) {
+            if let Some(origin) = app.state::<AppState>().backend.origin() {
+                if let (Some(window), Some(target)) = (app.get_webview_window("main"), agent_target(&origin, &ticket)) {
+                    let _ = window.navigate(target);
+                }
+            }
+        }
+    };
+}
 
 pub struct AppState {
     pub paths: Paths,
@@ -97,12 +169,27 @@ fn app_quit(app: AppHandle) {
 
 /// Starts the server in the background and shows the app once it answers.
 pub fn launch(app: AppHandle) {
+    if let Ok(mut navigation) = app.state::<Mutex<AgentNavigation>>().lock() {
+        navigation.ready = false;
+    }
     std::thread::spawn(move || {
         let state = app.state::<AppState>();
-        if let Status::Ready { url, .. } = state.backend.start(&state.paths) {
-            if let (Some(window), Ok(target)) = (app.get_webview_window("main"), url.parse::<Url>()) {
-                let _ = window.navigate(target);
-            }
+        if let Status::Ready { url, origin } = state.backend.start(&state.paths) {
+            let main_thread = app.clone();
+            // A background navigate is queued, but the single-instance callback navigates inline.
+            // Select readiness and navigate on the same UI thread so a queued home cannot replace
+            // a newer ticket navigation. Until this task runs, incoming tickets remain pending.
+            let _ = app.run_on_main_thread(move || {
+                let navigation = main_thread.state::<Mutex<AgentNavigation>>();
+                let target = {
+                    let Ok(mut navigation) = navigation.lock() else { return };
+                    navigation.started().and_then(|ticket| agent_target(&origin, &ticket))
+                        .or_else(|| url.parse::<Url>().ok())
+                };
+                if let (Some(window), Some(target)) = (main_thread.get_webview_window("main"), target) {
+                    let _ = window.navigate(target);
+                }
+            });
         }
     });
 }
@@ -167,7 +254,7 @@ fn debug_switch(mut args: impl Iterator<Item = String>) -> Option<String> {
     Some(format!("--remote-debugging-port={port}"))
 }
 
-/// Release builds ignore every argument.
+/// Release builds never enable WebView debugging through command-line arguments.
 #[cfg(all(windows, not(feature = "test-hooks")))]
 fn debug_switch(_args: impl Iterator<Item = String>) -> Option<String> {
     None
@@ -202,8 +289,9 @@ fn main() {
     // dropped before any window exists. The matching registry policy stays an administrator's decision.
     std::env::remove_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS");
     let builder = tauri::Builder::default()
+        .manage(Mutex::new(AgentNavigation { ready: false, pending: agent_ticket(std::env::args()) }))
         // Registered first, so a second launch only focuses the running window.
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| focus_main(app)))
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| receive_agent_read(app, args.into_iter())))
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init());
     // The Store build has no updater at all: the Store replaces the package.
@@ -247,7 +335,7 @@ fn main() {
 
 #[cfg(all(test, windows))]
 mod tests {
-    use super::browser_args;
+    use super::{agent_target, agent_ticket, browser_args, AgentNavigation};
 
     fn started_with(args: &[&str]) -> impl Iterator<Item = String> {
         args.iter()
@@ -261,6 +349,61 @@ mod tests {
         let switches = browser_args(started_with(&["TTSNative.exe"]));
         assert!(switches.starts_with("--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection"));
         assert!(switches.ends_with("--autoplay-policy=no-user-gesture-required"));
+    }
+
+    #[test]
+    fn agent_read_accepts_only_one_opaque_ticket() {
+        let ticket = "a1".repeat(32);
+        assert_eq!(agent_ticket(started_with(&["TTSNative.exe", &format!("--agent-read={ticket}")])), Some(ticket.clone()));
+        for value in ["", "a", "https://example.com", "../private", &"G".repeat(64), &"a".repeat(65)] {
+            assert_eq!(agent_ticket(started_with(&[&format!("--agent-read={value}")])), None);
+        }
+        assert_eq!(agent_ticket(started_with(&[&format!("--agent-read={ticket}"), &format!("--agent-read={ticket}")])), None);
+        assert_eq!(agent_ticket(started_with(&["TTSNative.exe", "--other"])), None);
+    }
+
+    #[test]
+    fn agent_read_stays_on_the_owned_loopback_origin() {
+        let ticket = "b".repeat(64);
+        assert_eq!(agent_target("http://127.0.0.1:8770", &ticket).unwrap().as_str(), format!("http://127.0.0.1:8770/agent-read#{ticket}"));
+        for origin in ["invalid", "https://127.0.0.1:8770", "http://localhost:8770", "http://example.com", "http://127.0.0.1:8770/other", "http://user@127.0.0.1:8770"] {
+            assert!(agent_target(origin, &ticket).is_none());
+        }
+        assert!(agent_target("http://127.0.0.1:8770", "javascript:bad").is_none());
+    }
+
+    #[test]
+    fn agent_read_rejects_argument_injection_and_non_ascii_values() {
+        let ticket = "a".repeat(64);
+        for value in [
+            format!("{ticket};calc.exe"),
+            format!("{ticket}\n--remote-debugging-port=9222"),
+            format!("{ticket}/../private"),
+            "Ａ".repeat(64),
+            "١".repeat(64),
+            "a".repeat(63) + "\0",
+        ] {
+            assert!(agent_ticket(started_with(&[&format!("--agent-read={value}")])).is_none());
+        }
+        assert!(agent_ticket(started_with(&["--agent-read", &ticket])).is_none());
+        assert!(agent_ticket(started_with(&["--agent-read=invalid", &format!("--agent-read={ticket}")])).is_none());
+        for origin in ["http://127.0.0.1:8770?url=https://example.com", "http://127.0.0.1:8770#other", "http://127.0.0.1:8770@evil.example", "file:///C:/private"] {
+            assert!(agent_target(origin, &ticket).is_none());
+        }
+    }
+
+    #[test]
+    fn cold_and_warm_requests_do_not_race_the_initial_navigation() {
+        let mut navigation = AgentNavigation::default();
+        assert_eq!(navigation.receive("cold".into()), None);
+        assert_eq!(navigation.receive("newer-during-startup".into()), None);
+        assert_eq!(navigation.started(), Some("newer-during-startup".into()));
+        assert_eq!(navigation.pending, None);
+        assert_eq!(navigation.receive("warm".into()), Some("warm".into()));
+        navigation.ready = false; // Backend retries queue requests until the new origin is ready.
+        assert_eq!(navigation.receive("during-retry".into()), None);
+        assert_eq!(navigation.started(), Some("during-retry".into()));
+        assert_eq!(navigation.started(), None);
     }
 
     #[cfg(feature = "test-hooks")]

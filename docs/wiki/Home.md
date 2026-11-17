@@ -59,5 +59,8 @@ voice model is installed. Install the [Windows app](Windows-App) on Windows 11, 
 - [Local speech API](https://github.com/carsonmcrae/ttsnative/blob/main/docs/guides/local-speech-api.md):
   let scripts, screen readers and home automation on this computer use your voices (optional, off
   by default)
+- [Local agent skill](https://github.com/carsonmcrae/ttsnative/blob/main/docs/guides/agent-skill.md):
+  use a local assistant to open or narrate documents and export audiobooks. Needs a supported build
+  and an agent with local execution; phone access remains separate.
 - Questions: [Discussions](https://github.com/carsonmcrae/ttsnative/discussions/categories/q-a).
   Bugs: [Issues](https://github.com/carsonmcrae/ttsnative/issues).

@@ -13,6 +13,7 @@ from __future__ import annotations
 from functools import cached_property
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,6 +21,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 MB = 1024 * 1024
 REPO_ROOT = Path(__file__).resolve().parents[4]
 LOOPBACK_HOSTS = ("127.0.0.1", "::1", "localhost")
+
+
+def loopback_origin(host: str, port: int) -> str:
+    hostname = f"[{host}]" if ":" in host else host
+    suffix = f":{port}" if port != 80 else ""
+    return f"http://{hostname}{suffix}"
 
 
 class Settings(BaseSettings):
@@ -44,6 +51,14 @@ class Settings(BaseSettings):
     allow_network: bool = False
     access_token: str | None = Field(default=None, min_length=24)
     extra_allowed_hosts: list[str] = Field(default_factory=list)
+
+    # Private native-agent discovery. A zero port leaves the bridge unpublished and disabled.
+    agent_port: int = Field(default=0, ge=0, le=65535)
+    agent_ui_url: str | None = None
+    agent_kind: Literal["source", "desktop"] = "source"
+    agent_launcher: str | None = None
+    agent_source_root: Path | None = None
+    agent_discovery_dir: Path | None = None
 
     # Upload and extraction limits (server-side; the browser's checks are only a convenience).
     max_upload_mb: int = Field(default=25, ge=1, le=500)
@@ -80,6 +95,27 @@ class Settings(BaseSettings):
     @classmethod
     def _strip_host(cls, value: str) -> str:
         return value.strip()
+
+    @field_validator("agent_ui_url")
+    @classmethod
+    def _agent_origin(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        parsed = urlsplit(value)
+        hostname = parsed.hostname or ""
+        port = parsed.port if parsed.port is not None else 80
+        if (
+            parsed.scheme != "http"
+            or hostname not in LOOPBACK_HOSTS
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+            or not 1 <= port <= 65535
+        ):
+            raise ValueError("The agent UI URL must be an HTTP loopback origin.")
+        return loopback_origin(hostname, port)
 
     @cached_property
     def resolved_models_dir(self) -> Path:

@@ -30,7 +30,7 @@ _BAR_WIDTH = 30
 def _serve(args: argparse.Namespace) -> int:
     import uvicorn
 
-    overrides: dict[str, object] = {"host": args.host}
+    overrides: dict[str, object] = {"host": args.host, "agent_port": args.port}
     if args.allow_network:
         token = os.environ.get("LTTS_ACCESS_TOKEN") or secrets.token_urlsafe(24)
         overrides |= {"allow_network": True, "access_token": token}

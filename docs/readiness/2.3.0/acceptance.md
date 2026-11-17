@@ -7,6 +7,10 @@ it as a cloned voice after the optional engine is installed. Guided studio build
 
 ## Before release
 
+- [ ] (required) **Local agent integration.** Verify discovery, opening and narration in the existing
+      reader, a real MP3 export, missing prerequisites, output protection and the standalone skill
+      package. Record installed Windows and source observations separately from mocks. Re-run
+      the exact-head release gate after the integration and its evidence are complete.
 - [x] (required) **Clean Store install.** Preserve the current VirtualBox VM state, restore its clean
       Windows 11 baseline, trust a test signing certificate in the guest only, install the candidate
       MSIX and launch from Start. No Visual C++ redistributable or developer tools are installed.
