@@ -75,20 +75,20 @@ Runtime dependencies only (development tooling is not distributed). Model weight
 | @radix-ui/react-visually-hidden@1.2.13 | MIT |  |
 | @radix-ui/rect@1.1.3 | MIT |  |
 | @remix-run/route-pattern@0.22.1 | MIT |  |
-| @tanstack/query-core@5.104.4 | MIT |  |
-| @tanstack/react-query@5.104.4 | MIT |  |
+| @tanstack/query-core@5.105.1 | MIT |  |
+| @tanstack/react-query@5.105.1 | MIT |  |
 | @tauri-apps/api@2.12.4 | Apache-2.0 OR MIT |  |
 | aria-hidden@1.2.6 | MIT |  |
 | clsx@2.1.1 | MIT |  |
 | cookie-es@3.1.1 | MIT |  |
 | detect-node-es@1.1.0 | MIT |  |
 | get-nonce@1.0.1 | MIT |  |
-| lucide-react@1.59.0 | ISC |  |
+| lucide-react@1.66.0 | ISC |  |
 | radix-ui@1.8.1 | MIT |  |
 | react-dom@19.3.1 | MIT |  |
 | react-remove-scroll-bar@2.3.8 | MIT |  |
 | react-remove-scroll@2.7.2 | MIT |  |
-| react-router@8.4.0 | MIT |  |
+| react-router@8.5.1 | MIT |  |
 | react-style-singleton@2.2.3 | MIT |  |
 | react@19.3.1 | MIT |  |
 | scheduler@0.28.0 | MIT |  |
@@ -112,7 +112,7 @@ Runtime dependencies only (development tooling is not distributed). Model weight
 | defusedxml==0.7.1 | Python Software Foundation License |  |
 | dlinfo==2.0.0 | MIT |  |
 | espeakng-loader==0.2.4 | MIT wrapper bundling espeak-ng (GPL-3.0) | Ships the GPL-3.0 espeak-ng library; the Windows installer ships its licence and each release its source. |
-| fastapi==0.146.0 | MIT |  |
+| fastapi==0.162.0 | MIT |  |
 | flatbuffers==25.12.19 | Apache Software License |  |
 | h11==0.16.0 | MIT License |  |
 | httpcore==1.0.9 | BSD-3-Clause |  |
@@ -124,22 +124,22 @@ Runtime dependencies only (development tooling is not distributed). Model weight
 | markdown-it-py==4.2.0 | MIT License |  |
 | mdurl==0.1.2 | MIT License |  |
 | numpy==2.5.4 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |  |
-| onnxruntime==1.31.0 | MIT License |  |
-| opentelemetry-api==1.45.1 | Apache-2.0 |  |
+| onnxruntime==1.31.1 | MIT License |  |
+| opentelemetry-api==1.45.2 | Apache-2.0 |  |
 | packaging==26.3 | Apache-2.0 OR BSD-2-Clause |  |
 | phonemizer==3.4.0 | GNU General Public License v3 or later (GPLv3+) | GPL-3.0 phonemiser used by kokoro-onnx; the Windows installer ships it with its licence and a source offer. |
 | protobuf==7.36.2 | 3-Clause BSD License |  |
 | psutil==7.2.2 | BSD-3-Clause |  |
 | pycparser==3.0 | BSD-3-Clause |  |
-| pydantic_core==2.50.1 | MIT |  |
-| pydantic-settings==2.16.0 | MIT |  |
-| pydantic==2.14.1 | MIT |  |
+| pydantic_core==2.50.2 | MIT |  |
+| pydantic-settings==2.16.2 | MIT |  |
+| pydantic==2.14.2 | MIT |  |
 | pypdfium2==5.14.0 | BSD-3-Clause, Apache-2.0, dependency licenses |  |
 | python-docx==1.2.0 | MIT License |  |
 | python-dotenv==1.2.4 | BSD-3-Clause |  |
 | segno==1.6.6 | BSD License |  |
 | soundfile==0.14.0 | BSD License |  |
-| starlette==1.9.0 | BSD-3-Clause |  |
+| starlette==1.10.0 | BSD-3-Clause |  |
 | typing_extensions==4.16.0 | PSF-2.0 |  |
 | typing-inspection==0.4.4 | MIT |  |
 | uvicorn==0.54.0 | BSD-3-Clause |  |
