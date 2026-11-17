@@ -163,19 +163,7 @@ impl Backend {
             .arg(runtime.join("web"))
             .arg("--exit-with-stdin")
             .current_dir(paths.data());
-        for (key, _) in std::env::vars_os() {
-            if key.to_string_lossy().to_ascii_uppercase().starts_with("LTTS_") {
-                command.env_remove(key);
-            }
-        }
-        command
-            .env("LTTS_ENV", "production")
-            .env("LTTS_DATA_DIR", paths.data())
-            .env("LTTS_BUNDLED_MODELS_DIR", runtime.join("models"))
-            .env("LTTS_UV_BIN", runtime.join("uv").join("uv.exe"))
-            .env("LTTS_WORKER_PROJECT_DIR", runtime.join("worker"))
-            .env("LTTS_UV_PYTHON_DIR", paths.tools().join("python"))
-            .env("LTTS_BUILD_VERSION", &self.version);
+        configure_environment(&mut command, paths, &self.version);
         let errors = log
             .try_clone()
             .map_err(|error| StartError::new("TTSNative couldn't write its log file.", Some(error.to_string())))?;
@@ -260,6 +248,26 @@ fn healthy(port: u16) -> bool {
     response.starts_with("HTTP/1.1 200") && response.contains("\"status\":\"ok\"")
 }
 
+fn configure_environment(command: &mut Command, paths: &Paths, version: &str) {
+    for (key, _) in std::env::vars_os() {
+        if key.to_string_lossy().to_ascii_uppercase().starts_with("LTTS_") {
+            command.env_remove(key);
+        }
+    }
+    command
+        .env("LTTS_ENV", "production")
+        .env("LTTS_DATA_DIR", paths.data())
+        .env("LTTS_BUNDLED_MODELS_DIR", paths.runtime.join("models"))
+        .env("LTTS_UV_BIN", paths.runtime.join("uv").join("uv.exe"))
+        .env("LTTS_WORKER_PROJECT_DIR", paths.runtime.join("worker"))
+        .env("LTTS_UV_PYTHON_DIR", paths.tools().join("python"))
+        // uv writes its interpreter probe into this cache, then its downloaded Python imports it.
+        // Keep both processes in the app's unvirtualized user folder: the Store redirects uv's
+        // default LocalAppData cache, which the downloaded interpreter cannot read by that path.
+        .env("UV_CACHE_DIR", paths.tools().join("uv-cache"))
+        .env("LTTS_BUILD_VERSION", version);
+}
+
 /// Keeps the previous run's log as `server.previous.log` and starts a fresh one.
 fn open_log(path: &Path) -> std::io::Result<File> {
     if path.is_file() {
@@ -303,5 +311,47 @@ pub fn note(paths: &Paths, message: &str) {
         .open(paths.logs().join("desktop.log"))
     {
         let _ = writeln!(file, "{} {message}", crate::prefs::now());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::BTreeMap;
+    use std::ffi::OsString;
+    use std::path::PathBuf;
+
+    use super::*;
+
+    #[test]
+    fn uv_cache_stays_with_the_apps_unvirtualized_tools() {
+        let paths = Paths {
+            root: PathBuf::from("user data"),
+            runtime: PathBuf::from("installed runtime"),
+        };
+        let mut command = Command::new("not-executed");
+        command
+            .env("UV_CACHE_DIR", "redirected cache")
+            .env("UNRELATED_SETTING", "kept");
+        configure_environment(&mut command, &paths, "2.3.0");
+        let environment: BTreeMap<OsString, Option<OsString>> = command
+            .get_envs()
+            .map(|(key, value)| (key.to_os_string(), value.map(OsString::from)))
+            .collect();
+        assert_eq!(
+            environment.get(&OsString::from("UV_CACHE_DIR")),
+            Some(&Some(paths.tools().join("uv-cache").into_os_string()))
+        );
+        assert_eq!(
+            environment.get(&OsString::from("LTTS_UV_PYTHON_DIR")),
+            Some(&Some(paths.tools().join("python").into_os_string()))
+        );
+        assert_eq!(
+            environment.get(&OsString::from("LTTS_DATA_DIR")),
+            Some(&Some(paths.data().into_os_string()))
+        );
+        assert_eq!(
+            environment.get(&OsString::from("UNRELATED_SETTING")),
+            Some(&Some(OsString::from("kept")))
+        );
     }
 }

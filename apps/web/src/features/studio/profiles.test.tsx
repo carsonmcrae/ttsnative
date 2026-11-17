@@ -105,12 +105,15 @@ describe('Profile cards', () => {
     expect(screen.getByRole('button', { name: 'Play recording' })).toBeInTheDocument();
   });
 
-  it('cannot be used for reading until the cloning engine is installed', async () => {
+  it('keeps the original cloned voice unavailable until the optional engine is installed', async () => {
     api({ 'GET /api/engines': [kokoro(), cloning({ status: 'not_installed' })] });
     const { user } = renderStudio();
     const use = await screen.findByRole('button', { name: 'Use for reading' });
     expect(use).toBeDisabled();
-    expect(use).toHaveAttribute('title', 'Install the cloning engine to use this voice');
+    expect(use).toHaveAttribute(
+      'title',
+      'Install the optional cloning engine to use this cloned voice',
+    );
     expect(screen.getByText(/14 s recording · created/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Rename My voice' }));
     const rename = await screen.findByRole('dialog', { name: 'Rename voice' });

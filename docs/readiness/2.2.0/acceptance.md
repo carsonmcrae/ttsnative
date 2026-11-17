@@ -102,13 +102,41 @@ release.
 
 ## After publishing
 
-- [ ] (required) **The real signed update.** On the PC upgraded above, reinstall 2.1.0 if needed, then
+- [x] (required) **The real signed update.** On the PC upgraded above, reinstall 2.1.0 if needed, then
       About → Check for updates: 2.2.0 is offered with its notes, installs after you agree, the app
       reopens with your data, and About shows 2.2.0.
-- [ ] (required) **The download.** ttsnative.com/download/ starts the 2.2.0 installer; its SHA-256
+      — verified: 2026-11-17, `TTSNative-Win11-Upgrade-2.1-to-2.2`: the published 2.1.0 app offered
+      2.2.0 with its real release notes. After consent to **Install and restart**, the actual signed
+      in-app updater downloaded the update and relaunched automatically. About showed both app and
+      server 2.2.0. The three documents remained, with the PDF at 55% and EPUB at 19%; the bookmark
+      note was still exactly "Upgrade test note: the keeper counts 112 steps." The saved
+      `Upgrade test voice` profile kept its 30-second imported clip and October 30 consent. Playback
+      speed remained 1.25×; appearance remained System, Standard, Medium, Relaxed, Sans serif and
+      Normal width. The all-document pronunciation `Morlocks` → `MOR-locks` remained, as did the
+      Ready MP3 export (528 KB, one minute). The post-update About, PDF/bookmark, voice, appearance,
+      pronunciation and export screenshots record these observations. Audio was not audibly assessed.
+- [x] (required) **The download.** ttsnative.com/download/ starts the 2.2.0 installer; its SHA-256
       matches `SHA256SUMS.txt` on the release; it installs on the clean machine.
-- [ ] **The website** footer and release pages name 2.2.0, and the 2.2.0 features (sound effects,
-      Immersive, the music card) appear.
+      — verified: 2026-11-17, host HTTPS and isolated Chromium: the live
+      [download page](https://ttsnative.com/download/) automatically started
+      `TTSNative-Setup-2.2.0.exe` from published `v2.2.0`. The saved installer is 424,812,869 bytes;
+      SHA-256 `a59b3de42222717d72179ed6147c94fab34e08c635f5046dc9892003a5fe1e47` matches both the live
+      [release checksums](https://github.com/carsonmcrae/ttsnative/releases/download/v2.2.0/SHA256SUMS.txt)
+      and GitHub's published asset digest. Transferred that verified installer on the read-only
+      `TTSNPREV` disc to `TTSNative-Win11-Download-2.2`, restored from clean baseline `e393553b`.
+      Installed as standard user `reader` into the default per-user `%LOCALAPPDATA%\TTSNative`
+      folder, without an administrator prompt or separately installed developer tools or Visual C++
+      redistributable. Setup completed; **Finish** with **Run TTSNative** selected launched the app.
+      NAT was connected for this first launch. The empty Library showed **Voices ready**, and About
+      showed app 2.2.0, server 2.2.0 and **Stable release**. Installer-completion and About screenshots
+      are recorded with the web/hash and clean-VM evidence.
+- [~] **The website** footer and release pages name 2.2.0, and the 2.2.0 features (sound effects,
+  Immersive, the music card) appear.
+  — waived: 2026-11-17, live browser checks confirm that the footer and release pages identify
+  2.2.0 and the background-music card appears. The homepage still omits the Sound effects and
+  Immersive card and the newer long-track music copy; the release pages describe those features
+  correctly. This optional marketing presentation gap is deferred until the maintainer merges
+  and deploys the website condition fix.
 
 ## Blockers
 

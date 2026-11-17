@@ -76,11 +76,11 @@ export function TestStep({ profile }: Readonly<{ profile: VoiceProfile }>) {
     return (
       <div className="flex flex-col gap-4">
         <Banner tone="success" title={`“${profile.name}” is saved`}>
-          To hear it as a cloned voice, install the voice-cloning engine below. Your recording stays
-          safe in the meantime.
+          Use a matched voice now without a download. You can install the optional cloning engine
+          later to clone from this saved recording.
         </Banner>
-        <EnginePanel engine={engine} />
         <MatchedVoice profile={profile} />
+        <EnginePanel engine={engine} />
       </div>
     );
   }

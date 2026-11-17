@@ -68,14 +68,21 @@ is in ADR-26.
 
 ## What is different inside a Store package
 
-A Store install runs the same server and web app as the direct install, in a package. Three
+A Store install runs the same server and web app as the direct install, in a package. Four
 differences have already broken something, so anything that starts another program or loads a library
 is checked against them:
 
 - **Windows doesn't search `PATH` for DLLs** in a packaged app, nor in the programs it starts. A
   library is found next to the program that loads it, in a folder added with `AddDllDirectory`, or
-  when it is already loaded. The voice-cloning worker loads the app's Visual C++ runtime by full path
-  for this reason.
+  when it is already loaded. The voice-cloning worker preloads the app's Visual C++ runtime by full
+  path for this reason.
+- **The downloaded Python cannot load DLLs from the protected package folder.** On the clean VM,
+  all bundled Visual C++ files were readable, but loading three of them returned Windows error 5.
+  The server now copies the fixed bundled set into the existing per-user engine folder and names
+  that copy for the worker. Each set has a content-based directory; updated files never overwrite
+  a mapped DLL, and existing copies are verified before reuse. No system redistributable, broader
+  capability or filesystem-permission change is needed. The actual installed-package retest is
+  recorded below.
 - **Each version is installed in a new folder** (`…\WindowsApps\CarsonMcRae.TTSNative_X.Y.Z.0_x64__…`),
   and the folder is read-only. Nothing may keep a path into it across an update; the worker's source
   folder is named each time the worker starts.
@@ -123,8 +130,10 @@ and the model) arrives after install. TTSNative says so and offers a matched voi
      > Voice Studio is optional: it creates a narration voice from your own recording, with the
      > speaker's consent. Cloning a voice downloads an extra speech engine (about 4 GB, or 8 GB with
      > an NVIDIA GPU) only when you turn it on, and needs a PC and a network that allow that download.
-     > Where they don't, as on Windows in S mode, TTSNative says so and can make a matched voice
-     > instead: a stand-in mixed from its own voices at the pitch of your recording.
+     > A quick voice can use a matched voice without installing that engine: a stand-in mixed from
+     > the app's own voices at the pitch of your recording. It is not a copy of your voice. Your
+     > recording is kept, so you can install the optional engine later and clone from it. On PCs
+     > that block the download, such as Windows in S mode, TTSNative explains the limitation.
      >
      > TTSNative is free and open source under the MIT licence: github.com/carsonmcrae/ttsnative
 
@@ -156,13 +165,16 @@ and the model) arrives after install. TTSNative says so and offers a matched voi
    > Library page, then press Play. The default voices are in the package and work offline.
    >
    > Voice Studio is optional. Voice Studio → Create voice → Quick voice records a short clip with
-   > the speaker's consent. Cloning it needs an engine that is downloaded only when the user presses
-   > Install: Python packages and model files (about 3.4 GB) from pinned, checksum-verified addresses
+   > the speaker's consent. Choose Create matched voice to make and play a stand-in using the
+   > built-in voices, with no additional download. Cloning the actual voice is optional and needs an
+   > engine that is downloaded only when the user presses Install: Python packages and model files (about 3.4 GB) from pinned, checksum-verified addresses
    > at pypi.org, files.pythonhosted.org, download.pytorch.org, github.com and huggingface.co. If the
    > test PC or its network doesn't allow that download (Windows in S mode, Smart App Control or
    > another application-control policy, a firewall or a filtering proxy), the app says which of
    > these stopped it. The same screen then offers Create matched voice, which needs no download and
-   > works on every PC: it mixes two built-in voices at the pitch of the recording.
+   > mixes two built-in voices at the pitch of the recording. The recording stays saved; after
+   > installing the engine later, choose Use for reading on the original voice profile to use it as a cloned
+   > voice, without recording again.
    >
    > TTSNative starts its local speech server as a child process. The server listens only on this
    > computer unless the user turns on access for phones in Settings.
@@ -198,6 +210,29 @@ first. Neither failed submission below would have reached Microsoft with these c
    run through the notes for certification as the reviewer would, including installing the
    voice-cloning engine and making a matched voice. The VM has no Visual C++ redistributable and no
    developer tools, which is what the review's PCs are like.
+   The first 2.3.0 candidate installed and narrated PDF, Word and EPUB content, including a matched
+   voice after reopening and after optional setup failed. It exposed two more faults: browser offline
+   detection paused requests to the local server, and uv's default redirected cache hid its Python
+   inspection module from the downloaded interpreter. The replacement runs local requests independently
+   of internet status and places uv's cache under the existing unvirtualized app folder. See the
+   [2.3.0 acceptance record](../readiness/2.3.0/acceptance.md) for observed results;
+   the replacement passed fresh bundled and matched narration with the VM cable disconnected,
+   including MP3 playback and persistence across an app restart. Optional setup passed its earlier
+   Python probe and downloaded the models, then exposed the DLL-loading restriction above. A
+   diagnostic package confirmed the selected runtime path, file visibility and per-DLL errors;
+   the per-user runtime copy then passed in the installed `2.3.0.5` functional prototype with normal
+   production logging. On the four-CPU, 8 GB VM backed by an HDD, CPU model verification took
+   314 seconds. The original saved profile generated and played a fresh short TXT document within
+   108 seconds of pressing Play, while its matched blend remained available. Audio was not audibly
+   assessed. This prototype used the earlier CI runtime with the seven server/worker source files
+   matching `3f1fb3d`; it is supporting evidence, separate from the final-CI observations. The final
+   CI package's `.6` test revision generated fresh cloned speech, then generated a different new
+   passage after closing and reopening. Updating to `.7` retained six documents and both voice
+   profiles; a third unread passage generated and played with the original profile after the
+   package-folder change. These final checks used a full SSD-backed copy of the same four-CPU,
+   8 GB VM. Playback completion was observed; audio was not audibly assessed. The test revisions
+   preserve all 6,877 application/runtime files from the immutable CI package. Worker failures now
+   retain validated OS codes and module/line locations without logging private text or filenames.
 3. **What can't be tried here:** Microsoft's own PCs and network. If the engine can't be installed
    there, the reviewer now sees which limit stopped it and can make a matched voice.
 
@@ -231,5 +266,7 @@ first. Neither failed submission below would have reached Microsoft with these c
       runtime install failed on the reviewer's PC for a reason the app didn't show. This version
       names the reason, retries what is worth retrying, fixes two faults that only a Store install
       has, and offers a matched voice.
-- [ ] The package installed on the clean VM (step 2 above).
+- [x] The final CI package checked on the clean VM, including fresh cloned speech after restart and
+      package update (step 2 above). Verified 2026-11-17; hashes and observations are in the
+      [acceptance record](../readiness/2.3.0/acceptance.md).
 - [ ] The next submission (owner), then `listed: true`.

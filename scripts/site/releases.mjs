@@ -14,6 +14,7 @@
  * Does NOT belong: The rest of the site build (build-site.mjs) or the notes' format (lib/releases.mjs).
  */
 import { formatDate } from '../lib/releases.mjs';
+import { renderConditions } from './conditions.mjs';
 
 const REPO = 'carsonmcrae/ttsnative';
 const INSTALLER = /^TTSNative-Setup-(\d+\.\d+\.\d+)\.exe$/;
@@ -37,18 +38,13 @@ export function escapeHtml(text) {
 
 /**
  * Keep `<!-- if:name -->…<!-- /if:name -->` blocks whose flag is true, drop those whose flag is false
- * (with the indentation before them), and leave the blocks these flags don't decide for a later pass.
+ * (with the indentation before them), and leave unknown wrappers for a later pass. Children are
+ * decided even inside an unknown wrapper, so nested published features survive the release filter.
  * @param {string} html
  * @param {Record<string, boolean>} flags
  */
 export function applyConditions(html, flags) {
-  return html.replace(
-    / *<!-- if:([a-z0-9.-]+) -->([\s\S]*?)<!-- \/if:\1 -->\n?/g,
-    (whole, name, body) => {
-      if (!(name in flags)) return whole; // undecided here: left for a later pass
-      return flags[name] ? body : '';
-    },
-  );
+  return renderConditions(html, (name) => (Object.hasOwn(flags, name) ? flags[name] : undefined));
 }
 
 /**
@@ -71,7 +67,7 @@ export function releasedFlags(known, released) {
  * @param {string} html
  */
 export function dropUnreleased(html) {
-  return html.replace(/ *<!-- if:(released-[0-9.]+) -->[\s\S]*?<!-- \/if:\1 -->\n?/g, '');
+  return renderConditions(html, (name) => (/^released-[0-9.]+$/.test(name) ? false : undefined));
 }
 
 /**
@@ -80,7 +76,7 @@ export function dropUnreleased(html) {
  * @param {string} html
  */
 export function keepUnreleased(html) {
-  return html.replace(/<!-- if:(released-[0-9.]+) -->([\s\S]*?)<!-- \/if:\1 -->/g, '$2');
+  return renderConditions(html, (name) => (/^released-[0-9.]+$/.test(name) ? true : undefined));
 }
 
 const HEAD_MARK = '<!-- head:shared -->';

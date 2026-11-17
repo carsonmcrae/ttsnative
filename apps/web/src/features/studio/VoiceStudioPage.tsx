@@ -163,7 +163,7 @@ export default function VoiceStudioPage() {
         <div className="mb-8">
           <Section
             title="Voice-cloning engine"
-            description="Optional. Recording works now; you need the engine to hear custom voices."
+            description="Cloning is optional. Quick voices can use a matched voice without a download; saved recordings can be cloned later."
           >
             <EnginePanel engine={cloning} />
           </Section>

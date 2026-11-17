@@ -61,11 +61,12 @@ def keys(blend: dict[str, Any]) -> set[str]:
     return {part["voiceId"].removeprefix("kokoro:") for part in blend["parts"]}
 
 
-def test_a_matched_voice_reads_without_the_cloning_engine(
+def test_a_matched_voice_reads_before_the_saved_original_can_be_cloned_later(
     client: TestClient, builtin: FakeEngine, engines: dict[str, FakeEngine]
 ) -> None:
     engines["chatterbox"].ready = False
     narrator = profile(client, 118.0)
+    original = client.get(f"/api/voice-profiles/{narrator['id']}/reference").content
     made = matched(client, narrator["id"])
     assert made.status_code == 201, made.text
     body = made.json()
@@ -83,7 +84,18 @@ def test_a_matched_voice_reads_without_the_cloning_engine(
     assert {key for key, _ in builtin.specs[-1].blend} == keys(blend)
     # The profile and its recording are untouched.
     assert client.get("/api/voice-profiles").json() == [narrator]
-    assert client.get(f"/api/voice-profiles/{narrator['id']}/reference").status_code == 200
+    assert client.get(f"/api/voice-profiles/{narrator['id']}/reference").content == original
+
+    # Installing the optional engine later uses the same recording without rebuilding the matched blend.
+    engines["chatterbox"].ready = True
+    listed = {voice["id"]: voice for voice in client.get("/api/voices").json()}
+    assert listed[narrator["voiceId"]]["available"] and listed[blend["voiceId"]]["available"]
+    cloned = client.get(f"/api/documents/{doc['id']}/segments/0/audio", params={"voice": narrator["voiceId"]})
+    assert cloned.status_code == 200
+    reference = engines["chatterbox"].specs[-1].reference_path
+    assert reference is not None and reference.read_bytes() == original
+    assert client.get("/api/voice-profiles/blends").json() == [blend]
+    assert client.get("/api/voice-profiles").json() == [narrator]
 
 
 def test_the_other_version_replaces_the_first_and_leaves_other_blends_alone(

@@ -73,7 +73,9 @@ function ReadingVoiceButton({
       variant={isDefault ? 'subtle' : 'ghost'}
       icon={isDefault ? <Check size={14} /> : undefined}
       disabled={isDefault || !engineReady}
-      title={engineReady ? undefined : 'Install the cloning engine to use this voice'}
+      title={
+        engineReady ? undefined : 'Install the optional cloning engine to use this cloned voice'
+      }
       onClick={() => reading.choose(voiceId)}
     >
       {isDefault ? 'Used for reading' : 'Use for reading'}
