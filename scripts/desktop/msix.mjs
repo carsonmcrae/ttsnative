@@ -10,7 +10,9 @@
  *   virtualisation, so documents and voices are the same as the direct install's and outlive an
  *   uninstall. The identity comes from apps/desktop/store/identity.json; while it is empty the result is
  *   a test package, named so, that can be sideloaded but not uploaded. The Store signs the package.
- *   Upstream files the app never reads and MSIX can't hold are left out; any other is refused.
+ *   Upstream files the app never reads and MSIX can't hold are left out; any other is refused. A
+ *   program or library that still points at a signature removed from it has that pointer cleared in
+ *   the package's copy (lib/pe-certificates.mjs): the Store can't sign a package that holds one.
  * Does NOT belong: Building the program and runtime (build.mjs) or submitting to Partner Center.
  */
 import { spawnSync } from 'node:child_process';
@@ -27,6 +29,7 @@ import {
 import path from 'node:path';
 import { BootstrapError, ok, step, warn } from '../lib/log.mjs';
 import { repoRoot } from '../lib/paths.mjs';
+import { clearDanglingCertificateTable } from '../lib/pe-certificates.mjs';
 
 const desktopDir = path.join(repoRoot, 'apps', 'desktop');
 /** Windows 11 21H2: the first version with excluded directories, and the app's own minimum. */
@@ -48,6 +51,27 @@ const LEFT_OUT = ['python/Lib/site-packages/docx/templates/default-docx-template
  */
 export function unpackable(files) {
   return files.filter((file) => file.split('/').pop()?.toLowerCase() === '[content_types].xml');
+}
+
+/**
+ * Clears, in every program and library under `folder`, a certificate-table entry that points past the
+ * end of its file (python-build-standalone's zlib1.dll ships that way). Returns the files it changed,
+ * relative to the folder, with "/".
+ * @param {string} folder
+ * @returns {string[]}
+ */
+export function clearDanglingSignatures(folder) {
+  const cleared = [];
+  for (const file of readdirSync(folder, { recursive: true, encoding: 'utf8' })) {
+    if (!/\.(exe|dll|pyd)$/i.test(file)) continue;
+    const full = path.join(folder, file);
+    const data = readFileSync(full);
+    if (clearDanglingCertificateTable(data)) {
+      writeFileSync(full, data);
+      cleared.push(file.split(path.sep).join('/'));
+    }
+  }
+  return cleared;
 }
 
 /**
@@ -224,6 +248,10 @@ export function packMsix({ exe, runtime, version, out }) {
       'The runtime holds files an MSIX package cannot.',
       refused.slice(0, 10),
     );
+  }
+  const cleared = clearDanglingSignatures(layout);
+  if (cleared.length) {
+    ok(`Cleared a pointer to a removed signature in ${cleared.join(', ')}`);
   }
 
   const icons = path.join(out, 'msix-icons');

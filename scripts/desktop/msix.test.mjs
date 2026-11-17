@@ -6,12 +6,24 @@
  * Scope: The four-part version from release and development versions, the test identity while
  *   Partner Center's is missing and refusals of a half-filled or malformed one, and the manifest: full
  *   trust on Windows 11, the user folder outside file-system virtualisation, the logos, and escaping;
- *   runtime files the package can't hold.
+ *   runtime files the package can't hold; and clearing pointers to removed signatures in the
+ *   package's programs and libraries.
  * Does NOT belong: Packing with makeappx (needs the Windows SDK; the release workflow does it).
  */
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
-import { manifest, packageIdentity, storeVersion, unpackable } from './msix.mjs';
+import { hasDanglingCertificateTable } from '../lib/pe-certificates.mjs';
+import { PE_LENGTH, peFile } from '../lib/pe-fixture.mjs';
+import {
+  clearDanglingSignatures,
+  manifest,
+  packageIdentity,
+  storeVersion,
+  unpackable,
+} from './msix.mjs';
 
 test('MSIX versions have four numbers and end in 0', () => {
   assert.equal(storeVersion('2.2.0'), '2.2.0.0');
@@ -91,4 +103,36 @@ test('a [Content_Types].xml anywhere in the runtime is refused, whatever its cas
       'python/Lib/site-packages/other/[CONTENT_TYPES].XML',
     ],
   );
+});
+
+test('a pointer to a removed signature is cleared in the package, and only there', () => {
+  const folder = mkdtempSync(path.join(tmpdir(), 'ttsnative-msix-'));
+  try {
+    const stale = peFile({ offset: PE_LENGTH, size: 0x2f20 }).data; // the signature was cut off the end
+    const signed = peFile({ offset: 0x600, size: 0x200 }).data;
+    const plain = peFile().data;
+    mkdirSync(path.join(folder, 'runtime', 'python', 'DLLs'), { recursive: true });
+    const files = {
+      'TTSNative.exe': signed,
+      'runtime/python/python.exe': plain,
+      'runtime/python/DLLs/zlib1.dll': stale,
+      'runtime/python/DLLs/_ssl.PYD': stale,
+      'runtime/python/DLLs/notes.txt': stale, // not a program: left as it is
+    };
+    for (const [name, data] of Object.entries(files)) writeFileSync(path.join(folder, name), data);
+
+    assert.deepEqual(clearDanglingSignatures(folder).sort(), [
+      'runtime/python/DLLs/_ssl.PYD',
+      'runtime/python/DLLs/zlib1.dll',
+    ]);
+    const read = (/** @type {string} */ name) => readFileSync(path.join(folder, name));
+    assert.equal(hasDanglingCertificateTable(read('runtime/python/DLLs/zlib1.dll')), false);
+    assert.equal(hasDanglingCertificateTable(read('runtime/python/DLLs/_ssl.PYD')), false);
+    assert.ok(read('TTSNative.exe').equals(signed));
+    assert.ok(read('runtime/python/python.exe').equals(plain));
+    assert.ok(read('runtime/python/DLLs/notes.txt').equals(stale));
+    assert.deepEqual(clearDanglingSignatures(folder), []); // nothing left to clear
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
 });
