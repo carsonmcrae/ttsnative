@@ -359,9 +359,19 @@ mod tests {
             environment.get(&OsString::from("UNRELATED_SETTING")),
             Some(&Some(OsString::from("kept")))
         );
-        for (key, value) in [("LTTS_AGENT_KIND", "desktop"), ("LTTS_AGENT_PORT", "8773"), ("LTTS_AGENT_UI_URL", "http://127.0.0.1:8773")] {
-            assert_eq!(environment.get(&OsString::from(key)), Some(&Some(OsString::from(value))));
+        for (key, value) in [
+            ("LTTS_AGENT_KIND", "desktop"),
+            ("LTTS_AGENT_PORT", "8773"),
+            ("LTTS_AGENT_UI_URL", "http://127.0.0.1:8773"),
+        ] {
+            assert_eq!(
+                environment.get(&OsString::from(key)),
+                Some(&Some(OsString::from(value)))
+            );
         }
-        assert_eq!(environment.get(&OsString::from("LTTS_AGENT_LAUNCHER")), Some(&Some(std::env::current_exe().unwrap().into_os_string())));
+        assert_eq!(
+            environment.get(&OsString::from("LTTS_AGENT_LAUNCHER")),
+            Some(&Some(std::env::current_exe().unwrap().into_os_string()))
+        );
     }
 }

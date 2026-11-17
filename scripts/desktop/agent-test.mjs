@@ -121,6 +121,14 @@ export async function installedAgentJourney(version) {
       saved.isFile() && saved.size === exported.bytes && saved.size > 5_000,
       'the verified MP3 is saved in the requested owned temporary folder',
     );
+    console.log(
+      JSON.stringify({
+        version: ready.version,
+        kind: 'desktop',
+        narration: 'playing',
+        mp3Bytes: saved.size,
+      }),
+    );
   } finally {
     // Delete only the exact, synthetic fixture/output folder created by this invocation.
     check(

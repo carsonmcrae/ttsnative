@@ -52,7 +52,10 @@ impl AgentNavigation {
 }
 
 fn valid_agent_ticket(ticket: &str) -> bool {
-    ticket.len() == 64 && ticket.bytes().all(|value| value.is_ascii_digit() || (b'a'..=b'f').contains(&value))
+    ticket.len() == 64
+        && ticket
+            .bytes()
+            .all(|value| value.is_ascii_digit() || (b'a'..=b'f').contains(&value))
 }
 
 fn agent_ticket(args: impl Iterator<Item = String>) -> Option<String> {
@@ -183,7 +186,9 @@ pub fn launch(app: AppHandle) {
                 let navigation = main_thread.state::<Mutex<AgentNavigation>>();
                 let target = {
                     let Ok(mut navigation) = navigation.lock() else { return };
-                    navigation.started().and_then(|ticket| agent_target(&origin, &ticket))
+                    navigation
+                        .started()
+                        .and_then(|ticket| agent_target(&origin, &ticket))
                         .or_else(|| url.parse::<Url>().ok())
                 };
                 if let (Some(window), Some(target)) = (main_thread.get_webview_window("main"), target) {
@@ -289,9 +294,14 @@ fn main() {
     // dropped before any window exists. The matching registry policy stays an administrator's decision.
     std::env::remove_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS");
     let builder = tauri::Builder::default()
-        .manage(Mutex::new(AgentNavigation { ready: false, pending: agent_ticket(std::env::args()) }))
+        .manage(Mutex::new(AgentNavigation {
+            ready: false,
+            pending: agent_ticket(std::env::args()),
+        }))
         // Registered first, so a second launch only focuses the running window.
-        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| receive_agent_read(app, args.into_iter())))
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            receive_agent_read(app, args.into_iter())
+        }))
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init());
     // The Store build has no updater at all: the Store replaces the package.
@@ -354,19 +364,45 @@ mod tests {
     #[test]
     fn agent_read_accepts_only_one_opaque_ticket() {
         let ticket = "a1".repeat(32);
-        assert_eq!(agent_ticket(started_with(&["TTSNative.exe", &format!("--agent-read={ticket}")])), Some(ticket.clone()));
-        for value in ["", "a", "https://example.com", "../private", &"G".repeat(64), &"a".repeat(65)] {
+        assert_eq!(
+            agent_ticket(started_with(&["TTSNative.exe", &format!("--agent-read={ticket}")])),
+            Some(ticket.clone())
+        );
+        for value in [
+            "",
+            "a",
+            "https://example.com",
+            "../private",
+            &"G".repeat(64),
+            &"a".repeat(65),
+        ] {
             assert_eq!(agent_ticket(started_with(&[&format!("--agent-read={value}")])), None);
         }
-        assert_eq!(agent_ticket(started_with(&[&format!("--agent-read={ticket}"), &format!("--agent-read={ticket}")])), None);
+        assert_eq!(
+            agent_ticket(started_with(&[
+                &format!("--agent-read={ticket}"),
+                &format!("--agent-read={ticket}")
+            ])),
+            None
+        );
         assert_eq!(agent_ticket(started_with(&["TTSNative.exe", "--other"])), None);
     }
 
     #[test]
     fn agent_read_stays_on_the_owned_loopback_origin() {
         let ticket = "b".repeat(64);
-        assert_eq!(agent_target("http://127.0.0.1:8770", &ticket).unwrap().as_str(), format!("http://127.0.0.1:8770/agent-read#{ticket}"));
-        for origin in ["invalid", "https://127.0.0.1:8770", "http://localhost:8770", "http://example.com", "http://127.0.0.1:8770/other", "http://user@127.0.0.1:8770"] {
+        assert_eq!(
+            agent_target("http://127.0.0.1:8770", &ticket).unwrap().as_str(),
+            format!("http://127.0.0.1:8770/agent-read#{ticket}")
+        );
+        for origin in [
+            "invalid",
+            "https://127.0.0.1:8770",
+            "http://localhost:8770",
+            "http://example.com",
+            "http://127.0.0.1:8770/other",
+            "http://user@127.0.0.1:8770",
+        ] {
             assert!(agent_target(origin, &ticket).is_none());
         }
         assert!(agent_target("http://127.0.0.1:8770", "javascript:bad").is_none());
@@ -386,8 +422,17 @@ mod tests {
             assert!(agent_ticket(started_with(&[&format!("--agent-read={value}")])).is_none());
         }
         assert!(agent_ticket(started_with(&["--agent-read", &ticket])).is_none());
-        assert!(agent_ticket(started_with(&["--agent-read=invalid", &format!("--agent-read={ticket}")])).is_none());
-        for origin in ["http://127.0.0.1:8770?url=https://example.com", "http://127.0.0.1:8770#other", "http://127.0.0.1:8770@evil.example", "file:///C:/private"] {
+        assert!(agent_ticket(started_with(&[
+            "--agent-read=invalid",
+            &format!("--agent-read={ticket}")
+        ]))
+        .is_none());
+        for origin in [
+            "http://127.0.0.1:8770?url=https://example.com",
+            "http://127.0.0.1:8770#other",
+            "http://127.0.0.1:8770@evil.example",
+            "file:///C:/private",
+        ] {
             assert!(agent_target(origin, &ticket).is_none());
         }
     }
