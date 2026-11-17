@@ -265,22 +265,29 @@ The root `package.json` has two npm `overrides` for peer ranges that lag behind:
   accessibility and hooks errors on ESLint 9.39.5 and 10.12.0. Remove the override once a release
   declares ESLint 10.
 
-### minimatch 11.0.4 (2026-11-17)
+### minimatch 11.0.9 (2026-11-17)
 
-GHSA-g3hv-75wg-m249 (Dependabot #70) affects minimatch 7 through 10 when an attacker
-controls a glob pattern and preprocessing uses optimization level 2. The three affected 10.2.6
-copies belong to ESLint, its config-array helper and typescript-eslint; they are development tools
-and are not included in the Windows runtime. Their inspected call sites use the supported matcher
-API with the default optimization level.
+The scoped override minimatch@^10.0.0 takes 11.0.9 to fix GHSA-g3hv-75wg-m249 (Dependabot #70)
+and three later upstream advisories: [quadratic compilation](https://github.com/isaacs/minimatch/security/advisories/GHSA-cf2h-pxjq-68xw),
+[cache growth](https://github.com/isaacs/minimatch/security/advisories/GHSA-hqmv-qgp3-jx75), and
+[escaping](https://github.com/isaacs/minimatch/security/advisories/GHSA-c859-jr93-m5j4). The later
+notices were not yet indexed by npm audit when this release was prepared. The minimum release that
+fixes all four is 11.0.8; 11.0.9 also corrects numeric extglob matching.
 
-The scoped npm override minimatch@^10.0.0 takes 11.0.4 (released 2026-11-02), which includes
-its 11.0.1 security fix and later matcher corrections. Existing 3.x and 5.x consumers are unchanged.
-Its new development-only dependency, @isaacs/nonrecursive-glob-match 1.0.3 (2026-10-28), is
-BlueOak-1.0.0, as is minimatch; both meet the 14-day cool-down, and no install scripts run.
-Remove the override when the consuming tools declare a patched range themselves.
+The three affected copies belong to ESLint, its config-array helper and typescript-eslint. They are
+development tools and are not included in the Windows runtime. Existing 3.x and 5.x users remain
+unchanged, and the selected lint-file set is unchanged. Remove the override when the consuming tools
+declare a patched range themselves.
 
-The OpenTelemetry alerts #68 and #69 are already addressed by pull request #106: both Python
-locks contain opentelemetry-api 1.45.2, the patched release for GHSA-mf5v-w3w3-f6cg.
+There is no fixed release outside the 14-day window. Package-specific security exceptions in .npmrc
+allow minimatch 11.0.9 (2026-11-16) and its required @isaacs/nonrecursive-glob-match 1.1.0
+(2026-11-05), while retaining the cool-down for every other package. Remove those exceptions after
+2026-12-01 and 2026-11-20 respectively. Both use BlueOak-1.0.0, support the project's Node version,
+and have no preinstall, install or postinstall hooks. Install scripts remain disabled; the lock keeps
+brace-expansion at the mature 5.0.12 release.
+
+The OpenTelemetry alerts #68 and #69 are already addressed by pull request #106: both Python locks
+contain opentelemetry-api 1.45.2, the patched release for GHSA-mf5v-w3w3-f6cg.
 
 ## Updating a model
 

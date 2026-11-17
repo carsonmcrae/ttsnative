@@ -97,6 +97,6 @@
     "openapi-typescript": {
       "typescript": "$typescript"
     },
-    "minimatch@^10.0.0": "11.0.4"
+    "minimatch@^10.0.0": "11.0.9"
   }
 }
