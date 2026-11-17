@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Carson McRae
 """Purpose: Edge-case tests for the worker protocol client that a well-behaved worker never triggers.
 
-Scope: Forwarding worker stderr to the debug log, a process that could not be started, a pipe that
+Scope: Discarding private worker stderr, a process that could not be started, a pipe that
 breaks while a request is written, stale replies from an abandoned request, and stopping workers
 that have no stdin, ignore the shutdown request or have already exited.
 Does NOT belong: Normal round trips, crashes, timeouts and idle unloading (test_engines_cli.py).
@@ -67,12 +67,42 @@ def client(tmp_path: Path) -> Iterator[WorkerClient]:
     worker.stop()
 
 
-def test_worker_stderr_is_forwarded_to_the_debug_log(caplog: pytest.LogCaptureFixture) -> None:
+@pytest.mark.parametrize("stderr", [None, ["\n", "private passage\n", r"C:\private\original recording.wav" * 600]])
+def test_private_worker_stderr_is_drained_without_logging(stderr: Any, caplog: pytest.LogCaptureFixture) -> None:
     process = FakeProcess(None)
-    process.stderr = ["\n", "loading weights\n", "x" * 600 + "\n"]
+    process.stderr = iter(stderr) if stderr else None
     with caplog.at_level(logging.DEBUG, logger="ltts.worker"):
         WorkerClient._read_stderr(process)  # type: ignore[arg-type]
-    assert [record.getMessage() for record in caplog.records] == ["worker: loading weights", "worker: " + "x" * 500]
+    assert not caplog.records
+    if process.stderr is not None:
+        assert list(process.stderr) == []
+
+
+def test_worker_failure_is_logged_at_normal_levels_without_private_reply_or_request_fields(
+    client: WorkerClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    private = r"private passage from C:\people\original recording.wav"
+    client._proc = FakeProcess(Pipe())  # type: ignore[assignment]
+    client._replies.put(
+        {
+            "id": 1,
+            "ok": False,
+            "error": "PermissionError",
+            "errno": 13,
+            "winerror": 5,
+            "frames": [{"module": "chatterbox.tts_turbo", "line": 157, "filename": private}],
+            "message": private,
+            "filename": private,
+        }
+    )
+    with caplog.at_level(logging.INFO, logger="ltts.worker"), pytest.raises(WorkerError) as failed:
+        client.call("load", 1, text=private)
+    assert failed.value.message == "The voice engine reported an error." and failed.value.details == {}
+    [record] = caplog.records
+    assert record.levelno == logging.ERROR and record.worker_request_id == 1
+    assert (record.operation, record.error_type, record.errno, record.winerror) == ("load", "PermissionError", 13, 5)
+    assert record.frames == ["chatterbox.tts_turbo(157)"]
+    assert private not in repr(record.__dict__) and private not in str(failed.value)
 
 
 def test_a_worker_that_could_not_start_is_reported(client: WorkerClient, monkeypatch: pytest.MonkeyPatch) -> None:

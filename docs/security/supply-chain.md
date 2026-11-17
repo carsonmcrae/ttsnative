@@ -289,6 +289,36 @@ brace-expansion at the mature 5.0.12 release.
 The OpenTelemetry alerts #68 and #69 are already addressed by pull request #106: both Python locks
 contain opentelemetry-api 1.45.2, the patched release for GHSA-mf5v-w3w3-f6cg.
 
+### picomatch 4.0.7 (2026-11-17 assessment)
+
+Dependabot #71 concerns [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf)
+(CVE-2026-112366): repeated single-branch extglob patterns can cause exponential regular-expression
+backtracking against crafted strings. The advisory affects every version through 4.0.7 and lists no
+patched release. On this date, npm's latest release is still 4.0.7. Upstream
+[pull request #254](https://github.com/micromatch/picomatch/pull/254) proposes a fix but is open,
+unmerged and unpublished; it is a follow-up to track, not an available patched dependency.
+
+The lock contains one shared picomatch 4.0.7, marked development-only, through Vite 8.3.5, Vitest
+5.0.5, Knip 6.44.1 and tinyglobby 0.2.17. It is reachable during web and desktop builds, web tests and
+coverage, and dependency checks. Current glob patterns come from repository configuration, source and
+ignore files; application documents, recordings and API input do not enter these Node tools. The
+desktop runtime assembly copies built web assets, Python packages, the optional worker project, uv,
+models and native runtime files. Node and node_modules are not included in the Windows package.
+The checksum-verified 2.3.0 candidate MSIX was also inspected: its 6,877 ZIP entries contain no
+`node.exe`, `node_modules` directory or picomatch source/package paths.
+Residual exposure is developer or CI resource exhaustion when processing malicious repository
+patterns, including changes in an untrusted pull request.
+
+GitHub automatically dismissed #71 when it was created. Dismissal is not a fix: no patched version is
+recorded, and the alert's reachability analysis is disabled. Its npm/development/CWE-1333 metadata
+matches GitHub's [default development-dependency auto-triage rule](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-auto-triage-rules#dismiss-low-impact-issues-for-development-scoped-dependencies)
+and [published criteria](https://docs.github.com/en/code-security/reference/supply-chain-security/criteria-for-preset-rules),
+although the alert API does not identify the applied rule. The normal security command's
+`npm audit --omit=dev` excludes this dependency, so a passing production audit does not clear this
+advisory. Recheck the advisory, upstream fix and npm releases before the next dependency update;
+adopt a published compatible patch when available, with the usual lock review and build/test
+verification.
+
 ## Updating a model
 
 Model changes need a provenance review: confirm the source repository and licence, take the size and

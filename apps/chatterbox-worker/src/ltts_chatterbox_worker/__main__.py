@@ -19,12 +19,12 @@ import contextlib
 import json
 import os
 import sys
-import traceback
 from collections import OrderedDict
 from typing import Any
 
 from ltts_chatterbox_worker import studio, tuning
 from ltts_chatterbox_worker.compat import VC_RUNTIME_DIR_ENV, install_pkg_resources_shim, preload_vc_runtime
+from ltts_chatterbox_worker.diagnostics import failure_details
 
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
@@ -189,8 +189,7 @@ def main() -> None:
             reply = {"id": request.get("id"), "ok": True, **handlers[request["op"]](request)}
         # Any failure is reported to the server, which maps it to a user-facing error.
         except Exception as exc:  # noqa: BLE001
-            traceback.print_exc()
-            reply = {"id": request.get("id"), "ok": False, "error": type(exc).__name__, "message": str(exc)[:300]}
+            reply = {"id": request.get("id"), "ok": False, **failure_details(exc)}
         protocol.write(json.dumps(reply) + "\n")
 
 

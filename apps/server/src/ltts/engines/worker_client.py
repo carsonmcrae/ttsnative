@@ -3,7 +3,7 @@
 """Purpose: Drive an engine worker subprocess over a JSON-lines stdio protocol.
 
 Scope: Starts the worker with a fixed argv (no shell), serialises requests with a lock, enforces
-per-request timeouts, forwards worker stderr to the log, restarts after crashes, and stops the
+per-request timeouts, logs only validated failure metadata, restarts after crashes, and stops the
 process after an idle period to release GPU/CPU memory.
 Does NOT belong: Engine-specific request contents (``chatterbox.py``).
 """
@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from ltts.common import NO_CONSOLE_WINDOW
+from ltts.engines.worker_diagnostics import failure_fields
 from ltts.errors import SynthesisError
 
 log = logging.getLogger("ltts.worker")
@@ -81,9 +82,10 @@ class WorkerClient:
 
     @staticmethod
     def _read_stderr(proc: subprocess.Popen[str]) -> None:
-        for line in proc.stderr or ():
-            if line.strip():
-                log.debug("worker: %s", line.rstrip()[:500])
+        # Libraries can echo document text or recording paths. Drain their output to prevent a
+        # full pipe blocking the worker, but never persist it, including at DEBUG.
+        for _line in proc.stderr or ():
+            pass
 
     def call(self, op: str, timeout_s: float, **fields: Any) -> dict[str, Any]:
         with self._lock:
@@ -108,6 +110,10 @@ class WorkerClient:
                     reply = self._replies.get(timeout=min(remaining, 1.0))
                 except queue.Empty:
                     if not self.running:
+                        log.error(
+                            "voice engine worker process crashed",
+                            extra={"worker_request_id": request_id, **failure_fields(op, {})},
+                        )
                         self.stop()
                         raise WorkerError("The voice engine process crashed. See the server log.") from None
                     continue
@@ -115,7 +121,11 @@ class WorkerClient:
                     break
             self._last_used = time.monotonic()
         if not reply.get("ok"):
-            raise WorkerError(f"The voice engine reported an error ({reply.get('error', 'unknown')}).")
+            log.error(
+                "voice engine worker request failed",
+                extra={"worker_request_id": request_id, **failure_fields(op, reply)},
+            )
+            raise WorkerError("The voice engine reported an error.")
         return reply
 
     def stop(self) -> None:

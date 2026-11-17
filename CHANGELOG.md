@@ -44,6 +44,9 @@ All notable changes to this project are documented here. The format follows
 - Set `UV_CACHE_DIR` to the desktop app's unvirtualized `tools/uv-cache` folder, so uv and its downloaded Python share the interpreter-probe files. Keep the existing package capabilities and virtualization exclusion unchanged.
 - Evaluate nested website release conditions with a stack, preserve undecided wrappers, and reject malformed marker pairs instead of dropping published content or exposing unreleased content.
 - Record the initial clean-VM Store install, bundled and matched narration, MP3 playback, and the offline-query and Python-probe failures; the replacement package still needs a physical offline and engine-install retest.
+- Record the unpatched development-only picomatch advisory, its build-tool exposure and its absence from the Store runtime, with upstream follow-up.
+- Copy the app's bundled Visual C++ runtime into immutable, content-addressed directories in the worker's user folder before loading it; verify existing copies and publish new sets atomically.
+- Record validated worker exception classes, numeric OS errors and bounded module/line frames while discarding raw stderr, exception messages and input filenames at every log level.
 
 ## [2.2.0] - 2026-10-30
 

@@ -61,7 +61,7 @@ from ltts.engines.cloned_speech import acceptable, plausibility, polish, sentenc
 from ltts.engines.credits import CHATTERBOX
 from ltts.engines.device_policy import install_blocker
 from ltts.engines.worker_client import WorkerClient
-from ltts.engines.worker_launch import worker_argv, worker_environment
+from ltts.engines.worker_launch import prepare_vc_runtime, worker_argv, worker_environment
 from ltts.errors import ConflictError, EngineUnavailableError
 from ltts.hardware import detect_gpus
 from ltts.jobs import JobContext
@@ -298,7 +298,8 @@ class ChatterboxEngine(Engine, VoiceTuner):
                     log.warning(
                         "chatterbox runtime is older than the worker lock; update it in Settings → Engines & models"
                     )
-                env = worker_environment(os.environ, Path(sys.executable).parent)
+                runtime_dir = prepare_vc_runtime(Path(sys.executable).parent, self._root)
+                env = worker_environment(os.environ, runtime_dir)
                 self._worker = WorkerClient(
                     self._worker_argv(), env, self._root, self._settings.clone_worker_idle_unload_s
                 )

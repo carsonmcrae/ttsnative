@@ -50,11 +50,14 @@ def test_worker_round_trip_and_noise_tolerance(worker: WorkerClient) -> None:
     assert worker.running
 
 
-def test_worker_errors_crashes_and_timeouts(worker: WorkerClient) -> None:
-    with pytest.raises(WorkerError, match="Boom"):
+def test_worker_errors_crashes_and_timeouts(worker: WorkerClient, caplog: pytest.LogCaptureFixture) -> None:
+    with pytest.raises(WorkerError, match="The voice engine reported an error\\."):
         worker.call("fail", 10)
     with pytest.raises(WorkerError, match="crashed"):
         worker.call("crash", 10)
+    [crash] = [record for record in caplog.records if record.getMessage() == "voice engine worker process crashed"]
+    assert crash.levelno == logging.ERROR and crash.worker_request_id == 2
+    assert crash.operation == "unknown"  # the fake worker's test-only op is outside the production allow-list
     assert worker.call("ping", 10)["ok"]  # restarted automatically
     with pytest.raises(WorkerError) as error:
         worker.call("slow", 0.5)

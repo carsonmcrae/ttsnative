@@ -7,14 +7,27 @@ it as a cloned voice after the optional engine is installed. Guided studio build
 
 ## Before release
 
-- [ ] (required) **Clean Store install.** Preserve the current VirtualBox VM state, restore its clean
+- [x] (required) **Clean Store install.** Preserve the current VirtualBox VM state, restore its clean
       Windows 11 baseline, trust a test signing certificate in the guest only, install the candidate
       MSIX and launch from Start. No Visual C++ redistributable or developer tools are installed.
-- [ ] (required) **Bundled reading.** Import a document, play several sentences and export an MP3 in
+      — verified: 2026-11-17, `TTSNative-Win11-Clean` restored to baseline `e393553b`, standard
+      `reader` account. The maintainer imported the public test certificate in the guest; the rebuilt
+      `2.3.0.1` MSIX installed and launched with the virtual network cable disconnected. The empty
+      Library and **Voices ready** appeared without a console. Package identity and hashes are below.
+- [x] (required) **Bundled reading.** Import a document, play several sentences and export an MP3 in
       the installed Store app with the optional engine absent. Repeat reading without a network.
-- [ ] (required) **Matched voice without a download.** Save a quick/imported voice, create its matched
+      — verified: 2026-11-17, the same rebuilt MSIX and clean VM, with the cable disconnected and
+      Chatterbox absent. A fresh TXT import narrated three sentences to 100%; its MP3 downloaded
+      locally and Windows Media Player advanced through it. Audio was not audibly assessed.
+- [x] (required) **Matched voice without a download.** Save a quick/imported voice, create its matched
       voice, play a sample, select it for reading, close and reopen. It remains usable without
       Chatterbox; the interface explains that it is a stand-in and that cloning is optional.
+      — verified: 2026-11-17, the same rebuilt MSIX and clean VM, with the cable disconnected and
+      Chatterbox absent. Imported a generated Kokoro WAV, saved `test`, made and previewed
+      `test (matched)`, selected it for reading and narrated a fresh DOCX through both sections.
+      After closing and reopening from Start, the documents and matched voice survived; a fresh
+      EPUB narrated both sections with that voice. The original profile remained **Not installed**.
+      No personal recording was used; playback progression was observed, not audible quality.
 - [ ] (required) **Clone later from the saved recording.** Install Chatterbox in the packaged app,
       select the original saved voice, generate speech, close and reopen, and generate again. The
       matched blend remains available; no new recording is needed. Record timings and any failures.
@@ -43,7 +56,9 @@ it as a cloned voice after the optional engine is installed. Guided studio build
 - [ ] Complete and record the before-release observations above. A successful MSIX build alone does
       not establish that Microsoft's reviewer can use optional cloning or the matched path.
       The first VM pass found paused local requests when offline and a Python-probe import failure
-      during optional engine setup. Both require a rebuilt package and actual VM retests.
+      during optional engine setup. The rebuilt package passed offline retests and the Python probe,
+      then exposed blocked Visual C++ DLL loads. The runtime-copy fix still needs an installed-package
+      retest and successful cloning.
 - [ ] Complete the still-open required after-publishing evidence for 2.2.0 in its acceptance record.
       The release gate checks that record before permitting the next version.
 
@@ -80,3 +95,60 @@ no NVIDIA GPU, no developer tools or Visual C++ redistributable. This pass uses 
   the VM's Downloads folder before any restart. The app displayed the failure and retained the
   matched fallback. The replacement routes uv's cache into the existing unvirtualized app folder;
   installing the engine and cloning from the saved recording remain unverified until that build runs.
+
+## Rebuilt candidate observations
+
+2026-11-17, the same `TTSNative-Win11-Clean` VM and clean baseline
+`e393553b-8545-4210-b305-d180bd01e1a1`, standard `reader` account, four CPUs, 8 GB RAM, no NVIDIA GPU,
+developer tools or Visual C++ redistributable. This pass uses PR #108 source
+`5d403f703464960b4b5ca904460beca229033d49`, built by Desktop run `44156656546` from its synthetic merge
+`72a1a79303981f176e3e78af9a0c792b9135fbc9`.
+
+- The unsigned CI MSIX SHA-256 is
+  `8a810ac4f1fe544930bc3a9f62af40c28fc9b561616071a57eafe01d8617c438`. Its test-signed revision
+  `2.3.0.1`, supplied on the read-only `TTSN230C` disc, has SHA-256
+  `5ec9df9e05d773b69bba08c31943970c5c1c627801ef4954e08bf0dbf79562fc`. The package audit records
+  all 6,874 application/runtime ZIP entries unchanged; only the test manifest revision and generated
+  signature metadata differ. This is a sideloaded test-signed package, not a Microsoft-signed Store
+  distribution.
+- The maintainer imported the new public test certificate in the guest. App Installer recognized the
+  exact publisher and enabled **Install** for `2.3.0.1`. The VM's virtual network cable was
+  disconnected while installation was still at 89%, before first launch. The installed app reached
+  an empty Library with **Voices ready**, without a console; the sidebar build began
+  `2.3.0-dev.12`.
+- With the cable still disconnected and Chatterbox absent, imported
+  `offline-local-request-check.txt` (121 bytes). Heart narrated all three sentences to 100%, with
+  0:07 elapsed. Exported `offline-local-request-check.mp3` (58 KB in the app, 58.0 KB in Explorer)
+  and downloaded it locally. Windows Media Player progressed to 0:07 elapsed with 0:01 remaining.
+  Playback progression was observed; audio was not audibly assessed.
+- Still offline, imported the generated 12-second `synthetic.wav`; local validation detected
+  9.6 seconds of speech. Saved the quick profile `test`, created `test (matched)`, generated its
+  sample without error and selected **Use for reading**, which changed to **Used for reading**.
+  Imported the previously unread `sample.docx`: the picker selected `test (matched)`, while the
+  original `test` profile remained **Not installed**. Narration advanced through both sections to
+  100%, with 0:06 elapsed.
+- Closed TTSNative and reopened it from Start with the cable still disconnected. The Library kept
+  both completed documents. Imported the fresh `sample.epub` (**The Night Train**); the picker kept
+  `test (matched)`, and the original `test` profile and Chatterbox default remained **Not installed**.
+  Matched narration advanced through both sections to 100%, with 0:05 elapsed. No personal recordings
+  were used and sound was not audibly assessed.
+- Optional CPU installation ran from approximately 20:19 to 20:23 UTC. The managed Python 3.11.17
+  probe and dependency installation passed; the app downloaded the 2,849 MB of model files and the
+  server logged the artifact as installed. Verification then failed with **The voice engine reported
+  an error (PermissionError)**. Preserved the complete 620-byte server log in the guest's Downloads
+  before closing the app; the worker traceback is hidden at the normal production log level.
+  Successful installation, cloning from the saved recording and the packaged update remain unverified.
+- Two temporary diagnostic revisions, `2.3.0.3` and `2.3.0.4`, retained the application's loading
+  behavior but enabled local diagnostic logging. The `.4` package confirmed that the parent and
+  worker selected the current package's `runtime/python` folder and could see all four Visual C++
+  DLLs. `vcruntime140.dll` was already loaded; loading `vcruntime140_1.dll`, `msvcp140.dll` and
+  `msvcp140_1.dll` by full path each failed with `PermissionError`, errno 13, Windows error 5.
+  PyTorch then failed loading `c10.dll` or its dependencies. The 620-byte initial failure log,
+  2.00 KB traceback and 4.54 KB per-DLL diagnostic log are preserved in the guest's Downloads as
+  `server.log`, `server (2).log` and `server (3).log`. These diagnostic packages are not submission
+  candidates.
+- The source fix copies the app's four bundled DLLs into the existing per-user engine folder,
+  verifies exact bytes before reuse and publishes new sets into content-based directories so an
+  update never overwrites a mapped DLL. It changes no Windows permissions or package capabilities.
+  A production-logging functional prototype is prepared for the next VM test; the final CI package
+  still needs verification after that experiment succeeds.

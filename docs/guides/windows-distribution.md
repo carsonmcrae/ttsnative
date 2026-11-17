@@ -68,14 +68,21 @@ is in ADR-26.
 
 ## What is different inside a Store package
 
-A Store install runs the same server and web app as the direct install, in a package. Three
+A Store install runs the same server and web app as the direct install, in a package. Four
 differences have already broken something, so anything that starts another program or loads a library
 is checked against them:
 
 - **Windows doesn't search `PATH` for DLLs** in a packaged app, nor in the programs it starts. A
   library is found next to the program that loads it, in a folder added with `AddDllDirectory`, or
-  when it is already loaded. The voice-cloning worker loads the app's Visual C++ runtime by full path
-  for this reason.
+  when it is already loaded. The voice-cloning worker preloads the app's Visual C++ runtime by full
+  path for this reason.
+- **The downloaded Python cannot load DLLs from the protected package folder.** On the clean VM,
+  all bundled Visual C++ files were readable, but loading three of them returned Windows error 5.
+  The server now copies the fixed bundled set into the existing per-user engine folder and names
+  that copy for the worker. Each set has a content-based directory; updated files never overwrite
+  a mapped DLL, and existing copies are verified before reuse. No system redistributable, broader
+  capability or filesystem-permission change is needed. The actual installed-package retest is
+  recorded below.
 - **Each version is installed in a new folder** (`…\WindowsApps\CarsonMcRae.TTSNative_X.Y.Z.0_x64__…`),
   and the folder is read-only. Nothing may keep a path into it across an update; the worker's source
   folder is named each time the worker starts.
@@ -209,7 +216,12 @@ first. Neither failed submission below would have reached Microsoft with these c
    inspection module from the downloaded interpreter. The replacement runs local requests independently
    of internet status and places uv's cache under the existing unvirtualized app folder. See the
    [2.3.0 acceptance record](../readiness/2.3.0/acceptance.md) for observed results and pending retests;
-   neither fix is considered verified in a Store install until that replacement is tested.
+   the replacement passed fresh bundled and matched narration with the VM cable disconnected,
+   including MP3 playback and persistence across an app restart. Optional setup passed its earlier
+   Python probe and downloaded the models, then exposed the DLL-loading restriction above. A
+   diagnostic package confirmed the selected runtime path, file visibility and per-DLL errors;
+   the per-user runtime copy still needs its installed-package retest. Worker failures now retain
+   validated OS codes and module/line locations without logging private text or filenames.
 3. **What can't be tried here:** Microsoft's own PCs and network. If the engine can't be installed
    there, the reviewer now sees which limit stopped it and can make a matched voice.
 
