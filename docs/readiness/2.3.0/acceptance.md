@@ -88,9 +88,10 @@ it as a cloned voice after the optional engine is installed. Guided studio build
       then exposed blocked Visual C++ DLL loads. The runtime-copy prototype passed CPU verification
       and its first cloned narration; final CI revision `.6` passed fresh cloning before and after
       restart, and `.7` passed the package-folder update with fresh cloned speech.
-      — verified: 2026-11-17, all six before-release checks now have observations and results for
-      source `3f1fb3d`, including the installed-package restart and update tests. The release gate
-      will separately enforce exact-head workflow results after this evidence is committed.
+      — verified: 2026-11-17, all six before-release checks have recorded evidence: the first three
+      use physical `.1` observations supported by the final payload comparison; cloning, restart,
+      update and candidate workflows use source `3f1fb3d`. The release gate will separately enforce
+      exact-head workflow results after this evidence is committed.
 - [x] Complete the required after-publishing evidence for 2.2.0 in its acceptance record.
       The release gate checks that record before permitting the next version.
       — verified: 2026-11-17, the published 2.1.0 app's signed updater installed 2.2.0 after consent,
@@ -206,7 +207,7 @@ added. This pass used the temporary `2.3.0.5` functional prototype, not the fina
   model verification, approximately 342 seconds for the retry overall. The VM remained at four CPUs
   and 8 GB RAM throughout.
 - Selected the original saved profile `test` in the voice picker; the separate `test (matched)`
-  blend and Chatterbox default were also available. Imported a fresh 73-byte, 14-word TXT document,
+  blend and Chatterbox default were also available. Imported a fresh 73-byte TXT document,
   `cloned-worker-update-check.txt`, with no previous narration for the original voice. Pressing
   **Play** generated and played its speech, reached 0:04 elapsed and 0:00 remaining, and returned the
   Play button within 108 seconds of the initial press. The single-sentence document's position label
