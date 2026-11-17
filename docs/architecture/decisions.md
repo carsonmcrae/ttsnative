@@ -629,3 +629,45 @@ when a choice changes the stack, a trust boundary, data storage or the setup exp
   above, the direct download stays unsigned and the website leads with the Store once the listing is
   live; the signing steps for `release.yml` (sign `TTSNative.exe`, bundle, sign the installer and the
   uninstaller, then make the update signature over the signed installer) wait for a new application.
+
+## ADR-27: A voice the cloning engine can't serve gets a matched voice, a blend of built-in voices at its pitch
+
+- **Context:** The cloning engine (Python, PyTorch and a 2.8 GB model) is the one part of TTSNative
+  that arrives after install. Some PCs and networks never allow that: Windows in S mode, Smart App
+  Control and application-control policies run only approved software, and filtered networks block the
+  servers. Microsoft's review of the Store package failed on exactly this (2026-11-12): a voice had
+  been recorded and saved, the engine's install failed, and the person was left with a voice they could
+  not hear and no reason why. Voice Studio's promise is a narration voice from your own recording.
+- **Decision:**
+  - **While the engine isn't installed, Voice Studio offers a matched voice.** The server measures the
+    median pitch of the profile's recording and saves a blend of the two built-in voices whose
+    measured pitch brackets it, weighted to land on it. Everything it needs ships with the app, so it
+    works on every PC, at once.
+  - **It is an ordinary blend, named `<profile> (matched)`, and is never called a clone.** The
+    interface says it is the app's own voices at the pitch of the recording, not a copy of the voice.
+    The profile and its recording are untouched and become a cloned voice when the engine is
+    installed; nothing switches by itself.
+  - **Pitch only, and the person chooses the tone where it is ambiguous.** The built-in US English
+    voices form a deeper and a lighter group whose pitches meet around 140 to 150 Hz. The likelier
+    group for the pitch is used, and where both reach, one button swaps to the other.
+  - **A failed install says why** (`engines/install_errors.py`), and Windows in S mode is told up
+    front, so the matched voice is offered next to a reason rather than a bare failure.
+- **Alternatives:**
+  - **Ship the engine inside the Store package**, so it is signed with the app and needs no download
+    of software. Rejected for now: about a gigabyte more for every user, a second Python in the
+    package, CPU only, and redistributing the engine's whole dependency tree changes the licence
+    obligations the on-demand install doesn't have. It remains the way to make real cloning work on
+    S mode if that matters later.
+  - **Leave voice cloning out of the Store edition.** Rejected by the owner: the Store edition should
+    do what the direct download does.
+  - **Estimate more than pitch** (vocal-tract size from formants, a speaker-embedding model). Rejected
+    for now: the formant estimate separated the built-in voices' two groups only 22 times in 28, a
+    microphone colours it further, and an embedding model is another download or another licence to
+    ship. Pitch is robust, and the person hears the result and can swap the tone.
+  - **Speak the profile itself with the matched blend until the engine arrives.** Rejected: a voice
+    that silently changes when the engine is installed, and that carries the speaker's name while not
+    being their voice, is the confusion the wording is there to prevent.
+- **Consequences:** The pitch table (`voices/builtin_pitch.json`) belongs to the pinned Kokoro model
+  and is checked against it by the inference tests; a model update rewrites it. Recordings pitched
+  below about 86 Hz or above about 204 Hz get the nearest voice rather than their own pitch. A matched
+  voice counts toward the blend limit. Details: [Voice Studio](../wiki/Voice-Studio.md#matched-voice).

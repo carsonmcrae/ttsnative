@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Carson McRae
-"""Purpose: Make a matched voice for a custom voice profile: a stand-in that needs no cloning engine.
+"""Purpose: Make a matched voice for a custom voice profile: a stand-in that needs no cloning engine (ADR-27).
 
 Scope: Measures the pitch of the profile's stored recording, picks the built-in voices that bracket it
 (``matching.py``) and saves them as an ordinary voice blend named after the profile, replacing the

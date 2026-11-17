@@ -11,8 +11,7 @@
  *   uninstall. The identity comes from apps/desktop/store/identity.json; while it is empty the result is
  *   a test package, named so, that can be sideloaded but not uploaded. The Store signs the package.
  *   Upstream files the app never reads and MSIX can't hold are left out; any other is refused. A
- *   program or library that still points at a signature removed from it has that pointer cleared in
- *   the package's copy (lib/pe-certificates.mjs): the Store can't sign a package that holds one.
+ *   pointer to a signature removed from a program or library is cleared (the Store can't sign those).
  * Does NOT belong: Building the program and runtime (build.mjs) or submitting to Partner Center.
  */
 import { spawnSync } from 'node:child_process';
