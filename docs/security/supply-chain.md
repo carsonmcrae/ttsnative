@@ -304,8 +304,9 @@ coverage, and dependency checks. Current glob patterns come from repository conf
 ignore files; application documents, recordings and API input do not enter these Node tools. The
 desktop runtime assembly copies built web assets, Python packages, the optional worker project, uv,
 models and native runtime files. Node and node_modules are not included in the Windows package.
-The checksum-verified 2.3.0 candidate MSIX was also inspected: its 6,877 ZIP entries contain no
-`node.exe`, `node_modules` directory or picomatch source/package paths.
+The checksum-verified final CI candidate from source `3f1fb3d` was also inspected: its 6,880 ZIP
+entries contain no `node.exe`, `node_modules` directory or picomatch source/package paths. Its SHA-256
+is `9022d6f09e3793f93099e9a2ea9d7d7e2cdd071832950111a5a86013415457fa`.
 Residual exposure is developer or CI resource exhaustion when processing malicious repository
 patterns, including changes in an untrusted pull request.
 

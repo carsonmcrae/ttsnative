@@ -215,13 +215,24 @@ first. Neither failed submission below would have reached Microsoft with these c
    detection paused requests to the local server, and uv's default redirected cache hid its Python
    inspection module from the downloaded interpreter. The replacement runs local requests independently
    of internet status and places uv's cache under the existing unvirtualized app folder. See the
-   [2.3.0 acceptance record](../readiness/2.3.0/acceptance.md) for observed results and pending retests;
+   [2.3.0 acceptance record](../readiness/2.3.0/acceptance.md) for observed results;
    the replacement passed fresh bundled and matched narration with the VM cable disconnected,
    including MP3 playback and persistence across an app restart. Optional setup passed its earlier
    Python probe and downloaded the models, then exposed the DLL-loading restriction above. A
    diagnostic package confirmed the selected runtime path, file visibility and per-DLL errors;
-   the per-user runtime copy still needs its installed-package retest. Worker failures now retain
-   validated OS codes and module/line locations without logging private text or filenames.
+   the per-user runtime copy then passed in the installed `2.3.0.5` functional prototype with normal
+   production logging. On the four-CPU, 8 GB VM backed by an HDD, CPU model verification took
+   314 seconds. The original saved profile generated and played a fresh short TXT document within
+   108 seconds of pressing Play, while its matched blend remained available. Audio was not audibly
+   assessed. This prototype used the earlier CI runtime with the seven server/worker source files
+   matching `3f1fb3d`; it is supporting evidence, separate from the final-CI observations. The final
+   CI package's `.6` test revision generated fresh cloned speech, then generated a different new
+   passage after closing and reopening. Updating to `.7` retained six documents and both voice
+   profiles; a third unread passage generated and played with the original profile after the
+   package-folder change. These final checks used a full SSD-backed copy of the same four-CPU,
+   8 GB VM. Playback completion was observed; audio was not audibly assessed. The test revisions
+   preserve all 6,877 application/runtime files from the immutable CI package. Worker failures now
+   retain validated OS codes and module/line locations without logging private text or filenames.
 3. **What can't be tried here:** Microsoft's own PCs and network. If the engine can't be installed
    there, the reviewer now sees which limit stopped it and can make a matched voice.
 
@@ -255,5 +266,7 @@ first. Neither failed submission below would have reached Microsoft with these c
       runtime install failed on the reviewer's PC for a reason the app didn't show. This version
       names the reason, retries what is worth retrying, fixes two faults that only a Store install
       has, and offers a matched voice.
-- [ ] The package installed on the clean VM (step 2 above).
+- [x] The final CI package checked on the clean VM, including fresh cloned speech after restart and
+      package update (step 2 above). Verified 2026-11-17; hashes and observations are in the
+      [acceptance record](../readiness/2.3.0/acceptance.md).
 - [ ] The next submission (owner), then `listed: true`.

@@ -28,15 +28,43 @@ it as a cloned voice after the optional engine is installed. Guided studio build
       After closing and reopening from Start, the documents and matched voice survived; a fresh
       EPUB narrated both sections with that voice. The original profile remained **Not installed**.
       No personal recording was used; playback progression was observed, not audible quality.
-- [ ] (required) **Clone later from the saved recording.** Install Chatterbox in the packaged app,
+- [x] (required) **Clone later from the saved recording.** Install Chatterbox in the packaged app,
       select the original saved voice, generate speech, close and reopen, and generate again. The
       matched blend remains available; no new recording is needed. Record timings and any failures.
-- [ ] **Packaged update.** Verify the original cloned voice after a Store-version folder change.
+      — verified: 2026-11-17, source `3f1fb3d`, final CI payload in test revision `2.3.0.6` on the
+      SSD-backed Windows 11 VM, four CPUs and 8 GB RAM, without an additional system redistributable.
+      The packaged CPU installation verified in `.5` remained ready. Selected original profile
+      `test`, kept separately from `test (matched)`, and generated fresh speech for a new 31-byte TXT.
+      Closed and reopened from Start: five documents survived. A different, never-read 37-byte TXT
+      generated and played with the original profile after restart, reaching 0:02 elapsed and 0:00
+      remaining with the Play button returned and no error, observed within 250 seconds of Play.
+      The saved synthetic recording was reused and the matched blend remained available. The
+      single-sentence position label stayed at 0%; audio was not audibly assessed. Details are below.
+- [x] **Packaged update.** Verify the original cloned voice after a Store-version folder change.
       Unit coverage and the earlier package-context experiment are supporting evidence, not a
       replacement for an installed-package observation.
-- [ ] **Release candidate checks.** CI, Desktop, CodeQL and Inference & E2E pass on the final candidate.
+      — verified: 2026-11-17, App Installer recognized the exact publisher and enabled **Update**
+      from test revision `2.3.0.6` to `2.3.0.7`. The update installed and launched automatically,
+      retaining six documents. Original profile `test` stayed selected and `test (matched)` remained
+      ready separately. A never-read 37-byte TXT generated and played cloned speech to its end within
+      112 seconds of Play, with 0:02 elapsed, 0:00 remaining, Play returned and no error. The
+      single-sentence position label remained 0%; audio was not audibly assessed. Details are below.
+- [x] **Release candidate checks.** CI, Desktop, CodeQL and Inference & E2E pass on the final candidate.
       The local full check, both 100% coverage gates, security audits and real-model tests are recorded
       in the pull request.
+      — verified: 2026-11-17, source `3f1fb3de86270f69947632b6471e3423f901223a`: all 21 reported checks
+      green, including [CI](https://github.com/carsonmcrae/ttsnative/actions/runs/44174221062/attempts/2)
+      (attempt 2 after a macOS runner-capacity retry),
+      [Desktop](https://github.com/carsonmcrae/ttsnative/actions/runs/44174221122),
+      [CodeQL](https://github.com/carsonmcrae/ttsnative/actions/runs/44174220986) and
+      [Inference & E2E](https://github.com/carsonmcrae/ttsnative/actions/runs/44174208391).
+      Local full check passed 95 script tests, 671 web tests and 1,457 server tests; web and server
+      each reached 100% line and branch coverage. Production npm and server audits reported no known
+      vulnerabilities; the CPU/CUDA worker audits retained their existing reviewed exceptions and
+      reported no unreviewed advisories. Real-model tests passed 15 with three optional-Chatterbox
+      skips in the source checkout; browser E2E passed 78 with one expected Windows WebKit Web Audio
+      skip. The following documentation-only evidence commit must also pass the exact-head workflow
+      gate; these results do not claim that a future commit has passed.
 
 ## After publishing
 
@@ -53,14 +81,23 @@ it as a cloned voice after the optional engine is installed. Guided studio build
       started after the maintainer unplugged the SanDisk USB device with an unreadable partition.
       Preserved the VM's original state as snapshot `34d3a3c1-6b10-4569-adf5-35c8a8aa4f99`, restored
       clean baseline `e393553b-8545-4210-b305-d180bd01e1a1`, and installed the test-signed candidate.
-- [ ] Complete and record the before-release observations above. A successful MSIX build alone does
+- [x] Complete and record the before-release observations above. A successful MSIX build alone does
       not establish that Microsoft's reviewer can use optional cloning or the matched path.
       The first VM pass found paused local requests when offline and a Python-probe import failure
       during optional engine setup. The rebuilt package passed offline retests and the Python probe,
-      then exposed blocked Visual C++ DLL loads. The runtime-copy fix still needs an installed-package
-      retest and successful cloning.
-- [ ] Complete the still-open required after-publishing evidence for 2.2.0 in its acceptance record.
+      then exposed blocked Visual C++ DLL loads. The runtime-copy prototype passed CPU verification
+      and its first cloned narration; final CI revision `.6` passed fresh cloning before and after
+      restart, and `.7` passed the package-folder update with fresh cloned speech.
+      — verified: 2026-11-17, all six before-release checks now have observations and results for
+      source `3f1fb3d`, including the installed-package restart and update tests. The release gate
+      will separately enforce exact-head workflow results after this evidence is committed.
+- [x] Complete the required after-publishing evidence for 2.2.0 in its acceptance record.
       The release gate checks that record before permitting the next version.
+      — verified: 2026-11-17, the published 2.1.0 app's signed updater installed 2.2.0 after consent,
+      relaunched with app/server 2.2.0 and retained the checked private data and settings. The website
+      download's hash and a separate clean-VM installation were verified; the optional homepage
+      presentation gap has an explicit reasoned waiver. The previous-release acceptance verdict
+      reports all three items done or waived with a reason.
 
 ## Initial candidate observations
 
@@ -150,5 +187,75 @@ developer tools or Visual C++ redistributable. This pass uses PR #108 source
 - The source fix copies the app's four bundled DLLs into the existing per-user engine folder,
   verifies exact bytes before reuse and publishes new sets into content-based directories so an
   update never overwrites a mapped DLL. It changes no Windows permissions or package capabilities.
-  A production-logging functional prototype is prepared for the next VM test; the final CI package
-  still needs verification after that experiment succeeds.
+  The production-logging functional prototype passed the installed-package experiment below; the
+  final CI package's subsequent observations are recorded separately below.
+
+## Functional prototype observations
+
+2026-11-17, the same Windows 11 VM, standard `reader` account, four CPUs and 8 GB RAM, with its virtual
+disk backed by the host's HDD. No NVIDIA GPU, system Visual C++ redistributable or developer tools were
+added. This pass used the temporary `2.3.0.5` functional prototype, not the final CI package.
+
+- The prototype used the earlier `5d403f7` CI binary/runtime payload with seven server/worker source
+  files matching `3f1fb3de86270f69947632b6471e3423f901223a`, including the per-user DLL copy and
+  sanitized diagnostics. Normal production logging was restored. Its test-signed MSIX SHA-256 is
+  `aced46fd979b99061a8b1c2c5b520ea769558a78921e0000026ebb0f08994ae1`.
+- Retrying optional CPU installation reused the downloaded runtime and models and successfully
+  verified the engine. The 415-byte production server log records the model artifact installed at
+  guest-local `15:04:26`, then **chatterbox loaded**, device **cpu**, at `15:09:40`: 314 seconds for
+  model verification, approximately 342 seconds for the retry overall. The VM remained at four CPUs
+  and 8 GB RAM throughout.
+- Selected the original saved profile `test` in the voice picker; the separate `test (matched)`
+  blend and Chatterbox default were also available. Imported a fresh 73-byte, 14-word TXT document,
+  `cloned-worker-update-check.txt`, with no previous narration for the original voice. Pressing
+  **Play** generated and played its speech, reached 0:04 elapsed and 0:00 remaining, and returned the
+  Play button within 108 seconds of the initial press. The single-sentence document's position label
+  stayed at **0% listened**; this is not recorded as 100% progress. No new recording was needed and
+  audio was not audibly assessed.
+- The successful HDD-backed VM was powered off and preserved as snapshot `32b80166`. A full copy to
+  SSD storage was then in progress with the same CPU and RAM allocation. Results from the completed
+  SSD copy and final CI package follow; these prototype observations do not establish restart or
+  update behavior themselves.
+
+## Final CI candidate observations
+
+Desktop run `44174221122` built source `3f1fb3de86270f69947632b6471e3423f901223a` through synthetic merge
+`41e15797a6aacfa76121f6e5130b9b0d01dd18e2`. Its immutable unsigned CI MSIX SHA-256 is
+`9022d6f09e3793f93099e9a2ea9d7d7e2cdd071832950111a5a86013415457fa`.
+
+- Test-signed revisions `2.3.0.6` and `2.3.0.7` preserve all 6,877 application/runtime ZIP entries
+  byte-for-byte; only the manifest test revision and generated package/signature metadata differ.
+  Their SHA-256 values are `81d44b237c004b53f82c92887f1898626e866ea5ae976b599f5c9e8a777b5185` and
+  `6b4c5369cc089ac22c229d43d647a6453e35d57c540fe481562e7a08af507cf8`, respectively.
+- A comparison with the earlier `.1` package found all 1,106 fallback-related files byte-identical;
+  the 286 logical web assets differed only in version metadata. This supports the earlier physical
+  offline observations for bundled and matched voices; it is not another offline VM test on `.6`.
+- Installed `.6` on the full SSD/NVMe-backed copy of the preserved VM, still with four CPUs, 8 GB RAM,
+  standard `reader` account and no additional system Visual C++ redistributable. The app reached the
+  Library with four documents retained; original profile `test` and the separate `test (matched)`
+  blend were both ready. The app identified itself as `2.3.0-dev.13+codex-release-2-3-0.41e15797a6`.
+- Imported `candidate-clone-first.txt`, a fresh 31-byte document containing "The dawn brings a quiet
+  breeze." With the original `test` profile selected, pressed Play at `21:39:12.706 UTC`; the end
+  state was observed at `21:46:24.835 UTC`: 0:02 elapsed, 0:00 remaining, Play returned and no error.
+  Another VM was being observed while generation/playback completed, so no completion duration is
+  claimed for this first run.
+- Closed the app and reopened it from Start; the Library retained five documents. Imported the
+  never-read `candidate-clone-restart.txt` (37 bytes), "A blue lantern rests beside the door." The
+  picker confirmed the original `test` profile, with the matched blend available separately. Pressed
+  Play at `21:51:29.081 UTC`; the end state was observed by `21:55:38.336 UTC`, within 250 seconds:
+  0:02 elapsed, 0:00 remaining, Play returned and no error. These single-sentence documents retained
+  a 0% position label; this is not claimed as 100% progress. No new recording was made and audio was
+  not audibly assessed.
+- App Installer recognized the exact publisher and enabled **Update** from `.6` to `.7`; installation
+  started at `21:55:57.530 UTC`, and the automatically launched app was ready by `21:56:38.376 UTC`.
+  The Library retained six documents. The original `test` profile remained selected, while the
+  separate `test (matched)` blend was still ready.
+- Imported the never-read `candidate-clone-update.txt` (37 bytes), "A green boat waits beside the
+  bridge." Pressed Play with the original profile at `21:56:59.286 UTC`; the end state was observed at
+  `21:58:50.018 UTC`, within 112 seconds: 0:02 elapsed, 0:00 remaining, Play returned and no error.
+  The single-sentence position label stayed at 0%; audio was not audibly assessed. This verifies
+  fresh cloned speech after the actual package-folder change, using the saved recording and keeping
+  the matched blend separately available.
+- The installed-package observations above are complete for source `3f1fb3d`. The documentation-only
+  evidence commit that records them must still pass the release gate's exact-head workflow checks;
+  no future-head workflow result is claimed here. The three after-publishing checks remain open.
