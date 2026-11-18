@@ -266,7 +266,12 @@ first. Neither failed submission below would have reached Microsoft with these c
       runtime install failed on the reviewer's PC for a reason the app didn't show. This version
       names the reason, retries what is worth retrying, fixes two faults that only a Store install
       has, and offers a matched voice.
-- [x] The final CI package checked on the clean VM, including fresh cloned speech after restart and
+- [x] The earlier Voice Studio CI package checked on the clean VM, including fresh cloned speech after restart and
       package update (step 2 above). Verified 2026-11-17; hashes and observations are in the
       [acceptance record](../readiness/2.3.0/acceptance.md).
+- [x] The amended agent candidate checked in the installed Windows 11 Store app with networking
+      disconnected. Verified 2026-11-18 UTC, source `7ca64f4`, test revision `.8`: packaged-skill
+      discovery, authentication, narration/highlighting, MP3 export, missing prerequisites and output
+      protection passed. This was an update of the preserved test VM; exact hashes and limits are in
+      the acceptance record. Final release-commit workflows and the gate must also pass before tagging.
 - [ ] The next submission (owner), then `listed: true`.
