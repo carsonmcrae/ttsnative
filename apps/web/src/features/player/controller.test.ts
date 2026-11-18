@@ -204,6 +204,10 @@ describe('PlaybackController', () => {
     media.playError = new DOMException('blocked', 'NotAllowedError');
     await controller.load(DOC, 0, true);
     expect(controller.getState().status).toBe('paused');
+    expect(controller.getState().autoplayBlocked).toBe(true);
+    media.playError = null;
+    await controller.play();
+    expect(controller.getState()).toMatchObject({ status: 'playing', autoplayBlocked: false });
   });
 
   it('toggles, pauses and persists progress', async () => {

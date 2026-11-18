@@ -33,6 +33,7 @@ const VoiceStudioPage = lazy(() => import('@/features/studio/VoiceStudioPage'));
 const ExportsPage = lazy(() => import('@/features/exports/ExportsPage'));
 const SettingsPage = lazy(() => import('@/features/settings/SettingsPage'));
 const PairPage = lazy(() => import('@/features/lan/PairPage'));
+const AgentReadPage = lazy(() => import('@/features/agent/AgentReadPage'));
 
 function Page({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -85,6 +86,14 @@ function createRouter() {
           errorElement: <PageError />,
           children: [
             { index: true, element: <Navigate to="/library" replace /> },
+            {
+              path: 'agent-read',
+              element: (
+                <Page>
+                  <AgentReadPage />
+                </Page>
+              ),
+            },
             {
               path: 'library',
               element: (

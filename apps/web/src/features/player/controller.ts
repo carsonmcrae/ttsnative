@@ -36,6 +36,8 @@ export interface PlayerState {
   segmentIndex: number;
   status: PlayerStatus;
   error: PlayerError | null;
+  /** The media element refused automatic playback; an explicit Play action is needed. */
+  autoplayBlocked?: boolean;
   voiceId: string;
   rate: number;
   pace: number;
@@ -115,6 +117,7 @@ export class PlaybackController {
       segmentIndex: 0,
       status: 'idle',
       error: null,
+      autoplayBlocked: false,
       currentTime: 0,
       duration: 0,
       sleep: null,
@@ -131,7 +134,7 @@ export class PlaybackController {
       if (this.state.status === 'playing' && !deps.media.ended) this.set({ status: 'paused' });
     });
     deps.media.addEventListener('play', () => {
-      if (this.state.status === 'paused') this.set({ status: 'playing' });
+      if (this.state.status === 'paused') this.set({ status: 'playing', autoplayBlocked: false });
     });
   }
 
@@ -269,6 +272,7 @@ export class PlaybackController {
       sleep: null,
       segmentIndex: 0,
       error: null,
+      autoplayBlocked: false,
       currentTime: 0,
       duration: 0,
     });
@@ -377,6 +381,7 @@ export class PlaybackController {
       segmentIndex: index,
       status: autoplay ? 'loading' : 'paused',
       error: null,
+      autoplayBlocked: false,
       currentTime: 0,
     });
     this.persist();
@@ -407,14 +412,15 @@ export class PlaybackController {
 
   private async startMedia(generation: number): Promise<void> {
     try {
+      this.set({ autoplayBlocked: false });
       this.deps.media.playbackRate = this.state.rate;
       await this.deps.media.play();
-      if (generation === this.generation) this.set({ status: 'playing' });
+      if (generation === this.generation) this.set({ status: 'playing', autoplayBlocked: false });
     } catch (error) {
       if (generation !== this.generation) return;
       // Browsers reject play() without a user gesture; stay ready instead of erroring.
       if (error instanceof DOMException && error.name === 'NotAllowedError')
-        this.set({ status: 'paused' });
+        this.set({ status: 'paused', autoplayBlocked: true });
       else if (!(error instanceof DOMException && error.name === 'AbortError')) {
         this.set({ status: 'error', error: this.deps.toError(error) });
       }

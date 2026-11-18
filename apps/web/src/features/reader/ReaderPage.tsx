@@ -24,6 +24,8 @@ import { Dialog } from '@/components/ui/Dialog';
 import { EmptyState, Skeleton, StatusRegion } from '@/components/ui/Feedback';
 import { usePageTitle } from '@/components/ui/Layout';
 import { DefaultVoicesBanner } from '@/features/engines/EngineSetup';
+import { AgentReader } from '@/features/agent/AgentReader';
+import { useFailedAgentRead } from '@/features/agent/useAgentRead';
 import type { PlayerDocument } from '@/features/player/controller';
 import { usePlayer } from '@/features/player/PlayerProvider';
 import { useEffectLabels } from '@/features/sfx/useEffectLabels';
@@ -156,6 +158,12 @@ function Reader({ doc }: Readonly<{ doc: DocumentDetail }>) {
         {panels}
       </aside>
       <article className="min-w-0 flex-1">
+        <AgentReader
+          document={playerDoc}
+          progress={doc.progress}
+          stylesReady={styling.isSuccess}
+          stylesFailed={styling.isError}
+        />
         <ReaderHeader
           doc={doc}
           onContents={() => setTocOpen(true)}
@@ -253,6 +261,7 @@ function Reader({ doc }: Readonly<{ doc: DocumentDetail }>) {
 export default function ReaderPage() {
   const { documentId } = useParams();
   const document = useDocument(documentId);
+  useFailedAgentRead(documentId, document.isError);
   if (document.isPending) {
     return (
       <StatusRegion label="Loading document" className="mx-auto max-w-3xl px-6 py-10">

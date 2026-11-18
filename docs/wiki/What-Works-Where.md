@@ -65,6 +65,7 @@ device.
 | LAN mode: turn it on, pair and remove devices                    | ✓                  | ✓ (9)                   | ✗ (7)           | –                      |
 | Local speech API: settings and tokens                            | ✓                  | ✓                       | ✗ (7)           | –                      |
 | Local speech API: programs make speech                           | ✓ (10)             | ✓ (10)                  | If allowed (10) | ✗ (10)                 |
+| Local agent: open, read and export documents                     | ✓ (15)             | ✓ (15)                  | ✗ (15)          | –                      |
 | Clear the audio cache                                            | ✓                  | ✓                       | ✗ (7)           | –                      |
 | Storage sizes                                                    | ✓                  | ✓                       | ✓ (11)          | –                      |
 | Check for and install updates                                    | ✓                  | – (12)                  | – (12)          | –                      |
@@ -107,6 +108,10 @@ device.
     with `git pull`; the Windows app updates itself.
 13. **These open folders on the computer**, which only the Windows app's own window can do.
 14. **The website only describes and offers what the newest published release has.**
+15. **The agent runs on the computer**, with local execution, Node.js and its own private credential.
+    Its requests are refused from phones and other network devices, including in network mode.
+    The reader uses the existing player and may require a Play click in a browser. See the
+    [agent skill guide](https://github.com/carsonmcrae/ttsnative/blob/main/docs/guides/agent-skill.md).
 
 ## The website
 
@@ -120,3 +125,4 @@ copy of TTSNative.
 The older [network mode](Other-Devices#advanced-network-mode-from-the-command-line), started from the
 command line with `--allow-network`, has none of the phone limits above: any device with its token can
 do everything, including deleting documents and changing settings. Prefer LAN mode.
+The local agent interface remains restricted to the computer in either mode.

@@ -21,6 +21,7 @@ import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { APP_ROUTES } from '../lib/app-routes.mjs';
 import { describe, leftoverProcesses } from './processes.mjs';
+import { installedAgentJourney } from './agent-test.mjs';
 import { repoRoot } from '../lib/paths.mjs';
 
 const [installer = '', version = ''] = process.argv.slice(2);
@@ -211,6 +212,7 @@ async function main() {
   launch();
   const origin = await waitForServer(240_000);
   check(true, `the app started its server at ${origin}`);
+  await installedAgentJourney(version);
   const documentId = await journey(origin);
   const windows = powershell(
     'Get-Process | Where-Object { $_.MainWindowHandle -ne 0 } | ForEach-Object { $_.ProcessName } | Sort-Object -Unique',

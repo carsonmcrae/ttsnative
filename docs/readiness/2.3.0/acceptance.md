@@ -7,6 +7,10 @@ it as a cloned voice after the optional engine is installed. Guided studio build
 
 ## Before release
 
+- [ ] (required) **Local agent integration.** Verify discovery, opening and narration in the existing
+      reader, a real MP3 export, missing prerequisites, output protection and the standalone skill
+      package. Record installed Windows and source observations separately from mocks. Re-run
+      the exact-head release gate after the integration and its evidence are complete.
 - [x] (required) **Clean Store install.** Preserve the current VirtualBox VM state, restore its clean
       Windows 11 baseline, trust a test signing certificate in the guest only, install the candidate
       MSIX and launch from Start. No Visual C++ redistributable or developer tools are installed.
@@ -260,3 +264,71 @@ Desktop run `44174221122` built source `3f1fb3de86270f69947632b6471e3423f901223a
 - The installed-package observations above are complete for source `3f1fb3d`. The documentation-only
   evidence commit that records them must still pass the release gate's exact-head workflow checks;
   no future-head workflow result is claimed here. The three after-publishing checks remain open.
+
+## Local agent integration observations
+
+Source `6fb6d47978bf48c905c98649e2f33c09ffd57c6a` was exercised on the Windows host using a separate
+temporary data directory, the prepared source runtime and bundled Kokoro model. The personal app,
+Store VM and existing recordings were not used. The integration reuses the existing document,
+reader and export implementations; no cloud voice provider or marketplace upload was involved.
+
+- The standalone helper was copied unchanged into unrelated temporary directories and used to
+  export a PDF as WAV (905,400 bytes), a DOCX with the available British George voice as MP3
+  (50,864 bytes), and an EPUB as M4B (64,432 bytes, two chapters: Opening and Arrival). Independent
+  probing and full decoding confirmed finite, nonzero audio; the WAV also passed Python's wave
+  reader. A separate Markdown-to-MP3 export produced 53,024 bytes. These are synthetic public
+  fixtures. Audio quality and accent were not audibly assessed.
+- Three real Chromium journeys verified narration with sentence highlighting, an autoplay rejection
+  followed by manual Play recovery, and an open request remaining pending until the actual reader
+  loaded. The autoplay rejection alone was simulated; document ingestion and synthesis were real.
+- A real scanned-PDF import returned `scanned_pdf`; existing-output protection returned
+  `output_exists` without changing the file. Read-only Windows installation detection succeeded
+  without launching that app. An actual discovery-directory ACL inspection found no broad access.
+- `npm run check`, whole web/server coverage and `npm run security` passed: 149 script tests,
+  697 web tests and 1,501 server tests, with 100% application statement/branch coverage. Real-model
+  inference passed 15 tests with three expected optional-Chatterbox skips. The complete browser
+  suite passed 81 tests with the existing WebKit music-join skip, running separately from the
+  production build. Ubuntu CI [Inference & E2E](https://github.com/carsonmcrae/ttsnative/actions/runs/44199978238)
+  independently passed the same 15 inference tests and 81 browser tests with the same skips.
+- The portable ZIP passed its builder/validator, independent Python ZIP reading and skill metadata
+  validation. It contains one SKILL.md and five necessary text support files. ZIP SHA-256:
+  `728d1f591cbd70cba3f0fa17e9c85b92030a2a04f7b0fe3291decc6e45dd62a5`.
+
+The [Windows installer smoke step](https://github.com/carsonmcrae/ttsnative/actions/runs/44199981280/job/134451257594)
+for the same source passed at `2026-11-17T23:43:34Z` on a disposable Windows Server 2025 runner. The
+real standalone helper discovered the installed desktop instance, matched its version to the
+expected installer build, found bundled Heart available, and imported a public TXT fixture. Its
+native reader request returned `playback_started` after the actual reader acknowledgement. A second
+helper process completed an MP3 export, verified the audio signature and saved a file larger than
+5,000 bytes whose length matched the reported download. No test-only playback hook was used by
+this agent journey. The surrounding smoke step also passed its normal speech, export, restart and
+uninstall assertions. Audio was not audibly assessed.
+
+The [Store package job](https://github.com/carsonmcrae/ttsnative/actions/runs/44199981280/job/134451257750)
+compiled the Store-feature Rust release and created an unsigned CI MSIX. This is build evidence;
+neither that job nor the NSIS smoke test establishes installed Microsoft Store activation. These
+observations also do not establish a disconnected network test of this new integration. The required
+integration item remains open for the Windows 11 Store check and exact-head release checks after
+the pending change file is folded into the release with `release:amend`.
+
+### Output compatibility follow-up
+
+Final client review found that hard-link publication rejected otherwise writable
+[FAT32/exFAT destinations](https://learn.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison).
+The helper now copies the verified download with `COPYFILE_EXCL`; an existing output,
+including one created after preflight, stays protected. The final pathname can be visible while
+copying, and completion is reported only after that copy finishes. Three focused regressions cover
+unavailable hard links, a late-created destination, and temporary-download cleanup on copy failure.
+All 57 focused client/launch/package tests passed. The complete `npm run check` passed again with
+152 script tests, 697 web tests and 1,501 server tests. No physical FAT/exFAT drive was tested.
+
+The revised standalone helper, SHA-256
+`98cd52f9066018f1c06fe13b2b7b5f4eb0e7e8e87ca03ec3b540fd6994b9a409`, was copied into a fresh unrelated
+temporary directory and exercised again against an isolated source instance. PDF-to-WAV produced
+776,916 bytes (16.184 seconds); DOCX-to-MP3 with available British George produced 51,008 bytes
+(11.051 seconds); EPUB-to-M4B produced 63,477 bytes (10.459 seconds) with Opening and Arrival intact.
+Independent probing, full finite/nonzero audio decoding, WAV metadata and chapter timing passed.
+These observations supersede the earlier helper/package for distribution; they do not add an audible
+quality assessment or an installed Store observation. The rebuilt six-file ZIP passed its validator
+and independent Python ZIP reading. Its SHA-256 is
+`54fd275a685a77749e8a0e3e0d389d2fdb38a8e125b5289e995281feeb3a0aac`.

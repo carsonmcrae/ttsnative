@@ -87,6 +87,11 @@ Each version's [release notes](docs/releases/) say exactly what it has.
   pause, resume and survive a restart, and can be sent to your Audiobookshelf server.
 - **Private by design** — binds to `127.0.0.1`, works offline after setup, and never sends documents or
   recordings anywhere.
+- **Local agent skill** — let an assistant on this computer open a document, request narration with
+  sentence highlighting, or export an audiobook through the existing app. The free, portable
+  [TTSNative reader skill](integrations/agent-skills/ttsnative-reader/) needs a local execution
+  environment and Node.js; browser autoplay may require a Play click. See the
+  [agent guide](docs/guides/agent-skill.md) for setup and supported builds.
 - **Phones and tablets (optional)** — pair a phone on the same Wi-Fi to read and listen from it; the computer
   does the reading, and voices are created on the computer
   ([what works where](docs/wiki/What-Works-Where.md)).

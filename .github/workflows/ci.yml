@@ -93,6 +93,10 @@ jobs:
           node-version-file: .nvmrc
       - name: Bootstrap (verified uv download, Python 3.12, locked deps)
         run: node scripts/setup.mjs
+      - name: Build the agent skill and independently verify its ZIP
+        run: |
+          npm run agent:package
+          node scripts/uv-run.mjs --cwd apps/server run --frozen python -m zipfile -t ../../.tools/agent/ttsnative-reader.zip
       - run: npm run lint:server
       - run: node scripts/uv-run.mjs --cwd apps/server run --frozen mypy
       - name: Python dependency declarations (deptry)

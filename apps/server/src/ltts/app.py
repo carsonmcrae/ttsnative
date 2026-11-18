@@ -22,6 +22,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from ltts import __version__
+from ltts.agent.state import AgentState
 from ltts.config import Settings
 from ltts.container import Services, build_services
 from ltts.errors import NotFoundError, install_error_handlers
@@ -74,6 +75,7 @@ def create_app(
 ) -> FastAPI:
     settings = settings or Settings()
     services = services or build_services(settings)
+    agent = AgentState(settings)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -81,7 +83,11 @@ def create_app(
         _housekeeping(services)
         if settings.warm_up_engines:
             threading.Thread(target=_warm_up, args=(services,), name="warm-up", daemon=True).start()
-        yield
+        agent.start()
+        try:
+            yield
+        finally:
+            agent.close()
         await services.lan.disable()  # stop listening on the network before anything else goes
         for engine in services.engines.all():
             engine.close()
@@ -98,8 +104,11 @@ def create_app(
         openapi_url="/api/openapi.json" if settings.env != "production" else None,
     )
     app.state.services = services
+    app.state.agent = agent
     install_error_handlers(app)
 
+    from ltts.agent.router import reader_router as agent_reader_router
+    from ltts.agent.router import router as agent_router
     from ltts.documents.details_router import router as details_router
     from ltts.documents.router import router as documents_router
     from ltts.documents.shelf_router import router as shelf_router
@@ -123,7 +132,8 @@ def create_app(
     for router in (system_router, documents_router, audio_router, engines_router, voices_router,
                    voice_sessions_router, exports_router, preferences_router, pronunciation_router,
                    styling_router, details_router, shelf_router, catalog_router, presets_router, integrations_router,
-                   speech_api_settings_router, speech_api_router, lan_router, sfx_router):  # fmt: skip
+                   speech_api_settings_router, speech_api_router, lan_router, sfx_router,
+                   agent_router, agent_reader_router):  # fmt: skip
         app.include_router(router)
     if static_dir is not None:
         _mount_static(app, static_dir)

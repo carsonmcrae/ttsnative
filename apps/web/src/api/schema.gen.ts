@@ -4,6 +4,227 @@
  * Does NOT belong: Hand-written helpers — regenerate with `npm run api:types`.
  */
 export type paths = {
+  '/api/agent-reader/ack': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Acknowledge */
+    post: operations['acknowledge_api_agent_reader_ack_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent-reader/claim': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Claim */
+    post: operations['claim_api_agent_reader_claim_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/documents/upload': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload */
+    post: operations['upload_api_agent_v1_documents_upload_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/exports': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Start Export */
+    post: operations['start_export_api_agent_v1_exports_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/exports/{job_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Export */
+    get: operations['get_export_api_agent_v1_exports__job_id__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/exports/{job_id}/cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Cancel Export */
+    post: operations['cancel_export_api_agent_v1_exports__job_id__cancel_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/exports/{job_id}/download': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Download Export */
+    get: operations['download_export_api_agent_v1_exports__job_id__download_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/exports/{job_id}/pause': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Pause Export */
+    post: operations['pause_export_api_agent_v1_exports__job_id__pause_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/exports/{job_id}/resume': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Resume Export */
+    post: operations['resume_export_api_agent_v1_exports__job_id__resume_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/read-requests': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Read Request */
+    post: operations['read_request_api_agent_v1_read_requests_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/read-requests/{request_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read Progress */
+    get: operations['read_progress_api_agent_v1_read_requests__request_id__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Status */
+    get: operations['status_api_agent_v1_status_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/agent/v1/voices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Voices */
+    get: operations['list_voices_api_agent_v1_voices_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/audio/{key}': {
     parameters: {
       query?: never;
@@ -2079,6 +2300,58 @@ export type components = {
       /** Url */
       url?: string | null;
     };
+    /** Acknowledge */
+    Acknowledge: {
+      /** Acktoken */
+      ackToken: string;
+      /** Errorcode */
+      errorCode?: string | null;
+      /** Requestid */
+      requestId: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'opened' | 'playing' | 'user_action_required' | 'failed';
+    };
+    /** AgentExportRequest */
+    AgentExportRequest: {
+      /**
+       * Captions
+       * @default false
+       */
+      captions: boolean;
+      /** Documentid */
+      documentId: string;
+      /** Firstsection */
+      firstSection?: number | null;
+      /**
+       * Format
+       * @default mp3
+       * @enum {string}
+       */
+      format: 'mp3' | 'wav' | 'm4b';
+      /** Lastsection */
+      lastSection?: number | null;
+      /**
+       * Layout
+       * @default single
+       * @enum {string}
+       */
+      layout: 'single' | 'chapters';
+      /**
+       * Pace
+       * @default 1
+       */
+      pace: number;
+      /**
+       * Usecover
+       * @default true
+       */
+      useCover: boolean;
+      /** Voiceid */
+      voiceId: string;
+    };
     /** AnalysisIn */
     AnalysisIn: {
       /**
@@ -2241,6 +2514,11 @@ export type components = {
       sample: string | null;
       /** Voiceid */
       voiceId: string | null;
+    };
+    /** ClaimRequest */
+    ClaimRequest: {
+      /** Ticket */
+      ticket: string;
     };
     /**
      * Cleanup
@@ -3290,6 +3568,40 @@ export type components = {
       /** Syllablesheard */
       syllablesHeard?: number | null;
     };
+    /** ReadClaim */
+    ReadClaim: {
+      /** Acktoken */
+      ackToken: string;
+      /**
+       * Autoplay
+       * @default true
+       */
+      autoplay: boolean;
+      /** Documentid */
+      documentId: string;
+      /**
+       * Pace
+       * @default 1
+       */
+      pace: number;
+      /** Requestid */
+      requestId: string;
+      /** Voiceid */
+      voiceId: string;
+    };
+    /** ReadCreated */
+    ReadCreated: {
+      /** Requestid */
+      requestId: string;
+      /**
+       * Status
+       * @default pending
+       * @constant
+       */
+      status: 'pending';
+      /** Ticket */
+      ticket: string;
+    };
     /** ReadingPresetOut */
     ReadingPresetOut: {
       /** Appliedat */
@@ -3333,6 +3645,33 @@ export type components = {
       updatedAt: string;
       /** Voiceid */
       voiceId: string | null;
+    };
+    /** ReadProgress */
+    ReadProgress: {
+      /** Errorcode */
+      errorCode?: string | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'pending' | 'opened' | 'playing' | 'user_action_required' | 'failed';
+    };
+    /** ReadRequest */
+    ReadRequest: {
+      /**
+       * Autoplay
+       * @default true
+       */
+      autoplay: boolean;
+      /** Documentid */
+      documentId: string;
+      /**
+       * Pace
+       * @default 1
+       */
+      pace: number;
+      /** Voiceid */
+      voiceId: string;
     };
     /**
      * RecordingCheck
@@ -4206,6 +4545,397 @@ export type components = {
 };
 export type $defs = Record<string, never>;
 export interface operations {
+  acknowledge_api_agent_reader_ack_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['Acknowledge'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReadProgress'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  claim_api_agent_reader_claim_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ClaimRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReadClaim'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  upload_api_agent_v1_documents_upload_post: {
+    parameters: {
+      query: {
+        filename: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentDetail'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  start_export_api_agent_v1_exports_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AgentExportRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['JobOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  get_export_api_agent_v1_exports__job_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExportOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  cancel_export_api_agent_v1_exports__job_id__cancel_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['JobOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  download_export_api_agent_v1_exports__job_id__download_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  pause_export_api_agent_v1_exports__job_id__pause_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['JobOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  resume_export_api_agent_v1_exports__job_id__resume_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['JobOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  read_request_api_agent_v1_read_requests_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReadRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReadCreated'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  read_progress_api_agent_v1_read_requests__request_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        request_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReadProgress'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  status_api_agent_v1_status_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  list_voices_api_agent_v1_voices_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['VoiceInfo'][];
+        };
+      };
+    };
+  };
   cached_audio_api_audio__key__get: {
     parameters: {
       query?: never;

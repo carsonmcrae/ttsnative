@@ -62,7 +62,13 @@ async function main() {
       '--reload',
     ],
     cwd: repoRoot,
-    env: { ...uvEnv(), LTTS_ENV: 'development', LTTS_UV_BIN: uv },
+    env: {
+      ...uvEnv(),
+      LTTS_ENV: 'development',
+      LTTS_UV_BIN: uv,
+      LTTS_AGENT_UI_URL: `http://${HOST}:${webPort}`,
+      LTTS_AGENT_SOURCE_ROOT: repoRoot,
+    },
   });
   managed.push(api);
   let shuttingDown = false;

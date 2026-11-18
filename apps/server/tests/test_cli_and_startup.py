@@ -35,7 +35,7 @@ from ltts.logging_setup import KeyValueFormatter, configure_logging
 from ltts.modelstore.store import ModelStore
 
 TOKEN = "t" * 32
-EXPORTED = ("LTTS_HOST", "LTTS_ALLOW_NETWORK", "LTTS_ACCESS_TOKEN", "LTTS_STATIC_DIR")
+EXPORTED = ("LTTS_HOST", "LTTS_ALLOW_NETWORK", "LTTS_ACCESS_TOKEN", "LTTS_STATIC_DIR", "LTTS_AGENT_PORT")
 
 
 @pytest.fixture
