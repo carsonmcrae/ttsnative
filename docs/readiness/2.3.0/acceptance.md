@@ -310,3 +310,25 @@ neither that job nor the NSIS smoke test establishes installed Microsoft Store a
 observations also do not establish a disconnected network test of this new integration. The required
 integration item remains open for the Windows 11 Store check and exact-head release checks after
 the pending change file is folded into the release with `release:amend`.
+
+### Output compatibility follow-up
+
+Final client review found that hard-link publication rejected otherwise writable
+[FAT32/exFAT destinations](https://learn.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison).
+The helper now copies the verified download with `COPYFILE_EXCL`; an existing output,
+including one created after preflight, stays protected. The final pathname can be visible while
+copying, and completion is reported only after that copy finishes. Three focused regressions cover
+unavailable hard links, a late-created destination, and temporary-download cleanup on copy failure.
+All 57 focused client/launch/package tests passed. The complete `npm run check` passed again with
+152 script tests, 697 web tests and 1,501 server tests. No physical FAT/exFAT drive was tested.
+
+The revised standalone helper, SHA-256
+`98cd52f9066018f1c06fe13b2b7b5f4eb0e7e8e87ca03ec3b540fd6994b9a409`, was copied into a fresh unrelated
+temporary directory and exercised again against an isolated source instance. PDF-to-WAV produced
+776,916 bytes (16.184 seconds); DOCX-to-MP3 with available British George produced 51,008 bytes
+(11.051 seconds); EPUB-to-M4B produced 63,477 bytes (10.459 seconds) with Opening and Arrival intact.
+Independent probing, full finite/nonzero audio decoding, WAV metadata and chapter timing passed.
+These observations supersede the earlier helper/package for distribution; they do not add an audible
+quality assessment or an installed Store observation. The rebuilt six-file ZIP passed its validator
+and independent Python ZIP reading. Its SHA-256 is
+`54fd275a685a77749e8a0e3e0d389d2fdb38a8e125b5289e995281feeb3a0aac`.

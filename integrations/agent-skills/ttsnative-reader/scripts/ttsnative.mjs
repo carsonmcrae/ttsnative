@@ -330,10 +330,7 @@ export async function download(d, id, target, overwrite, format) {
     await handle.close();
     handle = undefined;
     if (overwrite) await fs.rename(temp, target);
-    else {
-      await fs.link(temp, target);
-      await fs.unlink(temp);
-    }
+    else await fs.copyFile(temp, target, fs.constants.COPYFILE_EXCL);
     return size;
   } finally {
     await handle?.close();

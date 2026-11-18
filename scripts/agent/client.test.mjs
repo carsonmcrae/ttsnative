@@ -9,6 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs/promises';
+import { promises as operations, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
@@ -235,6 +236,62 @@ test('bad audio preserves an existing output and cleans partial files', async (t
     'invalid_audio',
   );
   assert.equal(await fs.readFile(out, 'utf8'), 'original');
+  assert(!(await fs.readdir(f.root)).some((n) => n.includes('.part-')));
+});
+
+test('a writable destination without hard-link support receives the actual audio bytes', async (t) => {
+  const f = await fixture(t),
+    output = path.join(f.root, 'portable.mp3'),
+    expected = Buffer.alloc(64);
+  expected.write('ID3');
+  const unavailable = t.mock.method(operations, 'link', async () => {
+    throw Object.assign(new Error('hard links are unsupported'), { code: 'ENOTSUP' });
+  });
+  const result = await f.run(['export', await f.file('txt'), '--output', output]);
+  assert.equal(result.code, 'export_completed');
+  assert.deepEqual(await fs.readFile(output), expected);
+  assert.equal(unavailable.mock.callCount(), 0);
+  assert(!(await fs.readdir(f.root)).some((n) => n.includes('.part-')));
+});
+
+test('exclusive copying preserves a destination created after output preflight', async (t) => {
+  const f = await fixture(t),
+    output = path.join(f.root, 'raced.mp3');
+  await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+  let created = false;
+  const result = await f.run(['export', await f.file('txt'), '--output', output], {
+    progress: () => {
+      writeFileSync(output, 'created by another process', { flag: 'wx' });
+      created = true;
+    },
+  });
+  assert(created);
+  assert.equal(result.status, 'error');
+  assert.equal(await fs.readFile(output, 'utf8'), 'created by another process');
+  assert(f.requests.some((request) => request.path.endsWith('/download')));
+  assert(!(await fs.readdir(f.root)).some((n) => n.includes('.part-')));
+});
+
+test('copy failure cleans the verified temporary download without reporting success or raw errors', async (t) => {
+  const f = await fixture(t),
+    output = path.join(f.root, 'failed.mp3');
+  const failure = t.mock.method(
+    operations,
+    'copyFile',
+    /** @type {typeof operations.copyFile} */ (
+      async (source, target, mode) => {
+        assert.equal((await fs.readFile(source)).subarray(0, 3).toString(), 'ID3');
+        assert.equal(target, output);
+        assert.equal(mode, operations.constants.COPYFILE_EXCL);
+        throw Object.assign(new Error(PRIVATE), { code: 'ENOSPC' });
+      }
+    ),
+  );
+  const result = await f.run(['export', await f.file('txt'), '--output', output]);
+  assert.equal(failure.mock.callCount(), 1);
+  assert.equal(result.code, 'operation_failed');
+  assert(!JSON.stringify(result).includes(PRIVATE));
+  await assert.rejects(fs.stat(output), { code: 'ENOENT' });
   assert(!(await fs.readdir(f.root)).some((n) => n.includes('.part-')));
 });
 for (const state of ['paused', 'interrupted', 'failed', 'canceled', 'running'])
