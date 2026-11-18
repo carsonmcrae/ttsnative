@@ -1,6 +1,6 @@
 # Acceptance: 2.3.0
 
-The release candidate is built from this release branch. This file records actual observations;
+TTSNative 2.3.0 was published from `eaf4b05` on 2026-11-18. This file records actual observations;
 unticked items are outstanding, not assumed to pass. A matched voice is a pitch-matched mix of built-in
 voices, not a copy of the speaker. Quick/imported profiles keep their original recording and can use
 it as a cloned voice after the optional engine is installed. Guided studio builds still need the engine.
@@ -83,12 +83,27 @@ workflow must also pass on the exact commit proposed for release.
 
 ## After publishing
 
-- [ ] (required) **The real signed update.** The published 2.2.0 direct-download app offers 2.3.0,
+- [x] (required) **The real signed update.** The published 2.2.0 direct-download app offers 2.3.0,
       verifies its signature, installs after consent and reopens with the user's data kept.
-- [ ] (required) **The download.** The website serves the 2.3.0 installer; its hash matches the release
+      — verified: 2026-11-18, Windows 11 Home, standard `reader`, preserved upgrade VM. The actual
+      published updater offered 2.3.0, installed after authorized consent and reopened with What's
+      new; app and server report stable 2.3.0. Three documents, positions, bookmark note, imported
+      voice, pronunciation, appearance, playback speed and the ready MP3 export survived.
+- [x] (required) **The download.** The website serves the 2.3.0 installer; its hash matches the release
       manifest and it installs on the clean Windows machine.
-- [ ] **Website and release notes.** The footer, download and release pages name 2.3.0 and describe
+      — verified: 2026-11-18, the actual live website link delivered the official installer; its hash,
+      length, updater signature and GitHub attestation passed. Those unchanged bytes installed from
+      read-only media on a fresh clean-baseline Windows 11 clone without extra prerequisites. App
+      and server report stable 2.3.0; the empty Library and Voices ready appeared, and the bundled
+      sample narrated with advancing highlighting. No guest browser or audible assessment is claimed.
+- [x] **Website and release notes.** The footer, download and release pages name 2.3.0 and describe
       matched voices accurately.
+      — verified: 2026-11-18, live HTTPS responses after the successful release-triggered Pages run.
+      Footer, download, release history and 2.3.0 notes agree; the installer link resolves correctly
+      and the matched-voice description distinguishes a stand-in from optional cloning.
+
+All three observations occurred within one hour of publication. Exact hashes, machines, timing and
+limits are recorded in [the post-publication evidence](post-publication.md).
 
 ## Blockers
 
@@ -404,4 +419,5 @@ it is not a fresh Windows baseline installation or a repeat of the earlier clone
 
 Any subsequent exact-head package confirmation is recorded in [PR #110](https://github.com/carsonmcrae/ttsnative/pull/110)
 with its own source and artifact hashes, so the evidence commit does not silently relabel an earlier
-package as a later test. The three after-publishing items above remain open.
+package as a later test. These pre-publication observations left the three after-publishing items
+open; their completed observations are recorded in [the post-publication evidence](post-publication.md).
