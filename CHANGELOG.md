@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows
 ### Added
 
 - When the voice-cloning engine can't be installed on a PC, Voice Studio can make a matched voice instead: a stand-in mixed from TTSNative's own voices at the pitch of your recording, ready straight away. It isn't a copy of the voice, and your recording is kept for when the engine can be installed.
+- Ask a local assistant to open a document, read it aloud with sentence highlighting, or save it as an audiobook using your installed voices.
 
 ### Changed
 
@@ -47,6 +48,8 @@ All notable changes to this project are documented here. The format follows
 - Record the unpatched development-only picomatch advisory, its build-tool exposure and its absence from the Store runtime, with upstream follow-up.
 - Copy the app's bundled Visual C++ runtime into immutable, content-addressed directories in the worker's user folder before loading it; verify existing copies and publish new sets atomically.
 - Record validated worker exception classes, numeric OS errors and bounded module/line frames while discarding raw stderr, exception messages and input filenames at every log level.
+- Add a portable MIT-licensed Agent Skill, standalone local command helpers, authenticated instance discovery and request-scoped reader tickets; reuse existing import, playback and resumable export pipelines.
+- Validate the free distribution with a deterministic text-only ZIP builder and an independent Python ZIP reader in CI; document setup, privacy, platform limits and marketplace copy.
 
 ## [2.2.0] - 2026-10-30
 

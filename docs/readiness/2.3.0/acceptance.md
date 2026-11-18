@@ -5,12 +5,24 @@ unticked items are outstanding, not assumed to pass. A matched voice is a pitch-
 voices, not a copy of the speaker. Quick/imported profiles keep their original recording and can use
 it as a cloned voice after the optional engine is installed. Guided studio builds still need the engine.
 
+Observations identify the source and package they actually exercised. Earlier clean-install and
+cloning results retain their original scope; they are not renamed as tests of the agent amendment.
+The amendment's installed Windows 11 observations are recorded separately below. Every required
+workflow must also pass on the exact commit proposed for release.
+
 ## Before release
 
-- [ ] (required) **Local agent integration.** Verify discovery, opening and narration in the existing
+- [x] (required) **Local agent integration.** Verify discovery, opening and narration in the existing
       reader, a real MP3 export, missing prerequisites, output protection and the standalone skill
-      package. Record installed Windows and source observations separately from mocks. Re-run
-      the exact-head release gate after the integration and its evidence are complete.
+      package. Record installed Windows and source observations separately from mocks.
+      — verified: 2026-11-18 UTC, amended source `7ca64f4`, test revision `2.3.0.8` on the preserved
+      Windows 11 Store VM, standard `reader`, with the virtual network cable disconnected. The exact
+      packaged skill cold-launched the installed app, discovered agent protocol 1, rejected missing
+      and bad credentials and browser-origin access, imported synthetic text and acknowledged real
+      playback. Highlights advanced and narration finished; a 54,872-byte MP3 was saved. Real missing
+      prerequisites and existing-output preservation passed. Package hashes and limits are below.
+      The exact-head workflow and release-gate checks remain separate requirements after this
+      evidence is committed; this item does not claim a future commit has passed.
 - [x] (required) **Clean Store install.** Preserve the current VirtualBox VM state, restore its clean
       Windows 11 baseline, trust a test signing certificate in the guest only, install the candidate
       MSIX and launch from Start. No Visual C++ redistributable or developer tools are installed.
@@ -56,19 +68,18 @@ it as a cloned voice after the optional engine is installed. Guided studio build
 - [x] **Release candidate checks.** CI, Desktop, CodeQL and Inference & E2E pass on the final candidate.
       The local full check, both 100% coverage gates, security audits and real-model tests are recorded
       in the pull request.
-      — verified: 2026-11-17, source `3f1fb3de86270f69947632b6471e3423f901223a`: all 21 reported checks
-      green, including [CI](https://github.com/carsonmcrae/ttsnative/actions/runs/44174221062/attempts/2)
-      (attempt 2 after a macOS runner-capacity retry),
-      [Desktop](https://github.com/carsonmcrae/ttsnative/actions/runs/44174221122),
-      [CodeQL](https://github.com/carsonmcrae/ttsnative/actions/runs/44174220986) and
-      [Inference & E2E](https://github.com/carsonmcrae/ttsnative/actions/runs/44174208391).
-      Local full check passed 95 script tests, 671 web tests and 1,457 server tests; web and server
-      each reached 100% line and branch coverage. Production npm and server audits reported no known
-      vulnerabilities; the CPU/CUDA worker audits retained their existing reviewed exceptions and
-      reported no unreviewed advisories. Real-model tests passed 15 with three optional-Chatterbox
-      skips in the source checkout; browser E2E passed 78 with one expected Windows WebKit Web Audio
-      skip. The following documentation-only evidence commit must also pass the exact-head workflow
-      gate; these results do not claim that a future commit has passed.
+      — verified: 2026-11-18 UTC, amended source `7ca64f4dfc6f1dec015126c66971506cb34ab34a`:
+      [CI](https://github.com/carsonmcrae/ttsnative/actions/runs/44231131807),
+      [Desktop](https://github.com/carsonmcrae/ttsnative/actions/runs/44231136648),
+      [CodeQL](https://github.com/carsonmcrae/ttsnative/actions/runs/44231131837) and
+      [Inference & E2E](https://github.com/carsonmcrae/ttsnative/actions/runs/44231140096) all passed.
+      Scripts passed 152 tests and web passed 697; web/server line and branch coverage were 100%.
+      Windows server CI passed 1,500 tests with one missing-ffmpeg skip; Linux/macOS each passed
+      1,499 with that skip plus the Windows-only loader test. Inference passed 15 with three optional
+      Chatterbox skips; browser E2E passed 81 with the existing WebKit music-join skip. Production
+      audits and the worker audits with their existing reviewed exception passed. The following
+      evidence commit must pass all four workflows and the gate itself; no future-head result is
+      claimed here. The earlier Voice Studio CI baseline is retained below with its original scope.
 
 ## After publishing
 
@@ -92,10 +103,14 @@ it as a cloned voice after the optional engine is installed. Guided studio build
       then exposed blocked Visual C++ DLL loads. The runtime-copy prototype passed CPU verification
       and its first cloned narration; final CI revision `.6` passed fresh cloning before and after
       restart, and `.7` passed the package-folder update with fresh cloned speech.
-      — verified: 2026-11-17, all six before-release checks have recorded evidence: the first three
+      — verified: 2026-11-17, the earlier six before-release checks have recorded evidence: the first three
       use physical `.1` observations supported by the final payload comparison; cloning, restart,
       update and candidate workflows use source `3f1fb3d`. The release gate will separately enforce
       exact-head workflow results after this evidence is committed.
+      — verified: 2026-11-18 UTC, the added local-agent item passed on the actual amended Store
+      candidate `7ca64f4` in Windows 11, and all four required workflows passed on that source.
+      All seven before-release items now have their explicitly scoped observations; exact-head
+      automation is required again after recording them. No post-publication item is marked early.
 - [x] Complete the required after-publishing evidence for 2.2.0 in its acceptance record.
       The release gate checks that record before permitting the next version.
       — verified: 2026-11-17, the published 2.1.0 app's signed updater installed 2.2.0 after consent,
@@ -222,7 +237,17 @@ added. This pass used the temporary `2.3.0.5` functional prototype, not the fina
   SSD copy and final CI package follow; these prototype observations do not establish restart or
   update behavior themselves.
 
-## Final CI candidate observations
+## Earlier Voice Studio CI candidate observations
+
+Before the agent amendment, source `3f1fb3de86270f69947632b6471e3423f901223a` had all 21 reported
+checks green: [CI](https://github.com/carsonmcrae/ttsnative/actions/runs/44174221062/attempts/2)
+(macOS runner-capacity retry), [Desktop](https://github.com/carsonmcrae/ttsnative/actions/runs/44174221122),
+[CodeQL](https://github.com/carsonmcrae/ttsnative/actions/runs/44174220986) and
+[Inference & E2E](https://github.com/carsonmcrae/ttsnative/actions/runs/44174208391).
+Its local check passed 95 script, 671 web and 1,457 server tests with 100% application line/branch
+coverage. Production audits passed; worker audits retained their reviewed exceptions. Inference
+passed 15 with three optional-engine skips; browser E2E passed 78 with one existing WebKit skip.
+This is historical component evidence, not a test of a subsequent agent package.
 
 Desktop run `44174221122` built source `3f1fb3de86270f69947632b6471e3423f901223a` through synthetic merge
 `41e15797a6aacfa76121f6e5130b9b0d01dd18e2`. Its immutable unsigned CI MSIX SHA-256 is
@@ -332,3 +357,51 @@ These observations supersede the earlier helper/package for distribution; they d
 quality assessment or an installed Store observation. The rebuilt six-file ZIP passed its validator
 and independent Python ZIP reading. Its SHA-256 is
 `54fd275a685a77749e8a0e3e0d389d2fdb38a8e125b5289e995281feeb3a0aac`.
+
+## Agent amendment: installed Windows 11 Store verification
+
+2026-11-18 UTC, `TTSNative-Win11-Store-SSD`, Windows 11 Home, standard `reader`, four CPUs and 8 GB
+RAM, with the virtual network cable disconnected. Snapshot `a7d66974-e13b-4bb1-b589-c6974e242995`
+preserves the prior successful Store/voice state. This pass updated the existing `.7` installation;
+it is not a fresh Windows baseline installation or a repeat of the earlier cloned-voice tests.
+
+- [Desktop run 44231136648](https://github.com/carsonmcrae/ttsnative/actions/runs/44231136648)
+  built amended source `7ca64f4dfc6f1dec015126c66971506cb34ab34a`. The immutable unsigned MSIX is
+  `2.3.0.0`, exact Store name/publisher, SHA-256
+  `d97c014552a320461f70040d5ea1e2076f2412d2dd7e52f6f5c2599fe3ec4c19`.
+- The guest used test-signed revision `2.3.0.8`, SHA-256
+  `01431386494b98313d52ac92dc561209ae8cb1c9353dacc1f88545d1ed71865d`.
+  SDK unpack/repack and signature verification confirmed all **6,890 application entries** have
+  identical bytes and raw/decoded paths; only the identity test revision and generated package/signature
+  metadata differ. The existing guest-trusted test certificate was reused; host trust was not changed
+  and no private key was copied to the media. This test copy is never a Store submission artifact.
+- The maintainer manually started the reviewed temporary runner once. Codex-directed commands then
+  executed locally in the guest with portable, already-available Node 24.19.0, using an unchanged
+  extraction of the exact six-file skill ZIP `54fd275a…b3a0aac` and helper `98cd52f9…9a409` identified
+  in full above. No developer tools, dependencies, trust settings or networking were installed/changed.
+- The real packaged launcher started the app. Authenticated discovery returned `desktop`, protocol
+  **1**, and version `2.3.0-dev.20+codex-release-2-3-0-agent-amend.7ca64f4dfc`. Missing/bad bearer
+  requests returned **401**; a request with browser Origin returned **403**. Bearer credentials stayed
+  out of reports, command lines and media. The one-use reader ticket passed through the app's strict
+  activation argument; neither tickets nor ticket URLs were recorded in reports or media.
+- The helper imported an eight-sentence synthetic TXT, selected bundled Heart at generation pace
+  0.8 and returned `playback_started`. Host-UTC screenshots at `03:52:30` and `03:53:13` showed the
+  third sentence highlighted at 0:13, then the final sentence at 0:47 with Pause present. A later
+  observation showed 0:52 elapsed, 0:00 remaining and Play restored. No separate 100% position label
+  or audible quality is claimed. The runner itself did not claim visual observation.
+- A separate new synthetic input exported as MP3: **54,872 bytes**, completed job, MP3 signature and
+  reported/saved length matched. An existing synthetic output returned `output_exists` and retained
+  its original SHA-256. An actually unprepared source directory returned `source_setup_required`;
+  the guest's absent ffmpeg returned `ffmpeg_required` for M4B without creating an output. No mock,
+  dependency download, personal document, recording or destructive action was involved.
+- The preserved guest report says `passed`, from `03:50:39.174Z` through `03:53:01.533Z`. It was read
+  in Notepad through the VM UI; guest JSON/audio were not exported to the host. The host observation
+  record is a transcription plus separate visual observations, not a claimed copy of that report.
+- Two independent ZIP builds produced identical **37,836-byte** files with the full SHA-256 above;
+  the package validator and Python ZIP reader passed. Current Agensi packaging and creator FAQ
+  permit this free MIT skill and its standalone text scripts. Publication still requires a compatible
+  release to be available and a submission-time listing-name check; no listing was published.
+
+Any subsequent exact-head package confirmation is recorded in [PR #110](https://github.com/carsonmcrae/ttsnative/pull/110)
+with its own source and artifact hashes, so the evidence commit does not silently relabel an earlier
+package as a later test. The three after-publishing items above remain open.
